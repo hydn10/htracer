@@ -8,20 +8,37 @@
             "type": "shell",
             "command": "cmake ${workspaceFolder} -G 'NMake Makefiles' -DCMAKE_BUILD_TYPE=Debug",
             "options": {
-                "cwd": "${workspaceFolder}/build"
+                "cwd": "${workspaceFolder}/build-debug"
             },
             "problemMatcher": []
         },
         {
-            "label": "nmake",
+            "label": "make debug",
             "type": "shell",
             "command": "nmake",
             "options": {
-                "cwd": "${workspaceFolder}/build"
+                "cwd": "${workspaceFolder}/build-debug"
             },
             "group": {
                 "kind": "build",
                 "isDefault": true
+            }
+        },
+        {
+            "label": "cmake release",
+            "type": "shell",
+            "command": "cmake ${workspaceFolder} -G 'NMake Makefiles' -DCMAKE_BUILD_TYPE=Release",
+            "options": {
+                "cwd": "${workspaceFolder}/build-release"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "make release",
+            "type": "shell",
+            "command": "nmake",
+            "options": {
+                "cwd": "${workspaceFolder}/build-release"
             }
         }
     ]
