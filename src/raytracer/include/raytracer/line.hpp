@@ -1,8 +1,7 @@
 #ifndef HDN_RAYTRACER_LINE_HPP
 #define HDN_RAYTRACER_LINE_HPP
 
-
-
+  
 #include "vector.hpp"
 
 

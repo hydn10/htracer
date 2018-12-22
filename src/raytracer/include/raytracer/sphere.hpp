@@ -2,9 +2,8 @@
 #define HDN_RAYTRACER_SPHERE_HPP
 
 
-
-#include "vector.hpp"
-#include "line.hpp"
+#include <raytracer/vector.hpp>
+#include <raytracer/line.hpp>
 
 #include <optional>
 
@@ -32,7 +31,7 @@ template <typename T>
 sphere<T>::sphere(v3<T> center, T radius)
   :
     center_{center},
-    radius_{radius_},
+    radius_{radius_}
 {
 
 }

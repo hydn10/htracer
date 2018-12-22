@@ -1,6 +1,6 @@
-#include "vector.hpp"
-#include "line.hpp"
-#include "sphere.hpp"
+#include <raytracer/vector.hpp>
+#include <raytracer/line.hpp>
+#include <raytracer/sphere.hpp>
 
 #include <iostream>
 
@@ -17,9 +17,9 @@ main()
   v3 vec2({0, 0, 5});
 
   line sight{vec2, vec1.normalized()};
-  sphere ball{vec2, 2};
 
   auto prod = cross(vec1, vec2).normalized();
+  auto normal = vec1.normalized();
 
   std::cout << prod << '\n';
 }
