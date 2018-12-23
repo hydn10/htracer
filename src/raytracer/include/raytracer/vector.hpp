@@ -60,7 +60,7 @@ public:
   operator*=(T scale);
 
   vector<T, N>
-  normalized();
+  normalized() const;
 
   friend vector<T, N> operator+<T, N>(vector<T, N> lhs, const vector<T, N> &rhs);
   friend vector<T, N> operator-<T, N>(vector<T, N> lhs, const vector<T, N> &rhs);
@@ -170,7 +170,7 @@ vector<T, N>::operator[](std::size_t index) const
 
 template <typename T, std::size_t N>
 vector<T, N>
-vector<T, N>::normalized()
+vector<T, N>::normalized() const
 {
   vector<T, N> result;
 
@@ -208,6 +208,15 @@ operator*(vector<T, N> lhs, TConv scale)
 {
   lhs *= scale;
   return lhs;
+}
+
+
+template <typename T, std::size_t N, typename TConv>
+vector<T, N>
+operator*(TConv scale, vector<T, N> rhs)
+{
+  rhs *= scale;
+  return rhs;
 }
 
 
