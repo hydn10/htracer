@@ -2,16 +2,18 @@
 #define HDN_RAYTRACER_COLOR_HPP
 
 
+#include <raytracer/vector.hpp>
+
+
 namespace hdn
 {
 
 template <typename T>
-struct color
-{
-  T r;
-  T g;
-  T b;
-};
+using color = hdn::v3<T>;
+//template <typename T>
+//struct color
+//{
+//};
 
 }
 

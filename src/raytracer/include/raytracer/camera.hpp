@@ -4,8 +4,8 @@
 
 #include <raytracer/vector.hpp>
 #include <raytracer/ray.hpp>
-#include <raytracer/sphere.hpp>
 #include <raytracer/sampler.hpp>
+#include <raytracer/scene.hpp>
 
 #include <ostream>
 #include <vector>
@@ -34,7 +34,7 @@ public:
   ~camera() = default;
 
   void
-  render(std::ostream &out, const std::vector<hdn::sphere<T>> &objects) const;
+  render(std::ostream &out, const hdn::scene<T> &scene) const;
 };
 
 
@@ -56,7 +56,7 @@ camera<T>::camera(v3<T> origin, const v3<T> &view, const v3<T> &up,
 
 template <typename T>
 void
-camera<T>::render(std::ostream &out, const std::vector<hdn::sphere<T>> &objects) const
+camera<T>::render(std::ostream &out, const hdn::scene<T> &scene) const
 {
   out << "P6\n" << h_res_ << " " << v_res_ << "\n255\n"; 
 
@@ -74,9 +74,9 @@ camera<T>::render(std::ostream &out, const std::vector<hdn::sphere<T>> &objects)
       auto dir = view_ + dv*up_ + dh*right_;
       dir = dir.normalized();
 
-      auto pixel = sample({origin_, dir}, objects);
+      auto pixel = sample({origin_, dir}, scene);
 
-      out << (unsigned char)pixel.r << (unsigned char)pixel.g << (unsigned char) pixel.b;
+      out << (unsigned char)std::round(pixel[0]) << (unsigned char)std::round(pixel[1]) << (unsigned char)std::round(pixel[2]);
     }
   }
 }
