@@ -9,3 +9,8 @@ target_link_libraries(
     ${target}
     raytracerlib
 )
+
+install(
+    TARGETS ${target}
+    DESTINATION bin
+)

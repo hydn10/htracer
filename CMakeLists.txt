@@ -1,13 +1,10 @@
-cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
-
-include(cmake/Custom.cmake)
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+cmake_minimum_required(VERSION 3.10)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-project(RAYTRACER C CXX)
+project(RAYTRACER LANGUAGES C CXX VERSION 0.1)
 
 add_subdirectory(src)
 add_subdirectory(apps)
