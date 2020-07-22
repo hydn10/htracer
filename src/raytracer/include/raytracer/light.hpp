@@ -2,7 +2,7 @@
 #define HDN_RAYTRACER_LIGHT_HPP
 
 
-#include <raytracer/light.hpp>
+#include <raytracer/vector.hpp>
 
 
 namespace hdn
@@ -16,6 +16,6 @@ struct light
   T intensity;
 };
 
-}
+} // namespace hdn
 
 #endif // HDN_RAYTRACER_LIGHT_HPP

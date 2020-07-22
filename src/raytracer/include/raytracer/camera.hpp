@@ -58,7 +58,7 @@ template <typename T>
 void
 camera<T>::render(std::ostream &out, const hdn::scene<T> &scene) const
 {
-  out << "P6\n" << h_res_ << " " << v_res_ << "\n255\n"; 
+  out << "P6\n" << h_res_ << " " << v_res_ << "\n255\n";
 
   auto h_tan = std::tan(fov_);
   auto v_tan = h_tan * v_res_ / h_res_;
@@ -76,11 +76,14 @@ camera<T>::render(std::ostream &out, const hdn::scene<T> &scene) const
 
       auto pixel = sample({origin_, dir}, scene);
 
-      out << (unsigned char)std::round(pixel[0]) << (unsigned char)std::round(pixel[1]) << (unsigned char)std::round(pixel[2]);
+      out
+        << (unsigned char)std::round(pixel[0])
+        << (unsigned char)std::round(pixel[1])
+        << (unsigned char)std::round(pixel[2]);
     }
   }
 }
 
-}
+} // namespace hdn
 
 #endif // HDN_RAYTRACER_CAMERA_HPP

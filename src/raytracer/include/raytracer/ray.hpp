@@ -1,7 +1,7 @@
 #ifndef HDN_RAYTRACER_RAY_HPP
 #define HDN_RAYTRACER_RAY_HPP
 
-  
+ 
 #include <raytracer/vector.hpp>
 
 
@@ -15,6 +15,6 @@ struct ray
   v3<T> direction;
 };
 
-}
+} // namespace hdn
 
 #endif // HDN_RAYTRACER_RAY_HPP

@@ -17,6 +17,6 @@ struct material
   T shininess;
 };
 
-}
+} // namespace hdn
 
 #endif // HDN_RAYTRACER_MATERIAL_HPP

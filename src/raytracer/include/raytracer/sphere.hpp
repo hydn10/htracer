@@ -20,7 +20,7 @@ class sphere
   T radius_;
 
 public:
-  hdn::material<T> material; 
+  hdn::material<T> material;
 
   sphere(v3<T> center, T radius, hdn::material<T> material);
   ~sphere() = default;
@@ -80,7 +80,7 @@ sphere<T>::intersect(const ray<T> &ray) const
 
   if (disc <= 0)
     return {};
-  
+
   return dot_voc - std::sqrt(disc);
 }
 
@@ -92,6 +92,6 @@ sphere<T>::normal(const v3<T> &point) const
   return (point - center_).normalized();
 }
 
-}
+} // namespace hdn
 
 #endif // HDN_RAYTRACER_SPHERE_HPP

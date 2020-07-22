@@ -18,6 +18,6 @@ struct scene
   std::vector<hdn::light<T>> lights;
 };
 
-}
+} // namespace hdn
 
 #endif // HDN_RAYTRACER_SCENE_HPP

@@ -240,7 +240,8 @@ cross(const vector<T, 3> &lhs, const vector<T, 3> &rhs)
   return vector<T, 3>({
       lhs[1]*rhs[2] - rhs[1]*lhs[2],
       lhs[2]*rhs[0] - rhs[2]*lhs[0],
-      lhs[0]*rhs[1] - rhs[0]*lhs[1]});
+      lhs[0]*rhs[1] - rhs[0]*lhs[1]
+    });
 }
 
 
