@@ -66,6 +66,6 @@ sample(hdn::ray<T> ray, const hdn::scene<T> &scene)
   return pixel_color;
 }
 
-} // namespace std
+} // namespace hdn
 
 #endif // HDN_RAYTRACER_SAMPLER_HPP
