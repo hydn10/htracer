@@ -60,12 +60,15 @@ public:
   normalized() const;
 
   friend vector<T, N> operator+<T, N>(
-        vector<T, N> lhs, const vector<T, N>& rhs);
+        vector<T, N> lhs,
+        const vector<T, N>& rhs);
   friend vector<T, N> operator-<T, N>(
-        vector<T, N> lhs, const vector<T, N>& rhs);
+        vector<T, N> lhs,
+        const vector<T, N>& rhs);
 
   friend std::ostream& operator<<<T, N>(
-        std::ostream& os, const vector<T, N>& rhs);
+        std::ostream& os,
+        const vector<T, N>& rhs);
 
   void
   swap(vector<T, N>& rhs) noexcept;

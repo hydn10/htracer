@@ -96,7 +96,8 @@ public:
     }
 
     std::variant<
-          std::reference_wrapper<int>, std::reference_wrapper<std::string>,
+          std::reference_wrapper<int>,
+          std::reference_wrapper<std::string>,
           std::reference_wrapper<char>>
     operator*()
     {

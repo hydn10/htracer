@@ -29,8 +29,12 @@ class camera
 
 public:
   camera(
-        v3<T> origin, const v3<T>& view, const v3<T>& up,
-        unsigned horizontal_resolution, unsigned vertical_resolution, T fov);
+        v3<T> origin,
+        const v3<T>& view,
+        const v3<T>& up,
+        unsigned horizontal_resolution,
+        unsigned vertical_resolution,
+        T fov);
   ~camera() = default;
 
   void
@@ -40,8 +44,12 @@ public:
 
 template<typename T>
 camera<T>::camera(
-      v3<T> origin, const v3<T>& view, const v3<T>& up,
-      unsigned horizontal_resolution, unsigned vertical_resolution, T fov)
+      v3<T> origin,
+      const v3<T>& view,
+      const v3<T>& up,
+      unsigned horizontal_resolution,
+      unsigned vertical_resolution,
+      T fov)
   : origin_{origin}
   , h_res_{horizontal_resolution}
   , v_res_{vertical_resolution}
