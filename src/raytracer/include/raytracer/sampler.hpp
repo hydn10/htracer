@@ -2,19 +2,18 @@
 #define HDN_RAYTRACER_SAMPLER_HPP
 
 
-#include <raytracer/vector.hpp>
-#include <raytracer/ray.hpp>
 #include <raytracer/color.hpp>
 #include <raytracer/intersector.hpp>
+#include <raytracer/ray.hpp>
 #include <raytracer/scene.hpp>
+#include <raytracer/vector.hpp>
 
 
 namespace hdn
 {
-
-template <typename T>
+template<typename T>
 hdn::v3<T>
-sample(hdn::ray<T> ray, const hdn::scene<T> &scene)
+sample(hdn::ray<T> ray, const hdn::scene<T>& scene)
 {
   hdn::color<T> s = {{0, 0, 0}};
 
@@ -22,7 +21,7 @@ sample(hdn::ray<T> ray, const hdn::scene<T> &scene)
 
   if (!intersection)
     return s;
-  
+
   auto obj = intersection->second;
   auto obj_dist = intersection->first;
 
@@ -47,11 +46,12 @@ sample(hdn::ray<T> ray, const hdn::scene<T> &scene)
     specular = std::pow(spec_angle, obj->material.shininess);
   }
 
-  auto pixel_color =
-      obj->material.ambient_color +
-      obj->material.diffuse_color * lambertian * light.intensity * light_dist2_inv + 
-      obj->material.specular_color * specular * light.intensity * light_dist2_inv;
-  
+  auto pixel_color = obj->material.ambient_color
+                     + obj->material.diffuse_color * lambertian
+                             * light.intensity * light_dist2_inv
+                     + obj->material.specular_color * specular * light.intensity
+                             * light_dist2_inv;
+
   if (pixel_color[0] > 255)
     pixel_color[0] = 255;
   if (pixel_color[1] > 255)
@@ -59,9 +59,9 @@ sample(hdn::ray<T> ray, const hdn::scene<T> &scene)
   if (pixel_color[2] > 255)
     pixel_color[2] = 255;
 
-  //pixel_color[0] = 255 * std::pow(pixel_color[0] / T{255}, 2.2);
-  //pixel_color[1] = 255 * std::pow(pixel_color[1] / T{255}, 1/2.2);
-  //pixel_color[2] = 255 * std::pow(pixel_color[2] / T{255}, 1/2.2);
+  // pixel_color[0] = 255 * std::pow(pixel_color[0] / T{255}, 2.2);
+  // pixel_color[1] = 255 * std::pow(pixel_color[1] / T{255}, 1/2.2);
+  // pixel_color[2] = 255 * std::pow(pixel_color[2] / T{255}, 1/2.2);
 
   return pixel_color;
 }

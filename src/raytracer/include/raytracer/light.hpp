@@ -7,8 +7,7 @@
 
 namespace hdn
 {
-
-template <typename T>
+template<typename T>
 struct light
 {
   v3<T> position;

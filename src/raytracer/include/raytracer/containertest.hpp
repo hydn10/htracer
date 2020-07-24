@@ -1,8 +1,8 @@
-#include <vector>
-#include <string>
-#include <variant>
 #include <functional>
 #include <iostream>
+#include <string>
+#include <variant>
+#include <vector>
 
 class container
 {
@@ -13,52 +13,49 @@ class container
 public:
   class iterator
   {
-    container &cont_;
+    container& cont_;
     std::vector<int>::iterator ints_iterator_;
     std::vector<std::string>::iterator strings_iterator_;
     std::vector<char>::iterator chars_iterator_;
 
-    iterator(container &container,
-      std::vector<int>::iterator ints_iterator)
-        :
-        cont_{container},
-        ints_iterator_{ints_iterator},
-        strings_iterator_{container.strings_.end()},
-        chars_iterator_{container.chars_.end()}
+    iterator(container& container, std::vector<int>::iterator ints_iterator)
+      : cont_{container}
+      , ints_iterator_{ints_iterator}
+      , strings_iterator_{container.strings_.end()}
+      , chars_iterator_{container.chars_.end()}
     {
     }
 
-    iterator(container &container,
-      std::vector<std::string>::iterator strings_iterator)
-        :
-        cont_{container},
-        ints_iterator_{container.ints_.end()},
-        strings_iterator_{strings_iterator},
-        chars_iterator_{container.chars_.end()}
+    iterator(
+          container& container,
+          std::vector<std::string>::iterator strings_iterator)
+      : cont_{container}
+      , ints_iterator_{container.ints_.end()}
+      , strings_iterator_{strings_iterator}
+      , chars_iterator_{container.chars_.end()}
     {
     }
 
-    iterator(container &container,
-             std::vector<char>::iterator chars_iterator)
-        : cont_{container},
-          ints_iterator_{container.ints_.end()},
-          strings_iterator_{container.strings_.end()},
-          chars_iterator_{chars_iterator}
+    iterator(container& container, std::vector<char>::iterator chars_iterator)
+      : cont_{container}
+      , ints_iterator_{container.ints_.end()}
+      , strings_iterator_{container.strings_.end()}
+      , chars_iterator_{chars_iterator}
     {
     }
 
   public:
     ~iterator() = default;
 
-    iterator(const iterator &rhs)
-        : cont_{rhs.cont_},
-          ints_iterator_{rhs.ints_iterator_},
-          strings_iterator_{rhs.strings_iterator_},
-          chars_iterator_{rhs.chars_iterator_}
+    iterator(const iterator& rhs)
+      : cont_{rhs.cont_}
+      , ints_iterator_{rhs.ints_iterator_}
+      , strings_iterator_{rhs.strings_iterator_}
+      , chars_iterator_{rhs.chars_iterator_}
     {
     }
 
-    iterator &
+    iterator&
     operator++()
     {
       if (ints_iterator_ != cont_.ints_.end())
@@ -98,7 +95,9 @@ public:
       return false;
     }
 
-    std::variant<std::reference_wrapper<int>, std::reference_wrapper<std::string>, std::reference_wrapper<char>>
+    std::variant<
+          std::reference_wrapper<int>, std::reference_wrapper<std::string>,
+          std::reference_wrapper<char>>
     operator*()
     {
       if (ints_iterator_ != cont_.ints_.end())
@@ -125,7 +124,7 @@ public:
     return iterator(*this, chars_.end());
   }
 
-  template <typename... Args>
+  template<typename... Args>
   void
   add(int first, Args... args)
   {
@@ -133,7 +132,7 @@ public:
     (ints_.push_back(args), ...);
   }
 
-  template <typename... Args>
+  template<typename... Args>
   void
   add(std::string first, Args... args)
   {
@@ -141,7 +140,7 @@ public:
     (strings_.push_back(args), ...);
   }
 
-  template <typename... Args>
+  template<typename... Args>
   void
   add(char first, Args... args)
   {
@@ -150,21 +149,21 @@ public:
   }
 
   void
-  print(std::ostream &out)
+  print(std::ostream& out)
   {
     out << "ints:|";
 
-    for (const auto &val : ints_)
+    for (const auto& val: ints_)
       out << val << '|';
 
     out << "\nstrings: |";
 
-    for (const auto &val : strings_)
+    for (const auto& val: strings_)
       out << val << '|';
 
     out << "\nchars: |";
 
-    for (const auto &val : chars_)
+    for (const auto& val: chars_)
       out << val << '|';
 
     out << "\n";

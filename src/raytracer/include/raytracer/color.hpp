@@ -7,8 +7,7 @@
 
 namespace hdn
 {
-
-template <typename T>
+template<typename T>
 using color = hdn::v3<T>;
 
 } // namespace hdn

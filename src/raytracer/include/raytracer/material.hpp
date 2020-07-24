@@ -7,8 +7,7 @@
 
 namespace hdn
 {
-
-template <typename T>
+template<typename T>
 struct material
 {
   v3<T> ambient_color;

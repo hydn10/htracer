@@ -2,18 +2,17 @@
 #define HDN_RAYTRACER_SPHERE_HPP
 
 
-#include <raytracer/vector.hpp>
-#include <raytracer/ray.hpp>
 #include <raytracer/color.hpp>
 #include <raytracer/material.hpp>
+#include <raytracer/ray.hpp>
+#include <raytracer/vector.hpp>
 
 #include <optional>
 
 
 namespace hdn
 {
-
-template <typename T>
+template<typename T>
 class sphere
 {
   v3<T> center_;
@@ -32,26 +31,21 @@ public:
   radius() const;
 
   std::optional<T>
-  intersect(const ray<T> &line) const;
+  intersect(const ray<T>& line) const;
 
   v3<T>
-  normal(const v3<T> &point) const;
+  normal(const v3<T>& point) const;
 };
 
 
-
-template <typename T>
+template<typename T>
 sphere<T>::sphere(v3<T> center, T radius, hdn::material<T> material)
-  :
-    center_{center},
-    radius_{radius},
-    material{material}
+  : center_{center}, radius_{radius}, material{material}
 {
-
 }
 
 
-template <typename T>
+template<typename T>
 const v3<T>&
 sphere<T>::center() const
 {
@@ -59,7 +53,7 @@ sphere<T>::center() const
 }
 
 
-template <typename T>
+template<typename T>
 T
 sphere<T>::radius() const
 {
@@ -67,16 +61,16 @@ sphere<T>::radius() const
 }
 
 
-template <typename T>
+template<typename T>
 std::optional<T>
-sphere<T>::intersect(const ray<T> &ray) const
+sphere<T>::intersect(const ray<T>& ray) const
 {
   auto oc = center_ - ray.origin;
 
   auto dot_voc = dot(ray.direction, oc);
   auto dot_ococ = dot(oc, oc);
 
-  auto disc = dot_voc*dot_voc - dot_ococ + radius_*radius_;
+  auto disc = dot_voc * dot_voc - dot_ococ + radius_ * radius_;
 
   if (disc <= 0)
     return {};
@@ -85,9 +79,9 @@ sphere<T>::intersect(const ray<T> &ray) const
 }
 
 
-template <typename T>
+template<typename T>
 v3<T>
-sphere<T>::normal(const v3<T> &point) const
+sphere<T>::normal(const v3<T>& point) const
 {
   return (point - center_).normalized();
 }

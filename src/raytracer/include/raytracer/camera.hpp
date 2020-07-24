@@ -2,20 +2,19 @@
 #define HDN_RAYTRACER_CAMERA_HPP
 
 
-#include <raytracer/vector.hpp>
 #include <raytracer/ray.hpp>
 #include <raytracer/sampler.hpp>
 #include <raytracer/scene.hpp>
+#include <raytracer/vector.hpp>
 
+#include <cmath>
 #include <ostream>
 #include <vector>
-#include <cmath>
 
 
 namespace hdn
 {
-
-template <typename T>
+template<typename T>
 class camera
 {
   v3<T> origin_;
@@ -29,24 +28,24 @@ class camera
   T fov_;
 
 public:
-  camera(v3<T> origin, const v3<T> &view, const v3<T> &up,
-      unsigned horizontal_resolution, unsigned vertical_resolution, T fov);
+  camera(
+        v3<T> origin, const v3<T>& view, const v3<T>& up,
+        unsigned horizontal_resolution, unsigned vertical_resolution, T fov);
   ~camera() = default;
 
   void
-  render(std::ostream &out, const hdn::scene<T> &scene) const;
+  render(std::ostream& out, const hdn::scene<T>& scene) const;
 };
 
 
-
-template <typename T>
-camera<T>::camera(v3<T> origin, const v3<T> &view, const v3<T> &up,
+template<typename T>
+camera<T>::camera(
+      v3<T> origin, const v3<T>& view, const v3<T>& up,
       unsigned horizontal_resolution, unsigned vertical_resolution, T fov)
-  :
-    origin_{origin},
-    h_res_{horizontal_resolution},
-    v_res_{vertical_resolution},
-    fov_{fov * std::atan(1) / 45}
+  : origin_{origin}
+  , h_res_{horizontal_resolution}
+  , v_res_{vertical_resolution}
+  , fov_{fov * std::atan(1) / 45}
 {
   view_ = view.normalized();
   right_ = cross(view, up).normalized();
@@ -54,9 +53,9 @@ camera<T>::camera(v3<T> origin, const v3<T> &view, const v3<T> &up,
 }
 
 
-template <typename T>
+template<typename T>
 void
-camera<T>::render(std::ostream &out, const hdn::scene<T> &scene) const
+camera<T>::render(std::ostream& out, const hdn::scene<T>& scene) const
 {
   out << "P6\n" << h_res_ << " " << v_res_ << "\n255\n";
 
@@ -71,15 +70,14 @@ camera<T>::render(std::ostream &out, const hdn::scene<T> &scene) const
     {
       auto dh = h_tan * ((T(2 * j) / (h_res_ - 1)) - 1);
 
-      auto dir = view_ + dv*up_ + dh*right_;
+      auto dir = view_ + dv * up_ + dh * right_;
       dir = dir.normalized();
 
       auto pixel = sample({origin_, dir}, scene);
 
-      out
-        << (unsigned char)std::round(pixel[0])
-        << (unsigned char)std::round(pixel[1])
-        << (unsigned char)std::round(pixel[2]);
+      out << (unsigned char)std::round(pixel[0])
+          << (unsigned char)std::round(pixel[1])
+          << (unsigned char)std::round(pixel[2]);
     }
   }
 }

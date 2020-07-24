@@ -1,20 +1,20 @@
 BasedOnStyle: Mozilla
-AlignAfterOpenBracket: DontAlign
+AlignAfterOpenBracket: AlwaysBreak
 AlignConsecutiveAssignments: false
-AlignConsecutiveBitfields: false
+# AlignConsecutiveBitFields: false
 AlignConsecutiveDeclarations: false
 AlignConsecutiveMacros: false
 AlignEscapedNewlines: DontAlign
 AlignTrailingComments: false
 AllowShortBlocksOnASingleLine: false
 AllowShortCaseLabelsOnASingleLine: true
-AllowShortEnumsOnASingleLine: false
+# AllowShortEnumsOnASingleLine: false
 AllowShortFunctionsOnASingleLine: None
 AllowShortIfStatementsOnASingleLine: Never
 AllowShortLambdasOnASingleLine: Inline
 AllowShortLoopsOnASingleLine: false
 AlwaysBreakAfterDefinitionReturnType: true
-AlwaysBreakAfterReturnType: true
+AlwaysBreakAfterReturnType: All
 AlwaysBreakBeforeMultilineStrings: true
 AlwaysBreakTemplateDeclarations: Yes
 BinPackArguments: false
@@ -22,25 +22,26 @@ BinPackParameters: false
 BreakAfterJavaFieldAnnotations: true
 BreakBeforeBinaryOperators: NonAssignment
 BreakBeforeBraces: Allman
-BreakBeforeTernaryOperators: true,
+BreakBeforeTernaryOperators: true
 BreakConstructorInitializers: BeforeComma
 BreakInheritanceList: BeforeComma
 BreakStringLiterals: true
 ColumnLimit: 80
 CompactNamespaces: false
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
-ConstructorInitializerIndentWidth: 4
-ContinuationIndentWidth: 4
-DeriveLineEnding: false
+ConstructorInitializerIndentWidth: 2
+ContinuationIndentWidth: 6
+Cpp11BracedListStyle: true
+# DeriveLineEnding: false
 DerivePointerAlignment: false
 FixNamespaceComments: true
 IncludeBlocks: Preserve
-IndentCaseBlocks: true
+# IndentCaseBlocks: true
 IndentCaseLabels: false
-IndentExternBlocks: NoIndent
+# IndentExternBlock: NoIndent
 IndentWidth: 2
 IndentWrappedFunctionNames: false
-InsertTrailingCommas: Wrapped
+# InsertTrailingCommas: Wrapped
 KeepEmptyLinesAtTheStartOfBlocks: false
 MaxEmptyLinesToKeep: 2
 PointerAlignment: Left
@@ -52,16 +53,16 @@ SpaceBeforeAssignmentOperators: true
 SpaceBeforeInheritanceColon: false
 SpaceBeforeParens: ControlStatements
 SpaceBeforeRangeBasedForLoopColon: false
-SpaceBeforeSquareBrackets: false
-SpaceInEmptyBlock: true
+# SpaceBeforeSquareBrackets: false
+# SpaceInEmptyBlock: true
 SpaceInEmptyParentheses: false
 SpacesBeforeTrailingComments: 1
 SpacesInAngles: false
 SpacesInCStyleCastParentheses: false
-SpacesInConditionalStatement: false
+# SpacesInConditionalStatement: false
 SpacesInContainerLiterals: false
 SpacesInParentheses: false
 SpacesInSquareBrackets: false
-Standard: Latest
-UseCRLF: false
+Standard: Cpp11
+# UseCRLF: false
 UseTab: Never
