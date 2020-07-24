@@ -11,11 +11,12 @@
 
 namespace hdn
 {
+
 template<typename T>
 hdn::v3<T>
 sample(hdn::ray<T> ray, const hdn::scene<T>& scene)
 {
-  hdn::color<T> s = {{0, 0, 0}};
+  hdn::color<T> s = v3<T>{{0, 0, 0}};
 
   auto intersection = intersect(ray, scene.objects, .02);
 
@@ -46,16 +47,21 @@ sample(hdn::ray<T> ray, const hdn::scene<T>& scene)
     specular = std::pow(spec_angle, obj->material.shininess);
   }
 
-  auto pixel_color = obj->material.ambient_color
-                     + obj->material.diffuse_color * lambertian
-                             * light.intensity * light_dist2_inv
-                     + obj->material.specular_color * specular * light.intensity
-                             * light_dist2_inv;
+  auto ambient_color = obj->material.ambient_color;
+  auto diffuse_color = obj->material.diffuse_color * lambertian
+                       * light.intensity * light_dist2_inv;
+  auto specular_color = obj->material.specular_color * specular
+                        * light.intensity * light_dist2_inv;
+
+  auto pixel_color = ambient_color + diffuse_color + specular_color;
+
 
   if (pixel_color[0] > 255)
     pixel_color[0] = 255;
+
   if (pixel_color[1] > 255)
     pixel_color[1] = 255;
+
   if (pixel_color[2] > 255)
     pixel_color[2] = 255;
 

@@ -45,16 +45,6 @@ public:
     }
 
   public:
-    ~iterator() = default;
-
-    iterator(const iterator& rhs)
-      : cont_{rhs.cont_}
-      , ints_iterator_{rhs.ints_iterator_}
-      , strings_iterator_{rhs.strings_iterator_}
-      , chars_iterator_{rhs.chars_iterator_}
-    {
-    }
-
     iterator&
     operator++()
     {
@@ -81,7 +71,7 @@ public:
     }
 
     bool
-    operator!=(iterator rhs) const
+    operator!=(const iterator& rhs) const
     {
       if (ints_iterator_ != rhs.ints_iterator_)
         return true;
@@ -135,7 +125,7 @@ public:
 
   template<typename... Args>
   void
-  add(std::string first, Args... args)
+  add(const std::string& first, Args... args)
   {
     strings_.push_back(first);
     (strings_.push_back(args), ...);

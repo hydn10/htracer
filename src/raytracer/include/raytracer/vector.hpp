@@ -36,7 +36,7 @@ class vector
 
 public:
   vector();
-  vector(std::array<T, N> values);
+  explicit vector(std::array<T, N> values);
   vector(vector const& v);
   ~vector() = default;
 
@@ -80,9 +80,7 @@ using v3 = vector<T, 3>;
 
 
 template<typename T, std::size_t N>
-vector<T, N>::vector()
-{
-}
+vector<T, N>::vector() = default;
 
 
 template<typename T, std::size_t N>

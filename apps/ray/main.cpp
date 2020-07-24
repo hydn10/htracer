@@ -68,8 +68,8 @@ main(int argc, const char* argv[])
   c.add("hola", "adeu");
   c.add('a', 'b', 'c');
 
-  for (auto it = c.begin(); it != c.end(); ++it)
+  for (auto it: c)
   {
-    std::visit([](auto&& arg) { std::cout << arg.get() << ' '; }, *it);
+    std::visit([](auto&& arg) { std::cout << arg.get() << ' '; }, it);
   }
 }

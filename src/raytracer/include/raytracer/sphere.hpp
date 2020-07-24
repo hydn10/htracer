@@ -8,6 +8,7 @@
 #include <raytracer/vector.hpp>
 
 #include <optional>
+#include <utility>
 
 
 namespace hdn
@@ -24,10 +25,10 @@ public:
   sphere(v3<T> center, T radius, hdn::material<T> material);
   ~sphere() = default;
 
-  const v3<T>&
+  [[nodiscard]] const v3<T>&
   center() const;
 
-  T
+  [[nodiscard]] T
   radius() const;
 
   std::optional<T>
@@ -40,7 +41,7 @@ public:
 
 template<typename T>
 sphere<T>::sphere(v3<T> center, T radius, hdn::material<T> material)
-  : center_{center}, radius_{radius}, material{material}
+  : center_{center}, radius_{radius}, material{std::move(material)}
 {
 }
 
