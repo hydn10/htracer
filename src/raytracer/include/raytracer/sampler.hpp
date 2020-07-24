@@ -11,12 +11,11 @@
 
 namespace hdn
 {
-
 template<typename T>
 hdn::v3<T>
 sample(hdn::ray<T> ray, const hdn::scene<T>& scene)
 {
-  hdn::color<T> s = v3<T>{{0, 0, 0}};
+  auto s = hdn::color<T>{{0, 0, 0}};
 
   auto intersection = intersect(ray, scene.objects, .02);
 

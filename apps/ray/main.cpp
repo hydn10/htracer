@@ -56,8 +56,7 @@ main(int argc, const char* argv[])
 
   hdn::scene<Float> scene{spheres, lights};
   sample(hdn::ray<Float>{camera_pos, camera_dir}, scene);
-  // hdn::camera<Float> cam{camera_pos, camera_dir, camera_up, 480, 272, 60};
-  hdn::camera<Float> cam{camera_pos, camera_dir, camera_up, 4096, 2160, 60};
+  hdn::camera<Float> cam{camera_pos, camera_dir, camera_up, 3840, 2160, 60};
 
   std::ofstream ofs(filename, std::ios::out | std::ios::binary);
   cam.render(ofs, scene);
