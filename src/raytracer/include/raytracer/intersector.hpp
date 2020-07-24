@@ -14,11 +14,11 @@ namespace hdn
 template<typename T>
 auto
 intersect(
-      hdn::ray<T> ray,
-      const std::vector<hdn::sphere<T>>& objects,
-      T min_dist)
-      -> std::optional<
-            std::pair<T, typename std::vector<hdn::sphere<T>>::const_iterator>>
+    hdn::ray<T> ray,
+    const std::vector<hdn::sphere<T>>& objects,
+    T min_dist)
+    -> std::optional<
+        std::pair<T, typename std::vector<hdn::sphere<T>>::const_iterator>>
 {
   std::optional<T> closest_dist = std::nullopt;
   typename std::vector<hdn::sphere<T>>::const_iterator closes_obj;

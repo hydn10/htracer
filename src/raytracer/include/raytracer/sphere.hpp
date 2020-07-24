@@ -41,7 +41,7 @@ public:
 
 template<typename T>
 sphere<T>::sphere(v3<T> center, T radius, hdn::material<T> material)
-  : center_{center}, radius_{radius}, material{std::move(material)}
+    : center_{center}, radius_{radius}, material{std::move(material)}
 {
 }
 

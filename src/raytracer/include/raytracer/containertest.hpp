@@ -19,28 +19,28 @@ public:
     std::vector<char>::iterator chars_iterator_;
 
     iterator(container& container, std::vector<int>::iterator ints_iterator)
-      : cont_{container}
-      , ints_iterator_{ints_iterator}
-      , strings_iterator_{container.strings_.end()}
-      , chars_iterator_{container.chars_.end()}
+        : cont_{container}
+        , ints_iterator_{ints_iterator}
+        , strings_iterator_{container.strings_.end()}
+        , chars_iterator_{container.chars_.end()}
     {
     }
 
     iterator(
-          container& container,
-          std::vector<std::string>::iterator strings_iterator)
-      : cont_{container}
-      , ints_iterator_{container.ints_.end()}
-      , strings_iterator_{strings_iterator}
-      , chars_iterator_{container.chars_.end()}
+        container& container,
+        std::vector<std::string>::iterator strings_iterator)
+        : cont_{container}
+        , ints_iterator_{container.ints_.end()}
+        , strings_iterator_{strings_iterator}
+        , chars_iterator_{container.chars_.end()}
     {
     }
 
     iterator(container& container, std::vector<char>::iterator chars_iterator)
-      : cont_{container}
-      , ints_iterator_{container.ints_.end()}
-      , strings_iterator_{container.strings_.end()}
-      , chars_iterator_{chars_iterator}
+        : cont_{container}
+        , ints_iterator_{container.ints_.end()}
+        , strings_iterator_{container.strings_.end()}
+        , chars_iterator_{chars_iterator}
     {
     }
 
@@ -86,9 +86,9 @@ public:
     }
 
     std::variant<
-          std::reference_wrapper<int>,
-          std::reference_wrapper<std::string>,
-          std::reference_wrapper<char>>
+        std::reference_wrapper<int>,
+        std::reference_wrapper<std::string>,
+        std::reference_wrapper<char>>
     operator*()
     {
       if (ints_iterator_ != cont_.ints_.end())
