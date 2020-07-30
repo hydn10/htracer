@@ -9,7 +9,7 @@ let
   };
 
 in
-  pkgs.mkShell {
+  pkgs.mkShell.override { stdenv = package.stdenv; } {
     inputsFrom = [ package ];
     nativeBuildInputs = [ clang-tools pkgs.gdb ];
   }
