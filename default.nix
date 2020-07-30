@@ -1,4 +1,4 @@
-{ lib, stdenv, cmake, clang-tools }:
+{ lib, stdenv, cmake }:
 
 
 stdenv.mkDerivation
@@ -6,5 +6,5 @@ stdenv.mkDerivation
   name = "htracer";
   src = lib.cleanSource ./.;
 
-  nativeBuildInputs = [ cmake clang-tools ];
+  nativeBuildInputs = [ cmake ];
 }
