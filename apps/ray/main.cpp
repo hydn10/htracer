@@ -1,5 +1,5 @@
 #include <raytracer/camera.hpp>
-#include <raytracer/containertest.hpp>
+#include <raytracer/utils/container.hpp>
 #include <raytracer/ray.hpp>
 #include <raytracer/sampler.hpp>
 #include <raytracer/scene.hpp>
@@ -61,11 +61,11 @@ main(int argc, const char* argv[])
   std::ofstream ofs(filename, std::ios::out | std::ios::binary);
   cam.render(ofs, scene);
 
-  container c;
+  htracer::utils::container<int, std::string, char> c;
 
-  c.add(3, 4, 5, 6);
-  c.add("hola", "adeu");
-  c.add('a', 'b', 'c');
+  c.push(3, 4, 5, 6);
+  c.push(std::string("hola"), std::string("adeu"));
+  c.push('a', 'b', 'c');
 
   for (auto it: c)
   {
