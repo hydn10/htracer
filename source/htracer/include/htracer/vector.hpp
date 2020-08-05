@@ -1,5 +1,5 @@
-#ifndef HDN_RAYTRACER_VECTOR_HPP
-#define HDN_RAYTRACER_VECTOR_HPP
+#ifndef HTRACER_VECTOR_HPP
+#define HTRACER_VECTOR_HPP
 
 
 #include <array>
@@ -7,7 +7,7 @@
 #include <ostream>
 
 
-namespace hdn
+namespace htracer
 {
 template<typename T, std::size_t N>
 class vector;
@@ -43,9 +43,11 @@ public:
   vector<T, N>&
   operator=(vector<T, N> rhs);
 
-  T& operator[](std::size_t index);
+  T&
+  operator[](std::size_t index);
 
-  T const& operator[](std::size_t index) const;
+  T const&
+  operator[](std::size_t index) const;
 
   vector<T, N>&
   operator+=(const vector<T, N>& rhs);
@@ -146,14 +148,16 @@ vector<T, N>::swap(vector<T, N>& rhs) noexcept
 
 
 template<typename T, std::size_t N>
-T& vector<T, N>::operator[](std::size_t index)
+T&
+vector<T, N>::operator[](std::size_t index)
 {
   return elems_[index];
 }
 
 
 template<typename T, std::size_t N>
-T const& vector<T, N>::operator[](std::size_t index) const
+T const&
+vector<T, N>::operator[](std::size_t index) const
 {
   return elems_[index];
 }
@@ -193,7 +197,8 @@ operator-(vector<T, N> lhs, const vector<T, N>& rhs)
 
 
 template<typename T, std::size_t N, typename TConv>
-vector<T, N> operator*(vector<T, N> lhs, TConv scale)
+vector<T, N>
+operator*(vector<T, N> lhs, TConv scale)
 {
   lhs *= scale;
   return lhs;
@@ -201,7 +206,8 @@ vector<T, N> operator*(vector<T, N> lhs, TConv scale)
 
 
 template<typename T, std::size_t N, typename TConv>
-vector<T, N> operator*(TConv scale, vector<T, N> rhs)
+vector<T, N>
+operator*(TConv scale, vector<T, N> rhs)
 {
   rhs *= scale;
   return rhs;
@@ -225,9 +231,10 @@ template<typename T>
 vector<T, 3>
 cross(const vector<T, 3>& lhs, const vector<T, 3>& rhs)
 {
-  return vector<T, 3>({lhs[1] * rhs[2] - rhs[1] * lhs[2],
-                       lhs[2] * rhs[0] - rhs[2] * lhs[0],
-                       lhs[0] * rhs[1] - rhs[0] * lhs[1]});
+  return vector<T, 3>(
+      {lhs[1] * rhs[2] - rhs[1] * lhs[2],
+       lhs[2] * rhs[0] - rhs[2] * lhs[0],
+       lhs[0] * rhs[1] - rhs[0] * lhs[1]});
 }
 
 
@@ -245,6 +252,6 @@ operator<<(std::ostream& os, const vector<T, N>& rhs)
   return os;
 }
 
-} // namespace hdn
+} // namespace htracer
 
-#endif // HDN_RAYTRACER_VECTOR_HPP
+#endif // HTRACER_VECTOR_HPP

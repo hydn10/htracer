@@ -1,17 +1,17 @@
-#ifndef HDN_RAYTRACER_SPHERE_HPP
-#define HDN_RAYTRACER_SPHERE_HPP
+#ifndef HTRACER_GEOMETRY_SPHERE_HPP
+#define HTRACER_GEOMETRY_SPHERE_HPP
 
 
-#include <raytracer/color.hpp>
-#include <raytracer/material.hpp>
-#include <raytracer/ray.hpp>
-#include <raytracer/vector.hpp>
+#include <htracer/color.hpp>
+#include <htracer/geometry/ray.hpp>
+#include <htracer/scene/material.hpp>
+#include <htracer/vector.hpp>
 
 #include <optional>
 #include <utility>
 
 
-namespace hdn
+namespace htracer::geometry
 {
 template<typename T>
 class sphere
@@ -20,9 +20,9 @@ class sphere
   T radius_;
 
 public:
-  hdn::material<T> material;
+  scene::material<T> material;
 
-  sphere(v3<T> center, T radius, hdn::material<T> material);
+  sphere(v3<T> center, T radius, scene::material<T> material);
   ~sphere() = default;
 
   [[nodiscard]] const v3<T>&
@@ -40,7 +40,7 @@ public:
 
 
 template<typename T>
-sphere<T>::sphere(v3<T> center, T radius, hdn::material<T> material)
+sphere<T>::sphere(v3<T> center, T radius, scene::material<T> material)
     : center_{center}, radius_{radius}, material{std::move(material)}
 {
 }
@@ -87,6 +87,6 @@ sphere<T>::normal(const v3<T>& point) const
   return (point - center_).normalized();
 }
 
-} // namespace hdn
+} // namespace htracer::geometry
 
-#endif // HDN_RAYTRACER_SPHERE_HPP
+#endif // HTRACER_GEOMETRY_SPHERE_HPP

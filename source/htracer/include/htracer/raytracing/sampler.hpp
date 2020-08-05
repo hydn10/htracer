@@ -1,21 +1,21 @@
-#ifndef HDN_RAYTRACER_SAMPLER_HPP
-#define HDN_RAYTRACER_SAMPLER_HPP
+#ifndef HTRACER_RAYTRACING_SAMPLER_HPP
+#define HTRACER_RAYTRACING_SAMPLER_HPP
 
 
-#include <raytracer/color.hpp>
-#include <raytracer/intersector.hpp>
-#include <raytracer/ray.hpp>
-#include <raytracer/scene.hpp>
-#include <raytracer/vector.hpp>
+#include <htracer/color.hpp>
+#include <htracer/geometry/ray.hpp>
+#include <htracer/raytracing/intersector.hpp>
+#include <htracer/scene/scene.hpp>
+#include <htracer/vector.hpp>
 
 
-namespace hdn
+namespace htracer::raytracing
 {
 template<typename T>
-hdn::v3<T>
-sample(hdn::ray<T> ray, const hdn::scene<T>& scene)
+v3<T>
+sample(geometry::ray<T> ray, const scene::scene<T>& scene)
 {
-  auto s = hdn::color<T>{{0, 0, 0}};
+  auto s = color<T>{{0, 0, 0}};
 
   auto intersection = intersect(ray, scene.objects, .02);
 
@@ -71,6 +71,6 @@ sample(hdn::ray<T> ray, const hdn::scene<T>& scene)
   return pixel_color;
 }
 
-} // namespace hdn
+} // namespace htracer::raytracing
 
-#endif // HDN_RAYTRACER_SAMPLER_HPP
+#endif // HTRACER_RAYTRACING_SAMPLER_HPP

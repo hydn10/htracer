@@ -7,7 +7,7 @@ add_executable(
 
 target_link_libraries(
     ${target}
-    raytracerlib
+    htracerlib
 )
 
 install(

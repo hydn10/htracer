@@ -1,10 +1,10 @@
-#include <raytracer/camera.hpp>
-#include <raytracer/utils/container.hpp>
-#include <raytracer/ray.hpp>
-#include <raytracer/sampler.hpp>
-#include <raytracer/scene.hpp>
-#include <raytracer/sphere.hpp>
-#include <raytracer/vector.hpp>
+#include <htracer/geometry/ray.hpp>
+#include <htracer/geometry/sphere.hpp>
+#include <htracer/raytracing/camera.hpp>
+#include <htracer/raytracing/sampler.hpp>
+#include <htracer/scene/scene.hpp>
+#include <htracer/utils/container.hpp>
+#include <htracer/vector.hpp>
 
 #include <fstream>
 #include <iostream>
@@ -21,25 +21,26 @@ main(int argc, const char* argv[])
 
   std::string filename = args.size() > 0 ? args[0] : "out.ppm";
 
-  std::vector<hdn::sphere<Float>> spheres;
-  std::vector<hdn::light<Float>> lights;
+  std::vector<htracer::geometry::sphere<Float>> spheres;
+  std::vector<htracer::scene::light<Float>> lights;
 
-  hdn::v3<Float> camera_pos{{0, 0, 0}};
-  hdn::v3<Float> camera_dir{{0, 0, -1}};
-  hdn::v3<Float> camera_up{{0, 1, 0}};
+  htracer::v3<Float> camera_pos{{0, 0, 0}};
+  htracer::v3<Float> camera_dir{{0, 0, -1}};
+  htracer::v3<Float> camera_up{{0, 1, 0}};
 
-  hdn::v3<Float> light_pos{{-5, 5, 0}};
-  hdn::v3<Float> light_color{{255, 255, 255}};
-  hdn::light<Float> light = {light_pos, light_color, 50};
+  htracer::v3<Float> light_pos{{-5, 5, 0}};
+  htracer::v3<Float> light_color{{255, 255, 255}};
+  htracer::scene::light<Float> light = {light_pos, light_color, 50};
 
   lights.push_back(light);
 
-  hdn::material<Float> sphere_material{hdn::v3<Float>{{26, 12, 0}},
-                                       hdn::v3<Float>{{128, 50, 0}},
-                                       hdn::v3<Float>{{255, 200, 150}},
-                                       90};
+  htracer::scene::material<Float> sphere_material{
+      htracer::v3<Float>{{26, 12, 0}},
+      htracer::v3<Float>{{128, 50, 0}},
+      htracer::v3<Float>{{255, 200, 150}},
+      90};
 
-  hdn::v3<Float> sphere_pos{{0, 0, -5}};
+  htracer::v3<Float> sphere_pos{{0, 0, -5}};
   spheres.emplace_back(sphere_pos, 1, sphere_material);
 
   sphere_pos[0] = 1.5;
@@ -54,9 +55,9 @@ main(int argc, const char* argv[])
   sphere_pos[1] = -2.5;
   spheres.emplace_back(sphere_pos, 1, sphere_material);
 
-  hdn::scene<Float> scene{spheres, lights};
-  sample(hdn::ray<Float>{camera_pos, camera_dir}, scene);
-  hdn::camera<Float> cam{camera_pos, camera_dir, camera_up, 3840, 2160, 60};
+  htracer::scene::scene<Float> scene{spheres, lights};
+  htracer::raytracing::camera<Float> cam{
+      camera_pos, camera_dir, camera_up, 3840, 2160, 60};
 
   std::ofstream ofs(filename, std::ios::out | std::ios::binary);
   cam.render(ofs, scene);

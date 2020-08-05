@@ -1,18 +1,17 @@
-#ifndef HDN_RAYTRACER_CAMERA_HPP
-#define HDN_RAYTRACER_CAMERA_HPP
+#ifndef HTRACER_RAYTRACING_CAMERA_HPP
+#define HTRACER_RAYTRACING_CAMERA_HPP
 
 
-#include <raytracer/ray.hpp>
-#include <raytracer/sampler.hpp>
-#include <raytracer/scene.hpp>
-#include <raytracer/vector.hpp>
+#include <htracer/raytracing/sampler.hpp>
+#include <htracer/scene/scene.hpp>
+#include <htracer/vector.hpp>
 
 #include <cmath>
 #include <ostream>
 #include <vector>
 
 
-namespace hdn
+namespace htracer::raytracing
 {
 template<typename T>
 class camera
@@ -38,7 +37,7 @@ public:
   ~camera() = default;
 
   void
-  render(std::ostream& out, const hdn::scene<T>& scene) const;
+  render(std::ostream& out, const scene::scene<T>& scene) const;
 };
 
 
@@ -63,7 +62,7 @@ camera<T>::camera(
 
 template<typename T>
 void
-camera<T>::render(std::ostream& out, const hdn::scene<T>& scene) const
+camera<T>::render(std::ostream& out, const scene::scene<T>& scene) const
 {
   out << "P6\n" << h_res_ << " " << v_res_ << "\n255\n";
 
@@ -90,6 +89,6 @@ camera<T>::render(std::ostream& out, const hdn::scene<T>& scene) const
   }
 }
 
-} // namespace hdn
+} // namespace htracer::raytracing
 
-#endif // HDN_RAYTRACER_CAMERA_HPP
+#endif // HTRACER_RAYTRACING_CAMERA_HPP
