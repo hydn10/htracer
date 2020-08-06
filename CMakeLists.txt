@@ -7,4 +7,3 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 project(HTRACER LANGUAGES C CXX VERSION 0.1)
 
 add_subdirectory(source)
-add_subdirectory(apps)
