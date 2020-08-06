@@ -26,28 +26,18 @@ main(int argc, const char* argv[])
   scene.add_light({light_pos, light_color, 50});
 
   htracer::scene::material<Float> sphere_material{
-      htracer::v3<Float>{{26, 12, 0}},
-      htracer::v3<Float>{{128, 50, 0}},
-      htracer::v3<Float>{{255, 200, 150}},
-      90};
+      {26., 12., 0.}, {128., 50., 0.}, {255., 200., 150.}, 200};
 
-  htracer::v3<Float> sphere_pos{{0, 0, -5}};
-  scene.add_object({{sphere_pos, 1}, sphere_material});
+  scene.add_object({{{0., 0., -5.}, 1}, sphere_material});
 
-  sphere_pos[0] = 1.5;
-  sphere_pos[1] = 2.5;
-  scene.add_object({{sphere_pos, 1}, sphere_material});
+  scene.add_object({{{3.5, 1.5, -5.}, 1.5}, sphere_material});
 
-  sphere_pos[0] = -1.5;
-  sphere_pos[1] = -2.5;
-  scene.add_object({{sphere_pos, 1}, sphere_material});
+  scene.add_object({{{-1.5, -2.5, -5.}, 1}, sphere_material});
 
-  sphere_pos[0] = -5;
-  sphere_pos[1] = -2.5;
-  scene.add_object({{sphere_pos, 1}, sphere_material});
+  scene.add_object({{{-5., -2.5, -5.}, 1}, sphere_material});
 
-  htracer::v3<Float> camera_pos{{0, 0, 0}};
-  htracer::v3<Float> camera_dir{{0, 0, -1}};
+  htracer::v3<Float> camera_pos{{0, 0, 0.}};
+  htracer::v3<Float> camera_dir{{0, 0, -1.}};
   htracer::v3<Float> camera_up{{0, 1, 0}};
 
   htracer::raytracing::camera<Float> cam{

@@ -35,8 +35,10 @@ class vector
   std::array<Float, N> elems_;
 
 public:
-  vector();
-  explicit vector(std::array<Float, N> values);
+  vector() = default;
+  constexpr explicit vector(std::array<Float, N> values);
+  template<typename... Args>
+  constexpr vector(Args... values);
 
   Float&
   operator[](std::size_t index);
@@ -78,11 +80,14 @@ using v3 = vector<Float, 3>;
 
 
 template<typename Float, std::size_t N>
-vector<Float, N>::vector() = default;
+constexpr vector<Float, N>::vector(std::array<Float, N> values) : elems_{values}
+{
+}
 
 
 template<typename Float, std::size_t N>
-vector<Float, N>::vector(std::array<Float, N> values) : elems_{values}
+template<typename... Args>
+constexpr vector<Float, N>::vector(Args... values) : elems_{values...}
 {
 }
 
@@ -212,10 +217,10 @@ template<typename Float>
 vector<Float, 3>
 cross(const vector<Float, 3>& lhs, const vector<Float, 3>& rhs)
 {
-  return vector<Float, 3>(
-      {lhs[1] * rhs[2] - rhs[1] * lhs[2],
-       lhs[2] * rhs[0] - rhs[2] * lhs[0],
-       lhs[0] * rhs[1] - rhs[0] * lhs[1]});
+  return {
+      lhs[1] * rhs[2] - rhs[1] * lhs[2],
+      lhs[2] * rhs[0] - rhs[2] * lhs[0],
+      lhs[0] * rhs[1] - rhs[0] * lhs[1]};
 }
 
 
