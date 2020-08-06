@@ -19,29 +19,49 @@ class scene
 
 public:
   void
-  add_object(object<Float, geometry::sphere>&& sphere)
-  {
-    objects_.push_back(sphere);
-  }
+  add_object(object<Float, geometry::sphere>&& sphere);
 
   void
-  add_light(light<Float>&& light)
-  {
-    lights_.push_back(light);
-  }
+  add_light(light<Float>&& light);
 
   auto const&
-  objects() const
-  {
-    return objects_;
-  }
-
+  objects() const;
   auto const&
-  lights() const
-  {
-    return lights_;
-  }
+  lights() const;
 };
+
+
+template<typename Float>
+void
+scene<Float>::add_object(object<Float, geometry::sphere>&& sphere)
+{
+  objects_.push_back(sphere);
+}
+
+
+template<typename Float>
+void
+scene<Float>::add_light(light<Float>&& light)
+{
+  lights_.push_back(light);
+}
+
+
+template<typename Float>
+auto const&
+scene<Float>::objects() const
+{
+  return objects_;
+}
+
+
+template<typename Float>
+auto const&
+scene<Float>::lights() const
+{
+  return lights_;
+}
+
 
 } // namespace htracer::scene
 
