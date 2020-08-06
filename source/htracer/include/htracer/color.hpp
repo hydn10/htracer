@@ -7,8 +7,8 @@
 
 namespace htracer
 {
-template<typename T>
-using color = v3<T>;
+template<typename Float>
+using color = v3<Float>;
 
 } // namespace htracer
 

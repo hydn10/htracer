@@ -7,11 +7,11 @@
 
 namespace htracer::geometry
 {
-template<typename T>
+template<typename Float>
 struct ray
 {
-  v3<T> origin;
-  v3<T> direction;
+  v3<Float> origin;
+  v3<Float> direction;
 };
 
 } // namespace htracer::geometry

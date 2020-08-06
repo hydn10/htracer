@@ -4,6 +4,7 @@
 
 #include <htracer/geometry/ray.hpp>
 #include <htracer/geometry/sphere.hpp>
+#include <htracer/scene/object.hpp>
 
 #include <utility>
 #include <vector>
@@ -11,21 +12,24 @@
 
 namespace htracer::raytracing
 {
-template<typename T>
+template<typename Float>
 auto
 intersect(
-    geometry::ray<T> ray,
-    const std::vector<geometry::sphere<T>>& objects,
-    T min_dist)
-    -> std::optional<
-        std::pair<T, typename std::vector<geometry::sphere<T>>::const_iterator>>
+    geometry::ray<Float> ray,
+    const std::vector<scene::object<Float, geometry::sphere>>& objects,
+    Float min_dist)
+    -> std::optional<std::pair<
+        Float,
+        typename std::vector<
+            scene::object<Float, geometry::sphere>>::const_iterator>>
 {
-  std::optional<T> closest_dist = std::nullopt;
-  typename std::vector<geometry::sphere<T>>::const_iterator closest_obj;
+  std::optional<Float> closest_dist = std::nullopt;
+  typename std::vector<scene::object<Float, geometry::sphere>>::const_iterator
+      closest_obj;
 
-  for (auto it = std::begin(objects); it != std::end(objects); ++it)
+  for (auto it = std::cbegin(objects); it != cend(objects); ++it)
   {
-    auto dist = it->intersect(ray);
+    auto dist = it->geometry.intersect(ray);
 
     if (dist && *dist > min_dist && (!closest_dist || *dist < *closest_dist))
     {
@@ -40,6 +44,6 @@ intersect(
   return std::make_pair(*closest_dist, closest_obj);
 }
 
-} // namespace htracer::raytracer
+} // namespace htracer::raytracing
 
 #endif // HTRACER_RAYTRACING_INTERSECTOR_HPP

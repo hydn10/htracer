@@ -7,12 +7,12 @@
 
 namespace htracer::scene
 {
-template<typename T>
+template<typename Float>
 struct light
 {
-  v3<T> position;
-  v3<T> color;
-  T intensity;
+  v3<Float> position;
+  v3<Float> color;
+  Float intensity;
 };
 
 } // namespace htracer::scene

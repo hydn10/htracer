@@ -2,9 +2,7 @@
 #define HTRACER_GEOMETRY_SPHERE_HPP
 
 
-#include <htracer/color.hpp>
 #include <htracer/geometry/ray.hpp>
-#include <htracer/scene/material.hpp>
 #include <htracer/vector.hpp>
 
 #include <optional>
@@ -13,58 +11,55 @@
 
 namespace htracer::geometry
 {
-template<typename T>
+template<typename Float>
 class sphere
 {
-  v3<T> center_;
-  T radius_;
+  v3<Float> center_;
+  Float radius_;
 
 public:
-  scene::material<T> material;
+  sphere(v3<Float> center, Float radius);
 
-  sphere(v3<T> center, T radius, scene::material<T> material);
-  ~sphere() = default;
-
-  [[nodiscard]] const v3<T>&
+  [[nodiscard]] const v3<Float>&
   center() const;
 
-  [[nodiscard]] T
+  [[nodiscard]] Float
   radius() const;
 
-  std::optional<T>
-  intersect(const ray<T>& line) const;
+  std::optional<Float>
+  intersect(const ray<Float>& ray) const;
 
-  v3<T>
-  normal(const v3<T>& point) const;
+  v3<Float>
+  normal(const v3<Float>& point) const;
 };
 
 
-template<typename T>
-sphere<T>::sphere(v3<T> center, T radius, scene::material<T> material)
-    : center_{center}, radius_{radius}, material{std::move(material)}
+template<typename Float>
+sphere<Float>::sphere(v3<Float> center, Float radius)
+    : center_{center}, radius_{radius}
 {
 }
 
 
-template<typename T>
-const v3<T>&
-sphere<T>::center() const
+template<typename Float>
+const v3<Float>&
+sphere<Float>::center() const
 {
   return center_;
 }
 
 
-template<typename T>
-T
-sphere<T>::radius() const
+template<typename Float>
+Float
+sphere<Float>::radius() const
 {
   return radius_;
 }
 
 
-template<typename T>
-std::optional<T>
-sphere<T>::intersect(const ray<T>& ray) const
+template<typename Float>
+std::optional<Float>
+sphere<Float>::intersect(const ray<Float>& ray) const
 {
   auto oc = center_ - ray.origin;
 
@@ -80,9 +75,9 @@ sphere<T>::intersect(const ray<T>& ray) const
 }
 
 
-template<typename T>
-v3<T>
-sphere<T>::normal(const v3<T>& point) const
+template<typename Float>
+v3<Float>
+sphere<Float>::normal(const v3<Float>& point) const
 {
   return (point - center_).normalized();
 }

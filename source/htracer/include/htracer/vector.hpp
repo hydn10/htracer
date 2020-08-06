@@ -9,106 +9,87 @@
 
 namespace htracer
 {
-template<typename T, std::size_t N>
+template<typename Float, std::size_t N>
 class vector;
 
-template<typename T, std::size_t N>
-vector<T, N>
-operator+(vector<T, N> lhs, const vector<T, N>& rhs);
+template<typename Float, std::size_t N>
+vector<Float, N>
+operator+(vector<Float, N> lhs, const vector<Float, N>& rhs);
 
-template<typename T, std::size_t N>
-vector<T, N>
-operator-(vector<T, N> lhs, const vector<T, N>& rhs);
+template<typename Float, std::size_t N>
+vector<Float, N>
+operator-(vector<Float, N> lhs, const vector<Float, N>& rhs);
 
-template<typename T, std::size_t N>
-T
-dot(const vector<T, N>& lhs, const vector<T, N>& rhs);
+template<typename Float, std::size_t N>
+Float
+dot(const vector<Float, N>& lhs, const vector<Float, N>& rhs);
 
-template<typename T, std::size_t N>
+template<typename Float, std::size_t N>
 std::ostream&
-operator<<(std::ostream& os, const vector<T, N>& rhs);
+operator<<(std::ostream& os, const vector<Float, N>& rhs);
 
 
-template<typename T, std::size_t N>
+template<typename Float, std::size_t N>
 class vector
 {
-  std::array<T, N> elems_;
+  std::array<Float, N> elems_;
 
 public:
   vector();
-  explicit vector(std::array<T, N> values);
-  vector(vector const& v);
-  ~vector() = default;
+  explicit vector(std::array<Float, N> values);
 
-  vector<T, N>&
-  operator=(vector<T, N> rhs);
-
-  T&
+  Float&
   operator[](std::size_t index);
 
-  T const&
+  Float const&
   operator[](std::size_t index) const;
 
-  vector<T, N>&
-  operator+=(const vector<T, N>& rhs);
+  vector<Float, N>&
+  operator+=(const vector<Float, N>& rhs);
 
-  vector<T, N>&
-  operator-=(const vector<T, N>& rhs);
+  vector<Float, N>&
+  operator-=(const vector<Float, N>& rhs);
 
-  vector<T, N>&
-  operator*=(T scale);
+  vector<Float, N>&
+  operator*=(Float scale);
 
-  vector<T, N>
+  vector<Float, N>
   normalized() const;
 
-  friend vector<T, N> operator+<T, N>(
-      vector<T, N> lhs,
-      const vector<T, N>& rhs);
-  friend vector<T, N> operator-<T, N>(
-      vector<T, N> lhs,
-      const vector<T, N>& rhs);
+  friend vector<Float, N> operator+<Float, N>(
+      vector<Float, N> lhs,
+      const vector<Float, N>& rhs);
 
-  friend std::ostream& operator<<<T, N>(
+  friend vector<Float, N> operator-<Float, N>(
+      vector<Float, N> lhs,
+      const vector<Float, N>& rhs);
+
+  friend std::ostream& operator<<<Float, N>(
       std::ostream& os,
-      const vector<T, N>& rhs);
+      const vector<Float, N>& rhs);
 
   void
-  swap(vector<T, N>& rhs) noexcept;
+  swap(vector<Float, N>& rhs) noexcept;
 };
 
 
-template<typename T>
-using v3 = vector<T, 3>;
+template<typename Float>
+using v3 = vector<Float, 3>;
 
 
-template<typename T, std::size_t N>
-vector<T, N>::vector() = default;
+template<typename Float, std::size_t N>
+vector<Float, N>::vector() = default;
 
 
-template<typename T, std::size_t N>
-vector<T, N>::vector(std::array<T, N> values) : elems_{values}
+template<typename Float, std::size_t N>
+vector<Float, N>::vector(std::array<Float, N> values) : elems_{values}
 {
 }
 
 
-template<typename T, std::size_t N>
-vector<T, N>::vector(vector const& v) : elems_{v.elems_}
-{
-}
-
-
-template<typename T, std::size_t N>
-vector<T, N>&
-vector<T, N>::operator=(vector<T, N> rhs)
-{
-  this->swap(rhs);
-  return *this;
-}
-
-
-template<typename T, std::size_t N>
-vector<T, N>&
-vector<T, N>::operator+=(const vector<T, N>& rhs)
+template<typename Float, std::size_t N>
+vector<Float, N>&
+vector<Float, N>::operator+=(const vector<Float, N>& rhs)
 {
   for (std::size_t i = 0; i < N; ++i)
     this->elems_[i] += rhs.elems_[i];
@@ -117,9 +98,9 @@ vector<T, N>::operator+=(const vector<T, N>& rhs)
 }
 
 
-template<typename T, std::size_t N>
-vector<T, N>&
-vector<T, N>::operator-=(const vector<T, N>& rhs)
+template<typename Float, std::size_t N>
+vector<Float, N>&
+vector<Float, N>::operator-=(const vector<Float, N>& rhs)
 {
   for (std::size_t i = 0; i < N; ++i)
     this->elems_[i] -= rhs.elems_[i];
@@ -128,9 +109,9 @@ vector<T, N>::operator-=(const vector<T, N>& rhs)
 }
 
 
-template<typename T, std::size_t N>
-vector<T, N>&
-vector<T, N>::operator*=(T scale)
+template<typename Float, std::size_t N>
+vector<Float, N>&
+vector<Float, N>::operator*=(Float scale)
 {
   for (std::size_t i = 0; i < N; ++i)
     elems_[i] *= scale;
@@ -139,35 +120,35 @@ vector<T, N>::operator*=(T scale)
 }
 
 
-template<typename T, std::size_t N>
+template<typename Float, std::size_t N>
 void
-vector<T, N>::swap(vector<T, N>& rhs) noexcept
+vector<Float, N>::swap(vector<Float, N>& rhs) noexcept
 {
   std::swap(this->elems_, rhs.elems_);
 }
 
 
-template<typename T, std::size_t N>
-T&
-vector<T, N>::operator[](std::size_t index)
+template<typename Float, std::size_t N>
+Float&
+vector<Float, N>::operator[](std::size_t index)
 {
   return elems_[index];
 }
 
 
-template<typename T, std::size_t N>
-T const&
-vector<T, N>::operator[](std::size_t index) const
+template<typename Float, std::size_t N>
+Float const&
+vector<Float, N>::operator[](std::size_t index) const
 {
   return elems_[index];
 }
 
 
-template<typename T, std::size_t N>
-vector<T, N>
-vector<T, N>::normalized() const
+template<typename Float, std::size_t N>
+vector<Float, N>
+vector<Float, N>::normalized() const
 {
-  vector<T, N> result;
+  vector<Float, N> result;
 
   auto norm = std::sqrt(dot(*this, *this));
 
@@ -178,47 +159,47 @@ vector<T, N>::normalized() const
 }
 
 
-template<typename T, std::size_t N>
-vector<T, N>
-operator+(vector<T, N> lhs, const vector<T, N>& rhs)
+template<typename Float, std::size_t N>
+vector<Float, N>
+operator+(vector<Float, N> lhs, const vector<Float, N>& rhs)
 {
   lhs += rhs;
   return lhs;
 }
 
 
-template<typename T, std::size_t N>
-vector<T, N>
-operator-(vector<T, N> lhs, const vector<T, N>& rhs)
+template<typename Float, std::size_t N>
+vector<Float, N>
+operator-(vector<Float, N> lhs, const vector<Float, N>& rhs)
 {
   lhs -= rhs;
   return lhs;
 }
 
 
-template<typename T, std::size_t N, typename TConv>
-vector<T, N>
-operator*(vector<T, N> lhs, TConv scale)
+template<typename Float, std::size_t N, typename TConv>
+vector<Float, N>
+operator*(vector<Float, N> lhs, TConv scale)
 {
   lhs *= scale;
   return lhs;
 }
 
 
-template<typename T, std::size_t N, typename TConv>
-vector<T, N>
-operator*(TConv scale, vector<T, N> rhs)
+template<typename Float, std::size_t N, typename TConv>
+vector<Float, N>
+operator*(TConv scale, vector<Float, N> rhs)
 {
   rhs *= scale;
   return rhs;
 }
 
 
-template<typename T, std::size_t N>
-T
-dot(const vector<T, N>& lhs, const vector<T, N>& rhs)
+template<typename Float, std::size_t N>
+Float
+dot(const vector<Float, N>& lhs, const vector<Float, N>& rhs)
 {
-  T result{0};
+  Float result{0};
 
   for (std::size_t i = 0; i < N; ++i)
     result += lhs[i] * rhs[i];
@@ -227,20 +208,20 @@ dot(const vector<T, N>& lhs, const vector<T, N>& rhs)
 }
 
 
-template<typename T>
-vector<T, 3>
-cross(const vector<T, 3>& lhs, const vector<T, 3>& rhs)
+template<typename Float>
+vector<Float, 3>
+cross(const vector<Float, 3>& lhs, const vector<Float, 3>& rhs)
 {
-  return vector<T, 3>(
+  return vector<Float, 3>(
       {lhs[1] * rhs[2] - rhs[1] * lhs[2],
        lhs[2] * rhs[0] - rhs[2] * lhs[0],
        lhs[0] * rhs[1] - rhs[0] * lhs[1]});
 }
 
 
-template<typename T, std::size_t N>
+template<typename Float, std::size_t N>
 std::ostream&
-operator<<(std::ostream& os, const vector<T, N>& rhs)
+operator<<(std::ostream& os, const vector<Float, N>& rhs)
 {
   os << '[';
 

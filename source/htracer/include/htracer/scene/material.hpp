@@ -7,13 +7,13 @@
 
 namespace htracer::scene
 {
-template<typename T>
+template<typename Float>
 struct material
 {
-  color<T> ambient_color;
-  color<T> diffuse_color;
-  color<T> specular_color;
-  T shininess;
+  color<Float> ambient_color;
+  color<Float> diffuse_color;
+  color<Float> specular_color;
+  Float shininess;
 };
 
 } // namespace htracer::scene

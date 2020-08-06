@@ -13,42 +13,41 @@
 
 namespace htracer::raytracing
 {
-template<typename T>
+template<typename Float>
 class camera
 {
-  v3<T> origin_;
+  v3<Float> origin_;
 
-  v3<T> view_;
-  v3<T> up_;
-  v3<T> right_;
+  v3<Float> view_;
+  v3<Float> up_;
+  v3<Float> right_;
 
   unsigned h_res_;
   unsigned v_res_;
-  T fov_;
+  Float fov_;
 
 public:
   camera(
-      v3<T> origin,
-      const v3<T>& view,
-      const v3<T>& up,
+      v3<Float> origin,
+      const v3<Float>& view,
+      const v3<Float>& up,
       unsigned horizontal_resolution,
       unsigned vertical_resolution,
-      T fov);
-  ~camera() = default;
+      Float fov);
 
   void
-  render(std::ostream& out, const scene::scene<T>& scene) const;
+  render(std::ostream& out, const scene::scene<Float>& scene) const;
 };
 
 
-template<typename T>
-camera<T>::camera(
-    v3<T> origin,
-    const v3<T>& view,
-    const v3<T>& up,
+template<typename Float>
+camera<Float>::camera(
+    v3<Float> origin,
+    const v3<Float>& view,
+    const v3<Float>& up,
     unsigned horizontal_resolution,
     unsigned vertical_resolution,
-    T fov)
+    Float fov)
     : origin_{origin}
     , h_res_{horizontal_resolution}
     , v_res_{vertical_resolution}
@@ -60,9 +59,9 @@ camera<T>::camera(
 }
 
 
-template<typename T>
+template<typename Float>
 void
-camera<T>::render(std::ostream& out, const scene::scene<T>& scene) const
+camera<Float>::render(std::ostream& out, const scene::scene<Float>& scene) const
 {
   out << "P6\n" << h_res_ << " " << v_res_ << "\n255\n";
 
@@ -71,11 +70,11 @@ camera<T>::render(std::ostream& out, const scene::scene<T>& scene) const
 
   for (auto i = 0u; i < v_res_; ++i)
   {
-    auto dv = v_tan * (1 - (T(2 * i) / (v_res_ - 1)));
+    auto dv = v_tan * (1 - (Float(2 * i) / (v_res_ - 1)));
 
     for (auto j = 0u; j < h_res_; ++j)
     {
-      auto dh = h_tan * ((T(2 * j) / (h_res_ - 1)) - 1);
+      auto dh = h_tan * ((Float(2 * j) / (h_res_ - 1)) - 1);
 
       auto dir = view_ + dv * up_ + dh * right_;
       dir = dir.normalized();
