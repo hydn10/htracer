@@ -51,7 +51,7 @@ camera<Float>::camera(
     : origin_{origin}
     , h_res_{horizontal_resolution}
     , v_res_{vertical_resolution}
-    , fov_{fov * std::atan(1) / 45}
+    , fov_{fov}
 {
   view_ = view.normalized();
   right_ = cross(view, up).normalized();
