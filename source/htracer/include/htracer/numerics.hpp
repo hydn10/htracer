@@ -18,12 +18,14 @@ Float constexpr clamp(Float value, Float min, Float max) noexcept
 
 template<typename Float, std::size_t N>
 constexpr vector<Float, N>
-clamp(vector<Float, N> v, Float min, Float max) noexcept
+clamp(const vector<Float, N>& v, Float min, Float max) noexcept
 {
-  for (decltype(N) i = 0; i < N; ++i)
-    v[i] = clamp(v[i], min, max);
+  vector<Float, N> res;
 
-  return v;
+  for (decltype(N) i = 0; i < N; ++i)
+    res[i] = clamp(v[i], min, max);
+
+  return res;
 }
 
 
@@ -36,7 +38,7 @@ Float constexpr saturate(Float value) noexcept
 
 template<typename Float, std::size_t N>
 constexpr vector<Float, N>
-saturate(vector<Float, N> v) noexcept
+saturate(const vector<Float, N>& v) noexcept
 {
   return clamp<Float, N>(v, 0, 1);
 }
@@ -46,10 +48,12 @@ template<typename Float, std::size_t N>
 constexpr vector<Float, N>
 pow(vector<Float, N> v, Float exp) noexcept
 {
-  for (decltype(N) i = 0; i < N; ++i)
-    v[i] = std::pow(v[i], exp);
+  std::array<Float, N> res;
 
-  return v;
+  for (decltype(N) i = 0; i < N; ++i)
+    res[i] = std::pow(v[i], exp);
+
+  return res;
 }
 
 } // namespace htracer
