@@ -20,13 +20,13 @@ main(int argc, const char* argv[])
 
   htracer::scene::scene<Float> scene;
 
-  htracer::v3<Float> light_pos{{-5, 5, 0}};
-  htracer::v3<Float> light_color{{255, 255, 255}};
+  htracer::v3<Float> light_pos{{0., 3., -5.}};
+  htracer::v3<Float> light_color{{1., 1., 1.}};
 
-  scene.add_light({light_pos, light_color, 50});
+  scene.add_light({light_pos, light_color, 20});
 
   htracer::scene::material<Float> sphere_material{
-      {26., 12., 0.}, {128., 50., 0.}, {255., 200., 150.}, 200};
+      {0.15, 0.15, 0.0}, {0.4, 0.4, 0.0}, {0., 0., 0.}, 200};
 
   scene.add_object({{{0., 0., -5.}, 1}, sphere_material});
 

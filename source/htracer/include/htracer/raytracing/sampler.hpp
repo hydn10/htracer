@@ -4,6 +4,7 @@
 
 #include <htracer/color.hpp>
 #include <htracer/geometry/ray.hpp>
+#include <htracer/numerics.hpp>
 #include <htracer/raytracing/intersector.hpp>
 #include <htracer/scene/scene.hpp>
 #include <htracer/vector.hpp>
@@ -18,7 +19,7 @@ sample(geometry::ray<Float> ray, const scene::scene<Float>& scene)
   auto intersection = intersect(ray, scene.objects(), .02);
 
   if (!intersection)
-    return color<Float>{{0, 0, 0}};
+    return {0., 0., 0.};
 
   auto obj_dist = intersection->first;
   auto obj_iter = intersection->second;
@@ -53,21 +54,15 @@ sample(geometry::ray<Float> ray, const scene::scene<Float>& scene)
 
   auto pixel_color = ambient_color + diffuse_color + specular_color;
 
+  // After reading a lot about gamma, I still don't know if I am supposed to
+  // gamma correct the output or not.
+  // Probably experiment more and see what I like the best.
+  // Take in accout that this will change color values if they are hardcoded.
+  // They must be raised to the 1/2.2 power (or viceversa?) if they are to be
+  // compared.
+  pixel_color = pow(pixel_color, 1 / 2.2);
 
-  if (pixel_color[0] > 255)
-    pixel_color[0] = 255;
-
-  if (pixel_color[1] > 255)
-    pixel_color[1] = 255;
-
-  if (pixel_color[2] > 255)
-    pixel_color[2] = 255;
-
-  // pixel_color[0] = 255 * std::pow(pixel_color[0] / Float{255}, 2.2);
-  // pixel_color[1] = 255 * std::pow(pixel_color[1] / Float{255}, 1/2.2);
-  // pixel_color[2] = 255 * std::pow(pixel_color[2] / Float{255}, 1/2.2);
-
-  return pixel_color;
+  return saturate(pixel_color);
 }
 
 } // namespace htracer::raytracing

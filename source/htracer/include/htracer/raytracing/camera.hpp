@@ -81,9 +81,9 @@ camera<Float>::render(std::ostream& out, const scene::scene<Float>& scene) const
 
       auto pixel = sample({origin_, dir}, scene);
 
-      out << (unsigned char)std::round(pixel[0])
-          << (unsigned char)std::round(pixel[1])
-          << (unsigned char)std::round(pixel[2]);
+      out << (unsigned char)std::round(255 * pixel[0])
+          << (unsigned char)std::round(255 * pixel[1])
+          << (unsigned char)std::round(255 * pixel[2]);
     }
   }
 }
