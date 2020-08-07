@@ -5,10 +5,29 @@
 #include <htracer/vector.hpp>
 
 #include <algorithm>
+#include <utility>
 
 
 namespace htracer
 {
+namespace detail_
+{
+template<typename T, std::size_t N, typename F, std::size_t... Is>
+std::array<T, N>
+transform(const vector<T, N>& v, F f, std::index_sequence<Is...>)
+{
+  return {{f(v[Is])...}};
+}
+
+template<typename T, std::size_t N, typename F>
+std::array<T, N>
+transform(const vector<T, N>& v, F f)
+{
+  return transform(v, f, std::make_index_sequence<N>());
+}
+
+} // namespace detail_
+
 template<typename Float>
 Float constexpr clamp(Float value, Float min, Float max) noexcept
 {
@@ -20,12 +39,8 @@ template<typename Float, std::size_t N>
 constexpr vector<Float, N>
 clamp(const vector<Float, N>& v, Float min, Float max) noexcept
 {
-  vector<Float, N> res;
-
-  for (decltype(N) i = 0; i < N; ++i)
-    res[i] = clamp(v[i], min, max);
-
-  return res;
+  return detail_::transform(
+      v, [min, max](auto val) { return clamp(val, min, max); });
 }
 
 
@@ -45,15 +60,10 @@ saturate(const vector<Float, N>& v) noexcept
 
 
 template<typename Float, std::size_t N>
-constexpr vector<Float, N>
-pow(vector<Float, N> v, Float exp) noexcept
+vector<Float, N>
+pow(const vector<Float, N>& v, Float exp) noexcept
 {
-  std::array<Float, N> res;
-
-  for (decltype(N) i = 0; i < N; ++i)
-    res[i] = std::pow(v[i], exp);
-
-  return res;
+  return detail_::transform(v, [exp](auto val) { return std::pow(val, exp); });
 }
 
 } // namespace htracer
