@@ -1,3 +1,4 @@
+#include <htracer/output/ppm.hpp>
 #include <htracer/raytracing/camera.hpp>
 #include <htracer/raytracing/sampler.hpp>
 #include <htracer/scene/scene.hpp>
@@ -44,5 +45,7 @@ main(int argc, const char* argv[])
       camera_pos, camera_dir, camera_up, 3840, 2160, 50 * std::atan(1) / 45};
 
   std::ofstream ofs(filename, std::ios::out | std::ios::binary);
-  cam.render(ofs, scene);
+  htracer::output::ppm ppm(ofs);
+
+  ppm << cam.render(scene);
 }

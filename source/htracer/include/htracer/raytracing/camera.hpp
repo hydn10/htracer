@@ -2,6 +2,7 @@
 #define HTRACER_RAYTRACING_CAMERA_HPP
 
 
+#include <htracer/raytracing/image.hpp>
 #include <htracer/raytracing/sampler.hpp>
 #include <htracer/scene/scene.hpp>
 #include <htracer/vector.hpp>
@@ -22,8 +23,8 @@ class camera
   v3<Float> up_;
   v3<Float> right_;
 
-  unsigned h_res_;
-  unsigned v_res_;
+  uint32_t h_res_;
+  uint32_t v_res_;
   Float fov_;
 
 public:
@@ -31,12 +32,12 @@ public:
       v3<Float> origin,
       const v3<Float>& view,
       const v3<Float>& up,
-      unsigned horizontal_resolution,
-      unsigned vertical_resolution,
+      uint32_t horizontal_resolution,
+      uint32_t vertical_resolution,
       Float fov);
 
-  void
-  render(std::ostream& out, const scene::scene<Float>& scene) const;
+  image<Float>
+  render(const scene::scene<Float>& scene) const;
 };
 
 
@@ -45,8 +46,8 @@ camera<Float>::camera(
     v3<Float> origin,
     const v3<Float>& view,
     const v3<Float>& up,
-    unsigned horizontal_resolution,
-    unsigned vertical_resolution,
+    uint32_t horizontal_resolution,
+    uint32_t vertical_resolution,
     Float fov)
     : origin_{origin}
     , h_res_{horizontal_resolution}
@@ -60,13 +61,14 @@ camera<Float>::camera(
 
 
 template<typename Float>
-void
-camera<Float>::render(std::ostream& out, const scene::scene<Float>& scene) const
+image<Float>
+camera<Float>::render(const scene::scene<Float>& scene) const
 {
-  out << "P6\n" << h_res_ << " " << v_res_ << "\n255\n";
-
   auto h_tan = std::tan(fov_);
   auto v_tan = h_tan * v_res_ / h_res_;
+
+  std::vector<color<Float>> pixels;
+  pixels.reserve(v_res_ * h_res_);
 
   for (auto i = 0u; i < v_res_; ++i)
   {
@@ -79,13 +81,11 @@ camera<Float>::render(std::ostream& out, const scene::scene<Float>& scene) const
       auto dir = view_ + dv * up_ + dh * right_;
       dir = dir.normalized();
 
-      auto pixel = sample({origin_, dir}, scene);
-
-      out << (unsigned char)std::round(255 * pixel[0])
-          << (unsigned char)std::round(255 * pixel[1])
-          << (unsigned char)std::round(255 * pixel[2]);
+      pixels.push_back(sample({origin_, dir}, scene));
     }
   }
+
+  return {h_res_, v_res_, std::move(pixels)};
 }
 
 } // namespace htracer::raytracing
