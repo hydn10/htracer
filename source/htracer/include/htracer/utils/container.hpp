@@ -25,39 +25,39 @@ struct type_at<0, First, Remaining...>
 };
 
 
-template<typename T>
-class single_vector
+template<typename Container>
+class single_container
 {
 public:
-  std::vector<T> vec;
-
-  using reference = typename decltype(vec)::reference;
-};
-
-
-template<typename T>
-class single_iterator
-{
-public:
-  typename std::vector<T>::iterator iter;
+  Container cont;
 };
 } // namespace detail_
 
 
 template<typename... T>
-class container : private detail_::single_vector<T>...
+class container : private detail_::single_container<std::vector<T>>...
 {
+  template<typename U>
+  using u_container = typename std::vector<U>;
+
+  template<typename U>
+  using u_iterator = typename u_container<U>::iterator;
+
+  template<typename U>
+  using u_const_iterator = typename u_container<U>::const_iterator;
+
   template<std::size_t N>
   using nth_type = typename detail_::type_at<N, T...>::type;
 
   template<std::size_t N>
-  using nth_vector = std::vector<nth_type<N>>;
+  using nth_container = u_container<nth_type<N>>;
 
   template<std::size_t N>
-  using nth_vector_iterator = typename nth_vector<N>::iterator;
+  using nth_container_iterator = typename nth_container<N>::iterator;
 
   template<std::size_t N>
-  using nth_vector_const_iterator = typename nth_vector<N>::const_iterator;
+  using nth_container_const_iterator =
+      typename nth_container<N>::const_iterator;
 
   template<typename U>
   constexpr auto&
@@ -77,11 +77,11 @@ class container : private detail_::single_vector<T>...
 
   template<typename U>
   auto&
-  get_vec();
+  get_cont();
 
   template<typename U>
   [[nodiscard]] const auto&
-  get_vec() const;
+  get_cont() const;
 
 public:
   using reference = std::variant<std::reference_wrapper<T>...>;
@@ -96,7 +96,7 @@ public:
   push(Elems&&... elems);
 
   template<typename U, typename... Args>
-  typename detail_::single_vector<U>::reference
+  typename u_container<U>::reference
   emplace(Args&&... args);
 
   class const_iterator
@@ -104,12 +104,12 @@ public:
     friend class container<T...>;
 
     const container<T...>* cont_;
-    std::variant<typename std::vector<T>::const_iterator...> curr_iter_;
+    std::variant<u_const_iterator<T>...> curr_iter_;
 
     explicit const_iterator(const container<T...>& container);
     const_iterator(
         const container<T...>& container,
-        std::variant<typename std::vector<T>::const_iterator...> iterator);
+        std::variant<u_const_iterator<T>...> iterator);
 
   public:
     const_reference
@@ -134,7 +134,7 @@ template<typename U>
 constexpr auto&
 container<T...>::as()
 {
-  return static_cast<detail_::single_vector<U>&>(*this);
+  return static_cast<detail_::single_container<u_container<U>>&>(*this);
 }
 
 
@@ -143,7 +143,7 @@ template<typename U>
 [[nodiscard]] constexpr const auto&
 container<T...>::as() const
 {
-  return static_cast<const detail_::single_vector<U>&>(*this);
+  return static_cast<const detail_::single_container<u_container<U>>&>(*this);
 }
 
 
@@ -168,18 +168,18 @@ container<T...>::as() const
 template<typename... T>
 template<typename U>
 auto&
-container<T...>::get_vec()
+container<T...>::get_cont()
 {
-  return this->template as<U>().vec;
+  return this->template as<U>().cont;
 }
 
 
 template<typename... T>
 template<typename U>
 [[nodiscard]] const auto&
-container<T...>::get_vec() const
+container<T...>::get_cont() const
 {
-  return this->template as<U>().vec;
+  return this->template as<U>().cont;
 }
 
 
@@ -188,7 +188,7 @@ template<typename... Elems>
 void
 container<T...>::push(const Elems&... elems)
 {
-  (this->template as<Elems>().vec.push_back(elems), ...);
+  (this->template as<Elems>().cont.push_back(elems), ...);
 }
 
 
@@ -197,23 +197,23 @@ template<typename... Elems>
 void
 container<T...>::push(Elems&&... elems)
 {
-  (this->template as<Elems>().vec.push_back(elems), ...);
+  (this->template as<Elems>().cont.push_back(elems), ...);
 }
 
 
 template<typename... T>
 template<typename U, typename... Args>
-typename detail_::single_vector<U>::reference
-container<T...>::emplace(Args&&... args)
+auto
+container<T...>::emplace(Args&&... args) -> typename u_container<U>::reference
 {
-  return this->template as<U>().vec.emplace_back(args...);
+  return this->template as<U>().cont.emplace_back(args...);
 }
 
 
 template<typename... T>
 container<T...>::const_iterator::const_iterator(
     const container<T...>& container)
-    : cont_{&container}, curr_iter_{cont_->as<sizeof...(T) - 1>().vec.cend()}
+    : cont_{&container}, curr_iter_{cont_->as<sizeof...(T) - 1>().cont.cend()}
 {
 }
 
@@ -221,7 +221,7 @@ container<T...>::const_iterator::const_iterator(
 template<typename... T>
 container<T...>::const_iterator::const_iterator(
     const container<T...>& container,
-    std::variant<typename std::vector<T>::const_iterator...> iterator)
+    std::variant<u_const_iterator<T>...> iterator)
     : cont_{&container}, curr_iter_{iterator}
 {
 }
@@ -264,16 +264,15 @@ container<T...>::const_iterator::operator++() -> const_iterator&
   } state = state::NORMAL;
 
   auto advance = [this, &state]<typename U>(
-                     bool holds, const auto& end, const auto& begin) {
+                     bool holds_type_u, const auto& end, const auto& begin) {
     switch (state)
     {
     case state::NORMAL:
     {
-      if (!holds)
+      if (!holds_type_u)
         break;
 
-      if (auto& unboxed = std::get<typename std::vector<U>::const_iterator>(
-              this->curr_iter_);
+      if (auto& unboxed = std::get<u_const_iterator<U>>(curr_iter_);
           unboxed != end)
       {
         ++unboxed;
@@ -284,11 +283,11 @@ container<T...>::const_iterator::operator++() -> const_iterator&
 
     case state::INIT_NEXT:
     {
-      this->curr_iter_ = begin;
+      curr_iter_ = begin;
 
-      // Edge case. If there are no items of type T, we want the next type to
-      // be assigned, so if there are no more types with elements the final
-      // state will be equal to end().
+      // If there are no items of type T, we want the next type to be assigned.
+      // Furthermore, if there are no more types with elements the final state
+      // will be equal to end().
       if (begin != end)
         state = state::DONE;
 
@@ -299,11 +298,11 @@ container<T...>::const_iterator::operator++() -> const_iterator&
     }
   };
 
+  // TODO: This should be an operator fold instead of mutating global state...
   (advance.template operator()<T>(
-       std::holds_alternative<typename std::vector<T>::const_iterator>(
-           this->curr_iter_),
-       this->cont_->template get_vec<T>().end(),
-       this->cont_->template get_vec<T>().begin()),
+       std::holds_alternative<u_const_iterator<T>>(curr_iter_),
+       cont_->template get_cont<T>().end(),
+       cont_->template get_cont<T>().begin()),
    ...);
   return *this;
 }
@@ -319,17 +318,18 @@ container<T...>::cbegin() const -> const_iterator
     FOUND,
   } state = state::SEEKING;
 
-  std::variant<typename std::vector<T>::const_iterator...> begin_iter =
-      this->template as<sizeof...(T) - 1>().vec.cend();
+  std::variant<u_const_iterator<T>...> begin_iter =
+      this->template as<sizeof...(T) - 1>().cont.cend();
 
   auto seeker = [&state, &begin_iter]<typename U>(const auto& as) {
-    if (state == state::SEEKING && !as.vec.empty())
+    if (state == state::SEEKING && !as.cont.empty())
     {
-      begin_iter = as.vec.cbegin();
+      begin_iter = as.cont.cbegin();
       state = state::FOUND;
     }
   };
 
+  // TODO: This should be an operator fold instead of mutating global state...
   (seeker.template operator()<T>(this->template as<T>()), ...);
   return const_iterator(*this, begin_iter);
 }
