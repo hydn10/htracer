@@ -11,5 +11,11 @@ let
 in
   pkgs.mkShell.override { stdenv = package.stdenv; } {
     inputsFrom = [ package ];
-    nativeBuildInputs = [ clang-tools pkgs.gdb ];
+    nativeBuildInputs = [
+      clang-tools
+      pkgs.gdb
+      pkgs.valgrind
+      pkgs.kcachegrind
+      pkgs.graphviz
+    ];
   }
