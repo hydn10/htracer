@@ -61,27 +61,27 @@ class container : private detail_::single_container<std::vector<T>>...
 
   template<typename U>
   constexpr auto&
-  as();
+  as() noexcept;
 
   template<typename U>
   [[nodiscard]] constexpr const auto&
-  as() const;
+  as() const noexcept;
 
   template<size_t N>
   constexpr auto&
-  as();
+  as() noexcept;
 
   template<size_t N>
   [[nodiscard]] constexpr const auto&
-  as() const;
+  as() const noexcept;
 
   template<typename U>
   auto&
-  get_cont();
+  get_cont() noexcept;
 
   template<typename U>
   [[nodiscard]] const auto&
-  get_cont() const;
+  get_cont() const noexcept;
 
 public:
   using reference = std::variant<std::reference_wrapper<T>...>;
@@ -106,33 +106,33 @@ public:
     const container<T...>* cont_;
     std::variant<u_const_iterator<T>...> curr_iter_;
 
-    explicit const_iterator(const container<T...>& container);
+    explicit const_iterator(const container<T...>& container) noexcept;
     const_iterator(
         const container<T...>& container,
-        std::variant<u_const_iterator<T>...> iterator);
+        std::variant<u_const_iterator<T>...> iterator) noexcept;
 
   public:
     const_reference
-    operator*() const;
+    operator*() const noexcept;
     bool
-    operator==(const const_iterator& rhs) const;
+    operator==(const const_iterator& rhs) const noexcept;
     bool
-    operator!=(const const_iterator& rhs) const;
+    operator!=(const const_iterator& rhs) const noexcept;
     const_iterator&
-    operator++();
+    operator++() noexcept;
   };
 
   const_iterator
-  cbegin() const;
+  cbegin() const noexcept;
   const_iterator
-  cend() const;
+  cend() const noexcept;
 };
 
 
 template<typename... T>
 template<typename U>
 constexpr auto&
-container<T...>::as()
+container<T...>::as() noexcept
 {
   return static_cast<detail_::single_container<u_container<U>>&>(*this);
 }
@@ -141,7 +141,7 @@ container<T...>::as()
 template<typename... T>
 template<typename U>
 [[nodiscard]] constexpr const auto&
-container<T...>::as() const
+container<T...>::as() const noexcept
 {
   return static_cast<const detail_::single_container<u_container<U>>&>(*this);
 }
@@ -150,7 +150,7 @@ container<T...>::as() const
 template<typename... T>
 template<size_t N>
 constexpr auto&
-container<T...>::as()
+container<T...>::as() noexcept
 {
   return as<nth_type<N>>();
 }
@@ -159,7 +159,7 @@ container<T...>::as()
 template<typename... T>
 template<size_t N>
 constexpr const auto&
-container<T...>::as() const
+container<T...>::as() const noexcept
 {
   return as<nth_type<N>>();
 }
@@ -168,7 +168,7 @@ container<T...>::as() const
 template<typename... T>
 template<typename U>
 auto&
-container<T...>::get_cont()
+container<T...>::get_cont() noexcept
 {
   return this->template as<U>().cont;
 }
@@ -177,7 +177,7 @@ container<T...>::get_cont()
 template<typename... T>
 template<typename U>
 [[nodiscard]] const auto&
-container<T...>::get_cont() const
+container<T...>::get_cont() const noexcept
 {
   return this->template as<U>().cont;
 }
@@ -212,7 +212,7 @@ container<T...>::emplace(Args&&... args) -> typename u_container<U>::reference
 
 template<typename... T>
 container<T...>::const_iterator::const_iterator(
-    const container<T...>& container)
+    const container<T...>& container) noexcept
     : cont_{&container}, curr_iter_{cont_->as<sizeof...(T) - 1>().cont.cend()}
 {
 }
@@ -221,7 +221,7 @@ container<T...>::const_iterator::const_iterator(
 template<typename... T>
 container<T...>::const_iterator::const_iterator(
     const container<T...>& container,
-    std::variant<u_const_iterator<T>...> iterator)
+    std::variant<u_const_iterator<T>...> iterator) noexcept
     : cont_{&container}, curr_iter_{iterator}
 {
 }
@@ -229,7 +229,7 @@ container<T...>::const_iterator::const_iterator(
 
 template<typename... T>
 auto
-container<T...>::const_iterator::operator*() const -> const_reference
+container<T...>::const_iterator::operator*() const noexcept -> const_reference
 {
   return std::visit(
       [](auto&& it) -> const_reference { return *it; }, curr_iter_);
@@ -238,7 +238,8 @@ container<T...>::const_iterator::operator*() const -> const_reference
 
 template<typename... T>
 bool
-container<T...>::const_iterator::operator==(const const_iterator& rhs) const
+container<T...>::const_iterator::operator==(
+    const const_iterator& rhs) const noexcept
 {
   return curr_iter_ == rhs.curr_iter_;
 }
@@ -246,7 +247,8 @@ container<T...>::const_iterator::operator==(const const_iterator& rhs) const
 
 template<typename... T>
 bool
-container<T...>::const_iterator::operator!=(const const_iterator& rhs) const
+container<T...>::const_iterator::operator!=(
+    const const_iterator& rhs) const noexcept
 {
   return !(operator==(rhs));
 }
@@ -254,7 +256,7 @@ container<T...>::const_iterator::operator!=(const const_iterator& rhs) const
 
 template<typename... T>
 auto
-container<T...>::const_iterator::operator++() -> const_iterator&
+container<T...>::const_iterator::operator++() noexcept -> const_iterator&
 {
   enum class state
   {
@@ -310,7 +312,7 @@ container<T...>::const_iterator::operator++() -> const_iterator&
 
 template<typename... T>
 auto
-container<T...>::cbegin() const -> const_iterator
+container<T...>::cbegin() const noexcept -> const_iterator
 {
   enum class state
   {
@@ -337,7 +339,7 @@ container<T...>::cbegin() const -> const_iterator
 
 template<typename... T>
 auto
-container<T...>::cend() const -> const_iterator
+container<T...>::cend() const noexcept -> const_iterator
 {
   return const_iterator(*this);
 }
