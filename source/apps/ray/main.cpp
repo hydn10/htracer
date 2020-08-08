@@ -27,7 +27,7 @@ main(int argc, const char* argv[])
   scene.add_light({light_pos, light_color, 20});
 
   htracer::scene::material<Float> sphere_material{
-      {0.15, 0.15, 0.0}, {0.4, 0.4, 0.0}, {0.2, 0.2, 0.2}, 200};
+      {0.15, 0.15, 0.0}, {0.4, 0.4, 0.0}, {0.0, 0.0, 0.2}, 200};
   htracer::scene::material<Float> plane_material{
       {0.20, 0.02, 0.05}, {0.7, 0.05, 0.1}, {0.0, 0.0, 0.0}, 200};
 

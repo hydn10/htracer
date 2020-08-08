@@ -16,60 +16,61 @@ template<typename Float>
 v3<Float>
 sample(geometry::ray<Float> ray, const scene::scene<Float>& scene)
 {
-  auto intersection = intersect(ray, scene.objects(), .02);
+  // TODO: This should be a parameter since it is scale-dependant
+  constexpr Float MIN_DISTANCE = .0;
+
+  const auto intersection = intersect(ray, scene.objects(), MIN_DISTANCE);
 
   if (!intersection)
     return {0., 0., 0.};
 
-  auto obj_dist = intersection->first;
-  auto obj_iter = intersection->second;
+  auto const& [obj_dist, obj_iter] = *intersection;
 
-  auto const& lights = scene.lights();
-  auto const& light = lights[0];
-
-  auto p = ray.origin + obj_dist * ray.direction;
-  auto n = std::visit(
-      [&p](const auto& v) { return v.get().geometry.normal(p); }, *obj_iter);
-
-  auto l = light.position - p;
-
-  auto light_dist2_inv = 1 / dot(l, l);
-
-  l = l.normalized();
-
-  auto lambertian = std::max(dot(l, n), Float{0});
-  Float specular = 0;
-
-  const auto& material = std::visit(
+  auto const& material = std::visit(
       [](const auto& v) -> scene::material<Float> const& {
         return v.get().mat;
       },
       *obj_iter);
 
+  auto const& lights = scene.lights();
+  auto const& light = lights[0];
+
+  const auto p = ray.origin + obj_dist * ray.direction;
+  const auto n = std::visit(
+      [&p](const auto& v) { return v.get().geometry.normal(p); }, *obj_iter);
+
+  const auto pl = light.position - p;
+  const auto light_dist2_inv = 1 / dot(pl, pl);
+  const auto l = pl.normalized();
+
+  const auto lambertian = std::max(dot(l, n), Float{0});
+  Float specular = 0;
+
   if (lambertian > 0)
   {
-    auto h = (l - ray.direction).normalized();
-    auto spec_angle = std::max(dot(h, n), Float{0});
+    const auto h = (l - ray.direction).normalized();
+    const auto spec_angle = std::max(dot(h, n), Float{0});
     specular = std::pow(spec_angle, material.shininess);
   }
 
-  auto ambient_color = material.ambient_color;
-  auto diffuse_color =
+  const auto ambient_color = material.ambient_color;
+  const auto diffuse_color =
       material.diffuse_color * lambertian * light.intensity * light_dist2_inv;
-  auto specular_color =
+  const auto specular_color =
       material.specular_color * specular * light.intensity * light_dist2_inv;
 
-  auto pixel_color = ambient_color + diffuse_color + specular_color;
+  const auto pixel_color = ambient_color + diffuse_color + specular_color;
 
   // After reading a lot about gamma, I still don't know if I am supposed to
   // gamma correct the output or not.
   // Probably experiment more and see what I like the best.
-  // Take in accout that this will change color values if they are hardcoded.
-  // They must be raised to the 1/2.2 power (or viceversa?) if they are to be
-  // compared.
-  pixel_color = pow(pixel_color, 1 / 2.2);
+  // Take in account that this will change input color values if they are
+  // hardcoded. They must be raised to the 1/2.2 power (or viceversa?) if they
+  // are to be compared.
+  const auto saturated = saturate(pixel_color);
+  const auto corrected_pixel_color = pow(saturated, 1 / 2.2);
 
-  return saturate(pixel_color);
+  return saturate(corrected_pixel_color);
 }
 
 } // namespace htracer::raytracing

@@ -113,7 +113,7 @@ public:
 
   public:
     const_reference
-    operator*();
+    operator*() const;
     bool
     operator==(const const_iterator& rhs) const;
     bool
@@ -229,7 +229,7 @@ container<T...>::const_iterator::const_iterator(
 
 template<typename... T>
 auto
-container<T...>::const_iterator::operator*() -> const_reference
+container<T...>::const_iterator::operator*() const -> const_reference
 {
   return std::visit(
       [](auto&& it) -> const_reference { return *it; }, curr_iter_);

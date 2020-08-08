@@ -1,0 +1,22 @@
+- Finish material system. Textures?
+
+- Finish sampling: multi-light, shadows, reflections, refractions, ...
+
+- Create system to handle colors: mainly gamma-corrected non-gamma-corrected.
+  Also colormaps, which probably implies creating hsl conversion.
+
+- ASCII renderer.
+
+- JPEG/PNG output?
+
+- CLI interface/options.
+
+- Multithreading.
+
+- Benchmark container.hpp.
+  I'm detecting troubling performance diferences between using it and plain
+  vectors, but more investigation is needed.
+
+- Signed Distance Functions. Raymarching.
+
+- Motion. Video? Output to gif?
