@@ -14,11 +14,11 @@ namespace htracer::geometry
 template<typename Float>
 class sphere
 {
-  v3<Float> center_;
-  Float radius_;
+  const v3<Float> center_;
+  const Float radius_;
 
 public:
-  sphere(v3<Float> center, Float radius);
+  sphere(const v3<Float>& center, Float radius);
 
   [[nodiscard]] const v3<Float>&
   center() const;
@@ -35,7 +35,7 @@ public:
 
 
 template<typename Float>
-sphere<Float>::sphere(v3<Float> center, Float radius)
+sphere<Float>::sphere(const v3<Float>& center, Float radius)
     : center_{center}, radius_{radius}
 {
 }

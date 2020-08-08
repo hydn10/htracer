@@ -3,8 +3,7 @@
 
 
 #include <htracer/geometry/ray.hpp>
-#include <htracer/geometry/sphere.hpp>
-#include <htracer/scene/object.hpp>
+#include <htracer/scene/scene.hpp>
 
 #include <utility>
 #include <vector>
@@ -16,20 +15,19 @@ template<typename Float>
 auto
 intersect(
     geometry::ray<Float> ray,
-    const std::vector<scene::object<Float, geometry::sphere>>& objects,
+    const typename scene::scene<Float>::container& objects,
     Float min_dist)
     -> std::optional<std::pair<
         Float,
-        typename std::vector<
-            scene::object<Float, geometry::sphere>>::const_iterator>>
+        typename scene::scene<Float>::container::const_iterator>>
 {
   std::optional<Float> closest_dist = std::nullopt;
-  typename std::vector<scene::object<Float, geometry::sphere>>::const_iterator
-      closest_obj;
+  auto closest_obj = objects.cend();
 
-  for (auto it = std::cbegin(objects); it != cend(objects); ++it)
+  for (auto it = objects.cbegin(); it != objects.cend(); ++it)
   {
-    auto dist = it->geometry.intersect(ray);
+    auto dist = std::visit(
+        [&ray](const auto& v) { return v.get().geometry.intersect(ray); }, *it);
 
     if (dist && *dist > min_dist && (!closest_dist || *dist < *closest_dist))
     {

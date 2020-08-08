@@ -28,7 +28,8 @@ sample(geometry::ray<Float> ray, const scene::scene<Float>& scene)
   auto const& light = lights[0];
 
   auto p = ray.origin + obj_dist * ray.direction;
-  auto n = obj_iter->geometry.normal(p);
+  auto n = std::visit(
+      [&p](const auto& v) { return v.get().geometry.normal(p); }, *obj_iter);
 
   auto l = light.position - p;
 
@@ -39,18 +40,24 @@ sample(geometry::ray<Float> ray, const scene::scene<Float>& scene)
   auto lambertian = std::max(dot(l, n), Float{0});
   Float specular = 0;
 
+  const auto& material = std::visit(
+      [](const auto& v) -> scene::material<Float> const& {
+        return v.get().mat;
+      },
+      *obj_iter);
+
   if (lambertian > 0)
   {
     auto h = (l - ray.direction).normalized();
     auto spec_angle = std::max(dot(h, n), Float{0});
-    specular = std::pow(spec_angle, obj_iter->mat.shininess);
+    specular = std::pow(spec_angle, material.shininess);
   }
 
-  auto ambient_color = obj_iter->mat.ambient_color;
-  auto diffuse_color = obj_iter->mat.diffuse_color * lambertian
-                       * light.intensity * light_dist2_inv;
-  auto specular_color = obj_iter->mat.specular_color * specular
-                        * light.intensity * light_dist2_inv;
+  auto ambient_color = material.ambient_color;
+  auto diffuse_color =
+      material.diffuse_color * lambertian * light.intensity * light_dist2_inv;
+  auto specular_color =
+      material.specular_color * specular * light.intensity * light_dist2_inv;
 
   auto pixel_color = ambient_color + diffuse_color + specular_color;
 

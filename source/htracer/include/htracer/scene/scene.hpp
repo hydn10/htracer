@@ -2,9 +2,11 @@
 #define HTRACER_SCENE_SCENE_HPP
 
 
+#include <htracer/geometry/plane.hpp>
 #include <htracer/geometry/sphere.hpp>
 #include <htracer/scene/light.hpp>
 #include <htracer/scene/object.hpp>
+#include <htracer/utils/container.hpp>
 
 #include <vector>
 
@@ -14,17 +16,25 @@ namespace htracer::scene
 template<typename Float>
 class scene
 {
-  std::vector<object<Float, geometry::sphere>> objects_;
+public:
+  using container = utils::container<
+      object<Float, geometry::sphere>,
+      object<Float, geometry::plane>>;
+
+private:
+  container objects_;
   std::vector<light<Float>> lights_;
 
 public:
   void
   add_object(object<Float, geometry::sphere>&& sphere);
+  void
+  add_object(object<Float, geometry::plane>&& plane);
 
   void
   add_light(light<Float>&& light);
 
-  auto const&
+  container const&
   objects() const;
   auto const&
   lights() const;
@@ -35,7 +45,15 @@ template<typename Float>
 void
 scene<Float>::add_object(object<Float, geometry::sphere>&& sphere)
 {
-  objects_.push_back(sphere);
+  objects_.push(std::forward<object<Float, geometry::sphere>>(sphere));
+}
+
+
+template<typename Float>
+void
+scene<Float>::add_object(object<Float, geometry::plane>&& plane)
+{
+  objects_.push(std::forward<object<Float, geometry::plane>>(plane));
 }
 
 
@@ -48,8 +66,8 @@ scene<Float>::add_light(light<Float>&& light)
 
 
 template<typename Float>
-auto const&
-scene<Float>::objects() const
+auto
+scene<Float>::objects() const -> container const&
 {
   return objects_;
 }
