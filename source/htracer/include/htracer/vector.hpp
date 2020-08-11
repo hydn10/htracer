@@ -201,7 +201,7 @@ template<typename Float, std::size_t N>
 vector<Float, N>
 vector<Float, N>::normalized() const
 {
-  Float norm = std::sqrt(dot(*this, *this));
+  const Float norm = std::sqrt(dot(*this, *this));
   return *this * (1 / norm);
 }
 

@@ -21,15 +21,13 @@ main(int argc, const char* argv[])
 
   htracer::scene::scene<Float> scene;
 
-  htracer::v3<Float> light_pos{{0., 4., 0.}};
-  htracer::v3<Float> light_color{{1., 1., 1.}};
-
-  scene.add_light({light_pos, light_color, 20});
+  scene.add_light({{0., 4., 0.}, {1., 1., 1.}, 20});
+  scene.add_light({{3., 7., -2.}, {1., 1., 1.}, 10});
 
   htracer::scene::material<Float> sphere_material{
-      {0.15, 0.15, 0.0}, {0.4, 0.4, 0.0}, {0.0, 0.0, 0.2}, 200};
+      {0.025, 0.025, 0.0}, {0.2, 0.2, 0.0}, 0.05, 200, .6};
   htracer::scene::material<Float> plane_material{
-      {0.20, 0.02, 0.05}, {0.7, 0.05, 0.1}, {0.0, 0.0, 0.0}, 200};
+      {0.20, 0.02, 0.05}, {0.7, 0.05, 0.1}, 0, 200, .0};
 
   using sphere = htracer::geometry::sphere<Float>;
   using plane = htracer::geometry::plane<Float>;
@@ -43,8 +41,8 @@ main(int argc, const char* argv[])
   scene.add_object({plane{{0.0, 0.0, 0.0}, {0.0, 1.0, 0.0}}, plane_material});
   // clang-format on
 
-  htracer::v3<Float> camera_pos{{0, 1.8, 5.}};
-  htracer::v3<Float> camera_dir{{0, 0, -1.}};
+  htracer::v3<Float> camera_pos{{0, 2.3, 5.}};
+  htracer::v3<Float> camera_dir{{0, -0.2, -1.}};
   htracer::v3<Float> camera_up{{0, 1, 0}};
 
   htracer::raytracing::camera<Float> cam{

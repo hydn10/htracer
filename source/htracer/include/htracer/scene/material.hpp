@@ -12,8 +12,9 @@ struct material
 {
   color<Float> ambient_color;
   color<Float> diffuse_color;
-  color<Float> specular_color;
+  Float specular;
   Float shininess;
+  Float reflectivity;
 };
 
 } // namespace htracer::scene

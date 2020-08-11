@@ -66,6 +66,16 @@ pow(const vector<Float, N>& v, Float exp) noexcept
   return detail_::transform(v, [exp](auto val) { return std::pow(val, exp); });
 }
 
+
+template<typename Float, std::size_t N>
+constexpr vector<Float, N>
+reflect(
+    const vector<Float, N>& incident,
+    const vector<Float, N>& normal)
+{
+  return incident - 2 * dot(incident, normal) * normal;
+}
+
 } // namespace htracer
 
 #endif // HTRACER_NUMERICS_HPP

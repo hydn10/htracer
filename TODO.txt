@@ -5,17 +5,33 @@
 - Create system to handle colors: mainly gamma-corrected non-gamma-corrected.
   Also colormaps, which probably implies creating hsl conversion.
 
+- Add more primitives.
+
 - ASCII renderer.
 
 - JPEG/PNG output?
 
 - CLI interface/options.
 
-- Multithreading.
+- Multithreading. Maybe use [1]? Test it.
+  [1]: https://en.cppreference.com/w/cpp/algorithm/transform_reduce
 
 - Benchmark container.hpp.
   I'm detecting troubling performance diferences between using it and plain
   vectors, but more investigation is needed.
+
+- Add constexpr where applicable.
+
+- Review noexcept usage (particualrly important in move
+  constructors/assignments). See [1].
+  [1]: https://stackoverflow.com/questions/10787766/
+
+- Post-processing.
+
+- Study using normalized_vector class.
+
+- Simulate camera exposure, even retina exposure maybe (if there is motion)
+  instead of just saturating the final color.
 
 - Signed Distance Functions. Raymarching.
 
