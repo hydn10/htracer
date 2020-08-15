@@ -67,7 +67,7 @@ camera<Float>::render(const scene::scene<Float>& scene) const
   auto h_tan = std::tan(fov_);
   auto v_tan = h_tan * v_res_ / h_res_;
 
-  std::vector<color<Float>> pixels;
+  std::vector<colors::srgb_linear<Float>> pixels;
   pixels.reserve(v_res_ * h_res_);
 
   for (auto i = 0u; i < v_res_; ++i)

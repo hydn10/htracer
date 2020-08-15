@@ -2,7 +2,6 @@
 #define HTRACER_RAYTRACING_SAMPLER_HPP
 
 
-#include <htracer/color.hpp>
 #include <htracer/geometry/ray.hpp>
 #include <htracer/numerics.hpp>
 #include <htracer/raytracing/intersector.hpp>
@@ -13,13 +12,13 @@
 namespace htracer::raytracing
 {
 template<typename Float>
-v3<Float>
+colors::srgb_linear<Float>
 sample(geometry::ray<Float> ray, const scene::scene<Float>& scene);
 
 namespace detail_
 {
 template<typename Float>
-v3<Float>
+colors::srgb_linear<Float>
 sample(
     geometry::ray<Float> ray,
     const scene::scene<Float>& scene,
@@ -28,25 +27,17 @@ sample(
 
 
 template<typename Float>
-v3<Float>
+colors::srgb_linear<Float>
 sample(geometry::ray<Float> ray, const scene::scene<Float>& scene)
 {
-  const auto final_color = detail_::sample(ray, scene, 0);
-
-  // After reading a lot about gamma, I still don't know if I am supposed to
-  // gamma correct the output or not.
-  // Probably experiment more and see what I like the best.
-  // Take in account that this will change input color values if they are
-  // hardcoded. They must be raised to the 1/2.2 power (or viceversa?) if they
-  // are to be compared.
-  return pow(final_color, 1 / 2.2);
+  return detail_::sample(ray, scene, 0);
 }
 
 
 namespace detail_
 {
 template<typename Float>
-v3<Float>
+colors::srgb_linear<Float>
 sample(
     geometry::ray<Float> ray,
     const scene::scene<Float>& scene,
@@ -96,8 +87,8 @@ sample(
 
     const auto lambertian = std::max(dot(l, n), Float{0});
 
-    pixel_color +=
-        material.diffuse_color * lambertian * light.intensity * light_dist2_inv;
+    pixel_color += (lambertian * light.intensity * light_dist2_inv)
+                   * material.diffuse_color;
 
     if (lambertian > 0) // TODO: Is this necessary? I suspect if lambertian == 0
                         // then specular == 0, so it is an optimization.
@@ -106,18 +97,17 @@ sample(
       const auto spec_angle = std::max(dot(h, n), Float{0});
       const auto specular = std::pow(spec_angle, material.shininess);
 
-      pixel_color += light.color * material.specular * specular
-                     * light.intensity * light_dist2_inv;
+      pixel_color +=
+          (material.specular * specular * light.intensity * light_dist2_inv)
+          * light.color;
     }
   }
 
   if (material.reflectivity > 0)
   {
     const auto reflect_dir = reflect(ray.direction, n);
-    const auto reflect_color =
+    pixel_color +=
         material.reflectivity * sample({p, reflect_dir}, scene, depth + 1);
-
-    pixel_color += reflect_color;
   }
 
   // TODO: Should the color be saturated here or only just before being gamma

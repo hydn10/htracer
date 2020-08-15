@@ -2,7 +2,8 @@
 #define HTRACER_VECTOR_HPP
 
 
-#include <array>
+#include <htracer/utils/vector_crtp.hpp>
+
 #include <cmath>
 #include <numeric>
 #include <ostream>
@@ -14,73 +15,39 @@ template<typename Float, std::size_t N>
 class vector;
 
 template<typename Float, std::size_t N>
-constexpr vector<Float, N>
-operator+(vector<Float, N> lhs, const vector<Float, N>& rhs);
-
-template<typename Float, std::size_t N>
-constexpr vector<Float, N>
-operator-(vector<Float, N> lhs, const vector<Float, N>& rhs);
-
-template<typename Float, std::size_t N>
-constexpr Float
-dot(const vector<Float, N>& lhs, const vector<Float, N>& rhs);
-
-template<typename Float, std::size_t N>
 std::ostream&
 operator<<(std::ostream& os, const vector<Float, N>& rhs);
 
 
 template<typename Float, std::size_t N>
-class vector
+class vector : private vector_crtp<vector<Float, N>, Float, N>
 {
-  std::array<Float, N> elems_;
+  using VecCrtp = vector_crtp<vector<Float, N>, Float, N>;
+  friend VecCrtp;
 
 public:
-  using iterator = typename decltype(elems_)::iterator;
-  using const_iterator = typename decltype(elems_)::const_iterator;
+  using VecCrtp::float_type;
+  using VecCrtp::size;
 
-  constexpr vector() = default;
-  constexpr explicit vector(std::array<Float, N> values);
-  template<typename... Args>
-  constexpr vector(Args... values);
+  using iterator = typename VecCrtp::iterator;
+  using const_iterator = typename VecCrtp::const_iterator;
 
-  Float&
-  operator[](std::size_t index);
+  using VecCrtp::vector_crtp;
 
-  Float const&
-  operator[](std::size_t index) const;
+  using VecCrtp::operator[];
 
-  constexpr vector<Float, N>&
-  operator+=(const vector<Float, N>& rhs);
+  using VecCrtp::operator+=;
+  using VecCrtp::operator-=;
+  using VecCrtp::operator*=;
 
-  constexpr vector<Float, N>&
-  operator-=(const vector<Float, N>& rhs);
-
-  constexpr vector<Float, N>&
-  operator*=(Float scale);
-
-  vector<Float, N>
+  [[nodiscard]] vector<Float, N>
   normalized() const;
 
-  auto
-  begin();
-  auto
-  end();
-  auto
-  cbegin() const;
-  auto
-  cend() const;
+  using VecCrtp::begin;
+  using VecCrtp::end;
 
-  friend Float
-  dot<Float, N>(const vector<Float, N>& lhs, const vector<Float, N>& rhs);
-
-  friend vector<Float, N> operator+<Float, N>(
-      vector<Float, N> lhs,
-      const vector<Float, N>& rhs);
-
-  friend vector<Float, N> operator-<Float, N>(
-      vector<Float, N> lhs,
-      const vector<Float, N>& rhs);
+  using VecCrtp::cbegin;
+  using VecCrtp::cend;
 
   friend std::ostream& operator<<<Float, N>(
       std::ostream& os,
@@ -91,109 +58,40 @@ public:
 };
 
 
+template<typename Float, std::size_t N>
+constexpr vector<Float, N>
+operator+(vector<Float, N> lhs, const vector<Float, N>& rhs);
+
+template<typename Float, std::size_t N>
+constexpr vector<Float, N>
+operator-(vector<Float, N> lhs, const vector<Float, N>& rhs);
+
+template<typename Float, std::size_t N, typename TConv>
+constexpr vector<Float, N>
+operator*(vector<Float, N> lhs, TConv scale);
+
+template<typename Float, std::size_t N, typename TConv>
+vector<Float, N>
+operator*(TConv scale, vector<Float, N> rhs);
+
+template<typename Float, std::size_t N>
+constexpr Float
+dot(const vector<Float, N>& lhs, const vector<Float, N>& rhs);
+
+template<typename Float>
+constexpr vector<Float, 3>
+cross(const vector<Float, 3>& lhs, const vector<Float, 3>& rhs);
+
+
 template<typename Float>
 using v3 = vector<Float, 3>;
-
-
-template<typename Float, std::size_t N>
-constexpr vector<Float, N>::vector(std::array<Float, N> values) : elems_{values}
-{
-}
-
-
-template<typename Float, std::size_t N>
-template<typename... Args>
-constexpr vector<Float, N>::vector(Args... values) : elems_{values...}
-{
-}
-
-
-template<typename Float, std::size_t N>
-constexpr vector<Float, N>&
-vector<Float, N>::operator+=(const vector<Float, N>& rhs)
-{
-  for (std::size_t i = 0; i < N; ++i)
-    this->elems_[i] += rhs.elems_[i];
-
-  return *this;
-}
-
-
-template<typename Float, std::size_t N>
-constexpr vector<Float, N>&
-vector<Float, N>::operator-=(const vector<Float, N>& rhs)
-{
-  for (std::size_t i = 0; i < N; ++i)
-    this->elems_[i] -= rhs.elems_[i];
-
-  return *this;
-}
-
-
-template<typename Float, std::size_t N>
-constexpr vector<Float, N>&
-vector<Float, N>::operator*=(Float scale)
-{
-  for (std::size_t i = 0; i < N; ++i)
-    elems_[i] *= scale;
-
-  return *this;
-}
-
-
-template<typename Float, std::size_t N>
-auto
-vector<Float, N>::begin()
-{
-  return elems_.begin();
-}
-
-
-template<typename Float, std::size_t N>
-auto
-vector<Float, N>::end()
-{
-  return elems_.end();
-}
-
-
-template<typename Float, std::size_t N>
-auto
-vector<Float, N>::cbegin() const
-{
-  return elems_.cbegin();
-}
-
-
-template<typename Float, std::size_t N>
-auto
-vector<Float, N>::cend() const
-{
-  return elems_.cend();
-}
 
 
 template<typename Float, std::size_t N>
 void
 vector<Float, N>::swap(vector<Float, N>& rhs) noexcept
 {
-  std::swap(this->elems_, rhs.elems_);
-}
-
-
-template<typename Float, std::size_t N>
-Float&
-vector<Float, N>::operator[](std::size_t index)
-{
-  return elems_[index];
-}
-
-
-template<typename Float, std::size_t N>
-Float const&
-vector<Float, N>::operator[](std::size_t index) const
-{
-  return elems_[index];
+  VecCrtp::swap(rhs);
 }
 
 
@@ -210,8 +108,7 @@ template<typename Float, std::size_t N>
 constexpr vector<Float, N>
 operator+(vector<Float, N> lhs, const vector<Float, N>& rhs)
 {
-  lhs += rhs;
-  return lhs;
+  return lhs += rhs;
 }
 
 
@@ -219,8 +116,7 @@ template<typename Float, std::size_t N>
 constexpr vector<Float, N>
 operator-(vector<Float, N> lhs, const vector<Float, N>& rhs)
 {
-  lhs -= rhs;
-  return lhs;
+  return lhs -= rhs;
 }
 
 
@@ -228,8 +124,7 @@ template<typename Float, std::size_t N, typename TConv>
 constexpr vector<Float, N>
 operator*(vector<Float, N> lhs, TConv scale)
 {
-  lhs *= scale;
-  return lhs;
+  return lhs *= scale;
 }
 
 
@@ -237,8 +132,7 @@ template<typename Float, std::size_t N, typename TConv>
 vector<Float, N>
 operator*(TConv scale, vector<Float, N> rhs)
 {
-  rhs *= scale;
-  return rhs;
+  return rhs *= scale;
 }
 
 
@@ -246,13 +140,12 @@ template<typename Float, std::size_t N>
 constexpr Float
 dot(const vector<Float, N>& lhs, const vector<Float, N>& rhs)
 {
-  return std::inner_product(
-      lhs.elems_.cbegin(), lhs.elems_.cend(), rhs.elems_.cbegin(), Float{0});
+  return std::inner_product(lhs.begin(), lhs.end(), rhs.begin(), Float{0});
 }
 
 
 template<typename Float>
-vector<Float, 3>
+constexpr vector<Float, 3>
 cross(const vector<Float, 3>& lhs, const vector<Float, 3>& rhs)
 {
   return {
@@ -269,9 +162,9 @@ operator<<(std::ostream& os, const vector<Float, N>& rhs)
   os << '[';
 
   for (std::size_t i = 0; i < N - 1; ++i)
-    os << rhs.elems_[i] << ',';
+    os << rhs[i] << ',';
 
-  os << rhs.elems_[N - 1] << ']';
+  os << rhs[N - 1] << ']';
 
   return os;
 }

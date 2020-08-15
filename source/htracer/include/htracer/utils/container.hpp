@@ -123,6 +123,10 @@ public:
   };
 
   const_iterator
+  begin() const noexcept;
+  const_iterator
+  end() const noexcept;
+  const_iterator
   cbegin() const noexcept;
   const_iterator
   cend() const noexcept;
@@ -213,7 +217,7 @@ container<T...>::emplace(Args&&... args) -> typename u_container<U>::reference
 template<typename... T>
 container<T...>::const_iterator::const_iterator(
     const container<T...>& container) noexcept
-    : cont_{&container}, curr_iter_{cont_->as<sizeof...(T) - 1>().cont.cend()}
+    : cont_{&container}, curr_iter_{cont_->as<sizeof...(T) - 1>().cont.end()}
 {
 }
 
@@ -312,7 +316,7 @@ container<T...>::const_iterator::operator++() noexcept -> const_iterator&
 
 template<typename... T>
 auto
-container<T...>::cbegin() const noexcept -> const_iterator
+container<T...>::begin() const noexcept -> const_iterator
 {
   enum class state
   {
@@ -321,12 +325,12 @@ container<T...>::cbegin() const noexcept -> const_iterator
   } state = state::SEEKING;
 
   std::variant<u_const_iterator<T>...> begin_iter =
-      this->template as<sizeof...(T) - 1>().cont.cend();
+      this->template as<sizeof...(T) - 1>().cont.end();
 
   auto seeker = [&state, &begin_iter]<typename U>(const auto& as) {
     if (state == state::SEEKING && !as.cont.empty())
     {
-      begin_iter = as.cont.cbegin();
+      begin_iter = as.cont.begin();
       state = state::FOUND;
     }
   };
@@ -339,9 +343,25 @@ container<T...>::cbegin() const noexcept -> const_iterator
 
 template<typename... T>
 auto
-container<T...>::cend() const noexcept -> const_iterator
+container<T...>::end() const noexcept -> const_iterator
 {
   return const_iterator(*this);
+}
+
+
+template<typename... T>
+auto
+container<T...>::cbegin() const noexcept -> const_iterator
+{
+  return begin();
+}
+
+
+template<typename... T>
+auto
+container<T...>::cend() const noexcept -> const_iterator
+{
+  return end();
 }
 } // namespace htracer::utils
 

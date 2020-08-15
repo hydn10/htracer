@@ -2,7 +2,7 @@
 #define HTRACER_SCENE_MATERIAL_HPP
 
 
-#include <htracer/color.hpp>
+#include <htracer/colors/colors.hpp>
 
 
 namespace htracer::scene
@@ -10,8 +10,8 @@ namespace htracer::scene
 template<typename Float>
 struct material
 {
-  color<Float> ambient_color;
-  color<Float> diffuse_color;
+  colors::srgb_linear<Float> ambient_color;
+  colors::srgb_linear<Float> diffuse_color;
   Float specular;
   Float shininess;
   Float reflectivity;
