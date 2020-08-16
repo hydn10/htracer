@@ -26,13 +26,14 @@ class vector : private vector_crtp<vector<Float, N>, Float, N>
   friend VecCrtp;
 
 public:
-  using VecCrtp::float_type;
+  using typename VecCrtp::float_type;
   using VecCrtp::size;
 
   using iterator = typename VecCrtp::iterator;
   using const_iterator = typename VecCrtp::const_iterator;
 
-  using VecCrtp::vector_crtp;
+  // TODO: For some reason clang++ doesnt like VecCrtp::vector_crtp
+  using vector_crtp<vector<Float, N>, Float, N>::vector_crtp;
 
   using VecCrtp::operator[];
 

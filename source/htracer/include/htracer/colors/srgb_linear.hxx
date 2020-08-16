@@ -17,7 +17,7 @@ class srgb_linear : private vector_crtp<srgb_linear<Float>, Float, 3>
   friend VecCrtp;
 
 public:
-  using VecCrtp::float_type;
+  using typename VecCrtp::float_type;
   using VecCrtp::size;
 
   constexpr srgb_linear(Float r, Float g, Float b) noexcept;

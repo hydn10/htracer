@@ -23,8 +23,20 @@ template<typename Float>
 srgb<Float>
 srgb_linear<Float>::to_srgb() const
 {
-  return utils::transform_into<srgb<Float>>(
-      *this, [](auto&& val) { return std::pow(val, 1 / Float{2.2}); });
+  // https://entropymine.com/imageworsener/srgbformula/
+
+  constexpr Float LINEAR_CUTOFF = 0.00313066844250063;
+  constexpr Float SLOPE = 12.92;
+  constexpr Float EXP_OFFSET = 0.055;
+  constexpr Float EXPONENT = 2.4;
+
+  return utils::transform_into<srgb<Float>>(*this, [](auto&& val) {
+    if (val <= LINEAR_CUTOFF)
+      return val * SLOPE;
+
+    const auto raised = std::pow(val, 1 / EXPONENT);
+    return (1 + EXP_OFFSET) * raised - EXP_OFFSET;
+  });
 }
 
 

@@ -47,8 +47,20 @@ template<typename Float>
 srgb_linear<Float>
 srgb<Float>::to_linear() const
 {
-  return utils::transform_into<srgb_linear<Float>>(
-      *this, [](auto&& val) { return std::pow(val, Float{2.2}); });
+  // https://entropymine.com/imageworsener/srgbformula/
+
+  constexpr Float SRGB_CUTOFF = 0.0404482362771082;
+  constexpr Float SLOPE = 12.92;
+  constexpr Float EXP_OFFSET = 0.055;
+  constexpr Float EXPONENT = 2.4;
+
+  return utils::transform_into<srgb_linear<Float>>(*this, [](auto&& val) {
+    if (val <= SRGB_CUTOFF)
+      return val / SLOPE;
+
+    const auto base = (val + EXP_OFFSET) / (1 + EXP_OFFSET);
+    return std::pow(base, EXPONENT);
+  });
 }
 
 } // namespace htracer::colors

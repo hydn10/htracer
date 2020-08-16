@@ -20,6 +20,8 @@
   I'm detecting troubling performance diferences between using it and plain
   vectors, but more investigation is needed.
 
+- Wide performance diferences between clang++ and g++. Benchmark and study.
+
 - Add constexpr where applicable.
 
 - Review noexcept usage (particualrly important in move
