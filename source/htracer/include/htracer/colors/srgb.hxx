@@ -10,20 +10,21 @@ namespace htracer::colors
 template<typename Float>
 class srgb_linear;
 
+
 template<typename Float>
 class srgb : private vector_crtp<srgb<Float>, Float, 3>
 {
 public:
   constexpr srgb(Float r, Float g, Float b) noexcept;
 
-  [[nodiscard]] const Float&
+  [[nodiscard]] constexpr const Float&
   r() const;
-  [[nodiscard]] const Float&
+  [[nodiscard]] constexpr const Float&
   g() const;
-  [[nodiscard]] const Float&
+  [[nodiscard]] constexpr const Float&
   b() const;
 
-  [[nodiscard]] srgb_linear<Float>
+  [[nodiscard]] constexpr srgb_linear<Float>
   to_linear() const;
 };
 

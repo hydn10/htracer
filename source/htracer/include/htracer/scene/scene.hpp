@@ -26,23 +26,23 @@ private:
   std::vector<light<Float>> lights_;
 
 public:
-  void
+  constexpr void
   add_object(object<Float, geometry::sphere>&& sphere);
-  void
+  constexpr void
   add_object(object<Float, geometry::plane>&& plane);
 
-  void
+  constexpr void
   add_light(light<Float>&& light);
 
-  container const&
+  constexpr container const&
   objects() const;
-  auto const&
+  constexpr auto const&
   lights() const;
 };
 
 
 template<typename Float>
-void
+constexpr void
 scene<Float>::add_object(object<Float, geometry::sphere>&& sphere)
 {
   objects_.push(std::forward<object<Float, geometry::sphere>>(sphere));
@@ -50,7 +50,7 @@ scene<Float>::add_object(object<Float, geometry::sphere>&& sphere)
 
 
 template<typename Float>
-void
+constexpr void
 scene<Float>::add_object(object<Float, geometry::plane>&& plane)
 {
   objects_.push(std::forward<object<Float, geometry::plane>>(plane));
@@ -58,7 +58,7 @@ scene<Float>::add_object(object<Float, geometry::plane>&& plane)
 
 
 template<typename Float>
-void
+constexpr void
 scene<Float>::add_light(light<Float>&& light)
 {
   lights_.push_back(light);
@@ -66,7 +66,7 @@ scene<Float>::add_light(light<Float>&& light)
 
 
 template<typename Float>
-auto
+constexpr auto
 scene<Float>::objects() const -> container const&
 {
   return objects_;
@@ -74,12 +74,11 @@ scene<Float>::objects() const -> container const&
 
 
 template<typename Float>
-auto const&
+constexpr auto const&
 scene<Float>::lights() const
 {
   return lights_;
 }
-
 
 } // namespace htracer::scene
 

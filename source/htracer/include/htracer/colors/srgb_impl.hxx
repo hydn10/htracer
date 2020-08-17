@@ -20,7 +20,7 @@ constexpr srgb<Float>::srgb(Float r, Float g, Float b) noexcept
 
 
 template<typename Float>
-const Float&
+constexpr const Float&
 srgb<Float>::r() const
 {
   return (*this)[0];
@@ -28,7 +28,7 @@ srgb<Float>::r() const
 
 
 template<typename Float>
-const Float&
+constexpr const Float&
 srgb<Float>::g() const
 {
   return (*this)[1];
@@ -36,7 +36,7 @@ srgb<Float>::g() const
 
 
 template<typename Float>
-const Float&
+constexpr const Float&
 srgb<Float>::b() const
 {
   return (*this)[2];
@@ -44,7 +44,7 @@ srgb<Float>::b() const
 
 
 template<typename Float>
-srgb_linear<Float>
+constexpr srgb_linear<Float>
 srgb<Float>::to_linear() const
 {
   // https://entropymine.com/imageworsener/srgbformula/

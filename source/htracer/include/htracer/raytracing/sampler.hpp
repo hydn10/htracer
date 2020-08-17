@@ -50,7 +50,7 @@ sample(
 
   // TODO: This should be a parameter since it is scale-dependant. The value
   // must be > 0 or else reflections/refractions wont work.
-  constexpr Float MIN_DISTANCE = .02;
+  constexpr Float MIN_DISTANCE = .002;
 
   const auto intersection = intersect(ray, scene.objects(), MIN_DISTANCE);
 

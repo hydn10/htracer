@@ -1,13 +1,15 @@
-- Finish material system. Textures?
+- Textures.
 
-- Finish sampling: multi-light, shadows, reflections, refractions, ...
+- Finish material system. Specular color. Handle light color multiplication
+  correctly, in both diffuse and specular.
 
-- Create system to handle colors: mainly gamma-corrected non-gamma-corrected.
-  Also colormaps, which probably implies creating hsl conversion.
+- Finish sampling: refractions, ...
 
 - Add more primitives.
 
-- ASCII renderer.
+- Colormaps?
+
+- ASCII renderer?
 
 - JPEG/PNG output?
 

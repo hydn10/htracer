@@ -66,7 +66,7 @@ constexpr vector_crtp<Derived, Float, N>::vector_crtp(
 template<typename Derived, typename Float, std::size_t N>
 template<typename... Args>
 constexpr vector_crtp<Derived, Float, N>::vector_crtp(Args... values)
-    : elems_{values...}
+    : elems_{static_cast<Float>(values)...}
 {
 }
 

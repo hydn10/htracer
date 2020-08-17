@@ -20,7 +20,7 @@ constexpr srgb_linear<Float>::srgb_linear(Float r, Float g, Float b) noexcept
 
 
 template<typename Float>
-srgb<Float>
+constexpr srgb<Float>
 srgb_linear<Float>::to_srgb() const
 {
   // https://entropymine.com/imageworsener/srgbformula/
@@ -65,7 +65,7 @@ operator*(srgb_linear<Float> lhs, TConv scale)
 
 
 template<typename Float, typename TConv>
-srgb_linear<Float>
+constexpr srgb_linear<Float>
 operator*(TConv scale, srgb_linear<Float> rhs)
 {
   return rhs *= scale;

@@ -10,6 +10,7 @@ namespace htracer::colors
 template<typename Float>
 class srgb;
 
+
 template<typename Float>
 class srgb_linear : private vector_crtp<srgb_linear<Float>, Float, 3>
 {
@@ -28,7 +29,7 @@ public:
   using VecCrtp::operator-=;
   using VecCrtp::operator*=;
 
-  [[nodiscard]] srgb<Float>
+  [[nodiscard]] constexpr srgb<Float>
   to_srgb() const;
 };
 
@@ -46,7 +47,7 @@ constexpr srgb_linear<Float>
 operator*(srgb_linear<Float> lhs, TConv scale);
 
 template<typename Float, typename TConv>
-srgb_linear<Float>
+constexpr srgb_linear<Float>
 operator*(TConv scale, srgb_linear<Float> rhs);
 
 } // namespace htracer::colors
