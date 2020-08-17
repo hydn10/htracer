@@ -5,5 +5,5 @@
 
 **/compile_commands.json
 
-build*/
-out*/
+/build*/
+/out*/
