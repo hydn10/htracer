@@ -9,7 +9,7 @@
                 "limitSymbolsToIncludedHeaders": true
             },
             "includePath": [
-                "${workspaceFolder}/src/raytracer/include"
+                "${workspaceFolder}/source/htracer/include"
             ],
             "defines": [
                 "_DEBUG",

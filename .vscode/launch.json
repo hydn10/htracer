@@ -11,7 +11,7 @@
             "program": "${workspaceFolder}/build-debug/apps/ray/ray.exe",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/build-debug/apps/ray",
+            "cwd": "${workspaceFolder}/outd/apps/ray",
             "environment": [],
             "externalConsole": true,
             "preLaunchTask": "make debug"

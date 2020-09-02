@@ -1,5 +1,13 @@
 {
   "files.associations": {
-    "algorithm": "cpp"
-  }
+    "algorithm": "cpp",
+    "array": "cpp",
+    "initializer_list": "cpp",
+    "list": "cpp",
+    "unordered_map": "cpp",
+    "vector": "cpp",
+    "xhash": "cpp",
+    "xstring": "cpp"
+},
+"cmake.configureOnOpen": false
 }
