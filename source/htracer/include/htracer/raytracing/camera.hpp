@@ -4,7 +4,7 @@
 
 #include <htracer/raytracing/image.hpp>
 #include <htracer/raytracing/sampler.hpp>
-#include <htracer/scene/scene.hpp>
+#include <htracer/scene/scene_view.hpp>
 #include <htracer/vector.hpp>
 
 #include <cmath>
@@ -14,6 +14,7 @@
 
 namespace htracer::raytracing
 {
+
 template<typename Float>
 class camera
 {
@@ -30,22 +31,23 @@ class camera
 public:
   camera(
       v3<Float> origin,
-      const v3<Float>& view,
-      const v3<Float>& up,
+      const v3<Float> &view,
+      const v3<Float> &up,
       uint32_t horizontal_resolution,
       uint32_t vertical_resolution,
       Float fov);
 
+  template<template<typename> typename... Geometries>
   image<Float>
-  render(const scene::scene<Float>& scene) const;
+  render(scene::scene_view<scene::scene<Float, Geometries...>> scene) const;
 };
 
 
 template<typename Float>
 camera<Float>::camera(
     v3<Float> origin,
-    const v3<Float>& view,
-    const v3<Float>& up,
+    const v3<Float> &view,
+    const v3<Float> &up,
     uint32_t horizontal_resolution,
     uint32_t vertical_resolution,
     Float fov)
@@ -61,27 +63,29 @@ camera<Float>::camera(
 
 
 template<typename Float>
+template<template<typename> typename... Geometries>
 image<Float>
-camera<Float>::render(const scene::scene<Float>& scene) const
+camera<Float>::render(scene::scene_view<scene::scene<Float, Geometries...>> scene) const
 {
-  auto h_tan = std::tan(fov_);
-  auto v_tan = h_tan * v_res_ / h_res_;
+  const auto h_tan = std::tan(fov_);
+  const auto v_tan = h_tan * v_res_ / h_res_;
 
   std::vector<colors::srgb_linear<Float>> pixels;
   pixels.reserve(v_res_ * h_res_);
 
   for (auto i = 0u; i < v_res_; ++i)
   {
-    auto dv = v_tan * (1 - (Float(2 * i) / (v_res_ - 1)));
+    auto dv = v_tan * (1 - ((Float{2} * i) / (v_res_ - 1)));
 
     for (auto j = 0u; j < h_res_; ++j)
     {
-      auto dh = h_tan * ((Float(2 * j) / (h_res_ - 1)) - 1);
+      auto dh = h_tan * (((Float{2} * j) / (h_res_ - 1)) - 1);
 
       auto dir = view_ + dv * up_ + dh * right_;
       dir = dir.normalized();
 
-      pixels.push_back(sample({origin_, dir}, scene));
+      // TODO: emplace_back() ?
+      pixels.push_back(sample<Float>({origin_, dir}, scene));
     }
   }
 
@@ -90,4 +94,4 @@ camera<Float>::render(const scene::scene<Float>& scene) const
 
 } // namespace htracer::raytracing
 
-#endif // HTRACER_RAYTRACING_CAMERA_HPP
+#endif

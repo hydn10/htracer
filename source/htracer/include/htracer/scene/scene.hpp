@@ -2,84 +2,97 @@
 #define HTRACER_SCENE_SCENE_HPP
 
 
-#include <htracer/geometry/plane.hpp>
-#include <htracer/geometry/sphere.hpp>
+#include <htracer/geometries/plane.hpp>
+#include <htracer/geometries/sphere.hpp>
 #include <htracer/scene/light.hpp>
 #include <htracer/scene/object.hpp>
-#include <htracer/utils/container.hpp>
+#include <htracer/utils/heterogeneus_visitable.hpp>
 
 #include <vector>
 
 
 namespace htracer::scene
 {
-template<typename Float>
+template<typename Float, template<typename> typename... Geometries>
 class scene
 {
-public:
-  using container = utils::container<
-      object<Float, geometry::sphere>,
-      object<Float, geometry::plane>>;
-
-private:
-  container objects_;
+  utils::heterogeneus_visitable<object<Float, Geometries>...> visitable_;
   std::vector<light<Float>> lights_;
 
 public:
+  template<template<typename> typename Geometry>
+  // TODO: concept restrictions!
   constexpr void
-  add_object(object<Float, geometry::sphere>&& sphere);
+  emplace_object(Geometry<Float> &&geometry, material<Float> &&material);
+  template<template<typename> typename Geometry>
+  // TODO: concept restrictions!
   constexpr void
-  add_object(object<Float, geometry::plane>&& plane);
+  emplace_object(Geometry<Float> &&geometry, material<Float> const &material);
 
   constexpr void
-  add_light(light<Float>&& light);
+  add_light(light<Float> &&light);
 
-  constexpr container const&
-  objects() const;
-  constexpr auto const&
+  template<typename F>
+  void
+  for_each_object(F &&f);
+  template<typename F>
+  void
+  for_each_object(F &&f) const;
+  constexpr auto const &
   lights() const;
 };
 
 
-template<typename Float>
+template<typename Float, template<typename> typename... Geometries>
+template<template<typename> typename Geometry>
 constexpr void
-scene<Float>::add_object(object<Float, geometry::sphere>&& sphere)
+scene<Float, Geometries...>::emplace_object(Geometry<Float> &&geometry, material<Float> &&material)
 {
-  objects_.push(std::forward<object<Float, geometry::sphere>>(sphere));
+  visitable_.emplace<object<Float, Geometry>>(std::forward<Geometry<Float>>(geometry), std::move(material));
 }
 
 
-template<typename Float>
+template<typename Float, template<typename> typename... Geometries>
+template<template<typename> typename Geometry>
 constexpr void
-scene<Float>::add_object(object<Float, geometry::plane>&& plane)
+scene<Float, Geometries...>::emplace_object(Geometry<Float> &&geometry, material<Float> const &material)
 {
-  objects_.push(std::forward<object<Float, geometry::plane>>(plane));
+  visitable_.emplace<object<Float, Geometry>>(std::forward<Geometry<Float>>(geometry), material);
 }
 
 
-template<typename Float>
+template<typename Float, template<typename> typename... Geometries>
 constexpr void
-scene<Float>::add_light(light<Float>&& light)
+scene<Float, Geometries...>::add_light(light<Float> &&light)
 {
   lights_.push_back(light);
 }
 
 
-template<typename Float>
-constexpr auto
-scene<Float>::objects() const -> container const&
+template<typename Float, template<typename> typename... Geometries>
+template<typename F>
+void
+scene<Float, Geometries...>::for_each_object(F &&f)
 {
-  return objects_;
+  visitable_.visit(std::forward<F>(f));
+}
+
+template<typename Float, template<typename> typename... Geometries>
+template<typename F>
+void
+scene<Float, Geometries...>::for_each_object(F &&f) const
+{
+  visitable_.visit(std::forward<F>(f));
 }
 
 
-template<typename Float>
-constexpr auto const&
-scene<Float>::lights() const
+template<typename Float, template<typename> typename... Geometries>
+constexpr auto const &
+scene<Float, Geometries...>::lights() const
 {
   return lights_;
 }
 
 } // namespace htracer::scene
 
-#endif // HTRACER_SCENE_SCENE_HPP
+#endif

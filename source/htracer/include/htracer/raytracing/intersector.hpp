@@ -2,46 +2,46 @@
 #define HTRACER_RAYTRACING_INTERSECTOR_HPP
 
 
-#include <htracer/geometry/ray.hpp>
-#include <htracer/scene/scene.hpp>
+#include <htracer/geometries/ray.hpp>
+#include <htracer/scene/scene_view.hpp>
 
+#include <limits>
 #include <utility>
 #include <vector>
 
 
 namespace htracer::raytracing
 {
-template<typename Float>
+
+// TODO: Try returning normals and material etc intead of pointer and see if performance changes.
+template<typename Float, template<typename> typename... Geometries>
 auto
 intersect(
-    geometry::ray<Float> ray,
-    const typename scene::scene<Float>::container& objects,
-    Float min_dist)
-    -> std::optional<std::pair<
-        Float,
-        typename scene::scene<Float>::container::const_iterator>>
+    const geometries::ray<Float> &ray, scene::scene_view<scene::scene<Float, Geometries...>> scene, Float min_dist)
+    -> std::optional<std::pair<Float, scene::object_base<Float> const &>>
 {
-  std::optional<Float> closest_dist = std::nullopt;
-  auto closest_obj = objects.cend();
+  constexpr auto MAX_DISTANCE = std::numeric_limits<Float>::max();
 
-  for (auto it = objects.cbegin(); it != objects.cend(); ++it)
-  {
-    auto dist = std::visit(
-        [&ray](const auto& v) { return v.get().geometry.intersect(ray); }, *it);
+  // Check performance diference with std::optional;
+  Float closest_dist = MAX_DISTANCE;
+  scene::object_base<Float> const *closest_obj;
 
-    if (dist && *dist > min_dist && (!closest_dist || *dist < *closest_dist))
-    {
-      closest_dist = *dist;
-      closest_obj = it;
-    }
-  }
+  scene.for_each_object(
+      [min_dist, &ray, &closest_dist, &closest_obj](auto const &obj)
+      {
+        if (auto dist = obj.geometry().intersect(ray); dist && dist.value() < closest_dist && dist.value() > min_dist)
+        {
+          closest_dist = dist.value();
+          closest_obj = &obj;
+        }
+      });
 
-  if (!closest_dist)
-    return {};
+  if (closest_dist < MAX_DISTANCE)
+    return std::pair<Float, scene::object_base<Float> const &>(closest_dist, *closest_obj);
 
-  return std::make_pair(*closest_dist, closest_obj);
+  return {};
 }
 
 } // namespace htracer::raytracing
 
-#endif // HTRACER_RAYTRACING_INTERSECTOR_HPP
+#endif

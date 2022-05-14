@@ -7,6 +7,7 @@
 
 namespace htracer::colors
 {
+
 template<typename Float>
 class srgb;
 
@@ -36,11 +37,11 @@ public:
 
 template<typename Float>
 constexpr srgb_linear<Float>
-operator+(srgb_linear<Float> lhs, const srgb_linear<Float>& rhs);
+operator+(srgb_linear<Float> lhs, srgb_linear<Float> const &rhs);
 
 template<typename Float>
 constexpr srgb_linear<Float>
-operator-(srgb_linear<Float> lhs, const srgb_linear<Float>& rhs);
+operator-(srgb_linear<Float> lhs, srgb_linear<Float> const &rhs);
 
 template<typename Float, typename TConv>
 constexpr srgb_linear<Float>
@@ -52,4 +53,4 @@ operator*(TConv scale, srgb_linear<Float> rhs);
 
 } // namespace htracer::colors
 
-#endif // HTRACER_COLORS_SRGBLINEAR_HXX
+#endif

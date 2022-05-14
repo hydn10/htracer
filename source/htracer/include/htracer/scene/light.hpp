@@ -2,12 +2,13 @@
 #define HTRACER_SCENE_LIGHT_HPP
 
 
-#include <htracer/vector.hpp>
 #include <htracer/colors/colors.hpp>
+#include <htracer/vector.hpp>
 
 
 namespace htracer::scene
 {
+
 template<typename Float>
 struct light
 {
@@ -18,4 +19,4 @@ struct light
 
 } // namespace htracer::scene
 
-#endif // HTRACER_SCENE_LIGHT_HPP
+#endif

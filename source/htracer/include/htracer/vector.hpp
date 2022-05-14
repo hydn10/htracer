@@ -11,12 +11,13 @@
 
 namespace htracer
 {
+
 template<typename Float, std::size_t N>
 class vector;
 
 template<typename Float, std::size_t N>
-std::ostream&
-operator<<(std::ostream& os, const vector<Float, N>& rhs);
+std::ostream &
+operator<<(std::ostream &os, vector<Float, N> const &rhs);
 
 
 template<typename Float, std::size_t N>
@@ -50,22 +51,21 @@ public:
   using VecCrtp::cbegin;
   using VecCrtp::cend;
 
-  friend std::ostream& operator<<<Float, N>(
-      std::ostream& os,
-      const vector<Float, N>& rhs);
+  friend std::ostream &
+  operator<< <Float, N>(std::ostream &os, vector<Float, N> const &rhs);
 
   void
-  swap(vector<Float, N>& rhs) noexcept;
+  swap(vector<Float, N> &rhs) noexcept;
 };
 
 
 template<typename Float, std::size_t N>
 constexpr vector<Float, N>
-operator+(vector<Float, N> lhs, const vector<Float, N>& rhs);
+operator+(vector<Float, N> lhs, vector<Float, N> const &rhs);
 
 template<typename Float, std::size_t N>
 constexpr vector<Float, N>
-operator-(vector<Float, N> lhs, const vector<Float, N>& rhs);
+operator-(vector<Float, N> lhs, vector<Float, N> const &rhs);
 
 template<typename Float, std::size_t N, typename TConv>
 constexpr vector<Float, N>
@@ -77,11 +77,11 @@ operator*(TConv scale, vector<Float, N> rhs);
 
 template<typename Float, std::size_t N>
 constexpr Float
-dot(const vector<Float, N>& lhs, const vector<Float, N>& rhs);
+dot(const vector<Float, N> &lhs, vector<Float, N> const &rhs);
 
 template<typename Float>
 constexpr vector<Float, 3>
-cross(const vector<Float, 3>& lhs, const vector<Float, 3>& rhs);
+cross(const vector<Float, 3> &lhs, vector<Float, 3> const &rhs);
 
 
 template<typename Float>
@@ -90,7 +90,7 @@ using v3 = vector<Float, 3>;
 
 template<typename Float, std::size_t N>
 void
-vector<Float, N>::swap(vector<Float, N>& rhs) noexcept
+vector<Float, N>::swap(vector<Float, N> &rhs) noexcept
 {
   VecCrtp::swap(rhs);
 }
@@ -107,7 +107,7 @@ vector<Float, N>::normalized() const
 
 template<typename Float, std::size_t N>
 constexpr vector<Float, N>
-operator+(vector<Float, N> lhs, const vector<Float, N>& rhs)
+operator+(vector<Float, N> lhs, vector<Float, N> const &rhs)
 {
   return lhs += rhs;
 }
@@ -115,7 +115,7 @@ operator+(vector<Float, N> lhs, const vector<Float, N>& rhs)
 
 template<typename Float, std::size_t N>
 constexpr vector<Float, N>
-operator-(vector<Float, N> lhs, const vector<Float, N>& rhs)
+operator-(vector<Float, N> lhs, vector<Float, N> const &rhs)
 {
   return lhs -= rhs;
 }
@@ -139,7 +139,7 @@ operator*(TConv scale, vector<Float, N> rhs)
 
 template<typename Float, std::size_t N>
 constexpr Float
-dot(const vector<Float, N>& lhs, const vector<Float, N>& rhs)
+dot(const vector<Float, N> &lhs, vector<Float, N> const &rhs)
 {
   return std::inner_product(lhs.begin(), lhs.end(), rhs.begin(), Float{0});
 }
@@ -147,18 +147,15 @@ dot(const vector<Float, N>& lhs, const vector<Float, N>& rhs)
 
 template<typename Float>
 constexpr vector<Float, 3>
-cross(const vector<Float, 3>& lhs, const vector<Float, 3>& rhs)
+cross(const vector<Float, 3> &lhs, vector<Float, 3> const &rhs)
 {
-  return {
-      lhs[1] * rhs[2] - rhs[1] * lhs[2],
-      lhs[2] * rhs[0] - rhs[2] * lhs[0],
-      lhs[0] * rhs[1] - rhs[0] * lhs[1]};
+  return {lhs[1] * rhs[2] - rhs[1] * lhs[2], lhs[2] * rhs[0] - rhs[2] * lhs[0], lhs[0] * rhs[1] - rhs[0] * lhs[1]};
 }
 
 
 template<typename Float, std::size_t N>
-std::ostream&
-operator<<(std::ostream& os, const vector<Float, N>& rhs)
+std::ostream &
+operator<<(std::ostream &os, vector<Float, N> const &rhs)
 {
   os << '[';
 
@@ -172,4 +169,4 @@ operator<<(std::ostream& os, const vector<Float, N>& rhs)
 
 } // namespace htracer
 
-#endif // HTRACER_VECTOR_HPP
+#endif

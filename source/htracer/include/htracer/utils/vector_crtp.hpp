@@ -7,6 +7,7 @@
 
 namespace htracer
 {
+
 template<typename Derived, typename Float, std::size_t N>
 class vector_crtp
 {
@@ -24,17 +25,17 @@ public:
   template<typename... Args>
   constexpr vector_crtp(Args... values);
 
-  constexpr Float&
+  constexpr Float &
   operator[](std::size_t index);
 
-  constexpr Float const&
+  constexpr Float const &
   operator[](std::size_t index) const;
 
-  constexpr Derived&
-  operator+=(const Derived& rhs);
-  constexpr Derived&
-  operator-=(const Derived& rhs);
-  constexpr Derived&
+  constexpr Derived &
+  operator+=(Derived const &rhs);
+  constexpr Derived &
+  operator-=(Derived const &rhs);
+  constexpr Derived &
   operator*=(Float scale);
 
   constexpr iterator
@@ -51,13 +52,12 @@ public:
   cend() const;
 
   constexpr void
-  swap(Derived& rhs) noexcept;
+  swap(Derived &rhs) noexcept;
 };
 
 
 template<typename Derived, typename Float, std::size_t N>
-constexpr vector_crtp<Derived, Float, N>::vector_crtp(
-    std::array<Float, N> values)
+constexpr vector_crtp<Derived, Float, N>::vector_crtp(std::array<Float, N> values)
     : elems_{values}
 {
 }
@@ -72,35 +72,35 @@ constexpr vector_crtp<Derived, Float, N>::vector_crtp(Args... values)
 
 
 template<typename Derived, typename Float, std::size_t N>
-constexpr Derived&
-vector_crtp<Derived, Float, N>::operator+=(const Derived& rhs)
+constexpr Derived &
+vector_crtp<Derived, Float, N>::operator+=(Derived const &rhs)
 {
   for (std::size_t i = 0; i < N; ++i)
     this->elems_[i] += rhs.elems_[i];
 
-  return static_cast<Derived&>(*this);
+  return static_cast<Derived &>(*this);
 }
 
 
 template<typename Derived, typename Float, std::size_t N>
-constexpr Derived&
-vector_crtp<Derived, Float, N>::operator-=(const Derived& rhs)
+constexpr Derived &
+vector_crtp<Derived, Float, N>::operator-=(Derived const &rhs)
 {
   for (std::size_t i = 0; i < N; ++i)
     this->elems_[i] -= rhs.elems_[i];
 
-  return static_cast<Derived&>(*this);
+  return static_cast<Derived &>(*this);
 }
 
 
 template<typename Derived, typename Float, std::size_t N>
-constexpr Derived&
+constexpr Derived &
 vector_crtp<Derived, Float, N>::operator*=(Float scale)
 {
   for (std::size_t i = 0; i < N; ++i)
     elems_[i] *= scale;
 
-  return static_cast<Derived&>(*this);
+  return static_cast<Derived &>(*this);
 }
 
 
@@ -154,14 +154,14 @@ vector_crtp<Derived, Float, N>::cend() const -> const_iterator
 
 template<typename Derived, typename Float, std::size_t N>
 constexpr void
-vector_crtp<Derived, Float, N>::swap(Derived& rhs) noexcept
+vector_crtp<Derived, Float, N>::swap(Derived &rhs) noexcept
 {
   std::swap(this->elems_, rhs.elems_);
 }
 
 
 template<typename Derived, typename Float, std::size_t N>
-constexpr Float&
+constexpr Float &
 vector_crtp<Derived, Float, N>::operator[](std::size_t index)
 {
   return elems_[index];
@@ -169,7 +169,7 @@ vector_crtp<Derived, Float, N>::operator[](std::size_t index)
 
 
 template<typename Derived, typename Float, std::size_t N>
-constexpr Float const&
+constexpr Float const &
 vector_crtp<Derived, Float, N>::operator[](std::size_t index) const
 {
   return elems_[index];
@@ -177,4 +177,4 @@ vector_crtp<Derived, Float, N>::operator[](std::size_t index) const
 
 } // namespace htracer
 
-#endif // HTRACER_UTILS_VECTORCRTP_HPP
+#endif

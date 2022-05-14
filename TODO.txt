@@ -1,3 +1,10 @@
+- Check clang-format options, fill them all and then format all files.
+- Remove comments after #endif.
+- Templatize container in scene (so std::array can be used for constexpr raytracer).
+- Check std::forward is used when needed.
+- Use concepts!
+
+
 - Textures.
 
 - Finish material system. Specular color. Handle light color multiplication
@@ -35,7 +42,7 @@
 - Study using normalized_vector class.
 
 - Simulate camera exposure, even retina exposure maybe (if there is motion)
-  instead of just saturating the final color.
+  instead of just saturating the final color (tone mapping?).
 
 - Signed Distance Functions. Raymarching.
 

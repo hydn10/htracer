@@ -1,9 +1,12 @@
-.clangd
-.ccls
+**/CMakeUserPresets.json
 
-**/result
+/out*/
 
 **/compile_commands.json
+**/.clangd
+**/.ccls
 
-/build*/
-/out*/
+**/.vs/
+**/.vscode/
+
+**/result

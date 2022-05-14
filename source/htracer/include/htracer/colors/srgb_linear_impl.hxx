@@ -12,6 +12,7 @@
 
 namespace htracer::colors
 {
+
 template<typename Float>
 constexpr srgb_linear<Float>::srgb_linear(Float r, Float g, Float b) noexcept
     : vector_crtp<srgb_linear<Float>, Float, 3>{r, g, b}
@@ -25,24 +26,27 @@ srgb_linear<Float>::to_srgb() const
 {
   // https://entropymine.com/imageworsener/srgbformula/
 
-  constexpr Float LINEAR_CUTOFF = 0.00313066844250063;
-  constexpr Float SLOPE = 12.92;
-  constexpr Float EXP_OFFSET = 0.055;
-  constexpr Float EXPONENT = 2.4;
+  return utils::transform_into<srgb<Float>>(
+      *this,
+      [](auto &&val)
+      {
+        constexpr Float LINEAR_CUTOFF = 0.00313066844250063;
+        constexpr Float SLOPE = 12.92;
+        constexpr Float EXP_OFFSET = 0.055;
+        constexpr Float EXPONENT = 2.4;
 
-  return utils::transform_into<srgb<Float>>(*this, [](auto&& val) {
-    if (val <= LINEAR_CUTOFF)
-      return val * SLOPE;
+        if (val <= LINEAR_CUTOFF)
+          return val * SLOPE;
 
-    const auto raised = std::pow(val, 1 / EXPONENT);
-    return (1 + EXP_OFFSET) * raised - EXP_OFFSET;
-  });
+        const auto raised = std::pow(val, 1 / EXPONENT);
+        return (1 + EXP_OFFSET) * raised - EXP_OFFSET;
+      });
 }
 
 
 template<typename Float>
 constexpr srgb_linear<Float>
-operator+(srgb_linear<Float> lhs, const srgb_linear<Float>& rhs)
+operator+(srgb_linear<Float> lhs, srgb_linear<Float> const &rhs)
 {
   return lhs += rhs;
 }
@@ -50,7 +54,7 @@ operator+(srgb_linear<Float> lhs, const srgb_linear<Float>& rhs)
 
 template<typename Float>
 constexpr srgb_linear<Float>
-operator-(srgb_linear<Float> lhs, const srgb_linear<Float>& rhs)
+operator-(srgb_linear<Float> lhs, srgb_linear<Float> const &rhs)
 {
   return lhs -= rhs;
 }
@@ -73,4 +77,4 @@ operator*(TConv scale, srgb_linear<Float> rhs)
 
 } // namespace htracer::colors
 
-#endif // HTRACER_COLORS_SRGBLINEARIMPL_HXX
+#endif

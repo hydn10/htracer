@@ -68,4 +68,4 @@ image<Float>::pixels() const
 
 } // namespace htracer::raytracing
 
-#endif // HTRACER_RAYTRACING_IMAGE_HPP
+#endif

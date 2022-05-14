@@ -7,6 +7,7 @@
 
 namespace htracer::colors
 {
+
 template<typename Float>
 class srgb;
 
@@ -17,11 +18,11 @@ class hsl : private vector_crtp<srgb<Float>, Float, 3>
 public:
   constexpr hsl(Float h, Float s, Float l) noexcept;
 
-  [[nodiscard]] constexpr const Float&
+  [[nodiscard]] constexpr const Float &
   h() const;
-  [[nodiscard]] constexpr const Float&
+  [[nodiscard]] constexpr const Float &
   s() const;
-  [[nodiscard]] constexpr const Float&
+  [[nodiscard]] constexpr const Float &
   l() const;
 
   [[nodiscard]] constexpr srgb<Float>
@@ -30,4 +31,4 @@ public:
 
 } // namespace htracer::colors
 
-#endif // HTRACER_COLORS_HSL_HXX
+#endif

@@ -12,6 +12,7 @@
 
 namespace htracer::colors
 {
+
 template<typename Float>
 constexpr hsl<Float>::hsl(Float r, Float g, Float b) noexcept
     : vector_crtp<srgb<Float>, Float, 3>{r, g, b}
@@ -20,7 +21,7 @@ constexpr hsl<Float>::hsl(Float r, Float g, Float b) noexcept
 
 
 template<typename Float>
-constexpr const Float&
+constexpr const Float &
 hsl<Float>::h() const
 {
   return (*this)[0];
@@ -28,7 +29,7 @@ hsl<Float>::h() const
 
 
 template<typename Float>
-constexpr const Float&
+constexpr const Float &
 hsl<Float>::s() const
 {
   return (*this)[1];
@@ -36,7 +37,7 @@ hsl<Float>::s() const
 
 
 template<typename Float>
-constexpr const Float&
+constexpr const Float &
 hsl<Float>::l() const
 {
   return (*this)[2];
@@ -49,8 +50,8 @@ hsl<Float>::to_srgb() const
 {
   // https://en.wikipedia.org/wiki/HSL_and_HSV
 
-  const auto srgb_from_hprime =
-      [](const auto& hprime, const auto& c, const auto& x) -> srgb<Float> {
+  const auto srgb_from_hprime = [](const auto &hprime, const auto &c, const auto &x) -> srgb<Float>
+  {
     if (0 <= hprime && hprime < 1)
       return {c, x, 0};
 
@@ -79,4 +80,4 @@ hsl<Float>::to_srgb() const
 
 } // namespace htracer::colors
 
-#endif // HTRACER_COLORS_HSLIMPL_HXX
+#endif

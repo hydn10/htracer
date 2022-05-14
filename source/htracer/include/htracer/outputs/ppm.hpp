@@ -5,36 +5,38 @@
 #include <htracer/raytracing/image.hpp>
 
 
-namespace htracer::output
+namespace htracer::outputs
 {
+
 template<typename Ostream>
 class ppm
 {
-  Ostream& out_;
+  Ostream &out_;
 
 public:
-  explicit ppm(Ostream& ostream);
+  explicit ppm(Ostream &ostream);
 
   template<typename Float>
-  ppm<Ostream>&
-  operator<<(const raytracing::image<Float>& image);
+  ppm<Ostream> &
+  operator<<(raytracing::image<Float> const &image);
 };
 
 
 template<typename Ostream>
-ppm<Ostream>::ppm(Ostream& ostream) : out_(ostream)
+ppm<Ostream>::ppm(Ostream &ostream)
+    : out_(ostream)
 {
 }
 
 
 template<typename Ostream>
 template<typename Float>
-ppm<Ostream>&
-ppm<Ostream>::operator<<(const raytracing::image<Float>& image)
+ppm<Ostream> &
+ppm<Ostream>::operator<<(const raytracing::image<Float> &image)
 {
   out_ << "P6\n" << image.h_res() << " " << image.v_res() << "\n255\n";
 
-  for (const auto& pixel: image.pixels())
+  for (auto const &pixel : image.pixels())
   {
     constexpr auto BYTE = 255;
 
@@ -48,6 +50,6 @@ ppm<Ostream>::operator<<(const raytracing::image<Float>& image)
   return *this;
 }
 
-} // namespace htracer::output
+} // namespace htracer::outputs
 
-#endif // HTRACER_OUTPUT_PPM_HPP
+#endif

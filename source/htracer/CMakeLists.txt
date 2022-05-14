@@ -1,4 +1,5 @@
 set(target htracerlib)
 
-add_library(${target} ${CMAKE_CURRENT_SOURCE_DIR}/src/null.cpp)
-target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+add_library(${target} INTERFACE)
+target_include_directories(${target} INTERFACE ./include)
+target_compile_features (${target} INTERFACE cxx_std_20)
