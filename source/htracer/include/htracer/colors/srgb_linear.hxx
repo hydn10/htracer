@@ -22,6 +22,7 @@ public:
   using typename VecCrtp::float_type;
   using VecCrtp::size;
 
+  srgb_linear() noexcept = default;
   constexpr srgb_linear(Float r, Float g, Float b) noexcept;
 
   using VecCrtp::operator[];

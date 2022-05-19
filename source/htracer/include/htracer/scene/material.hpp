@@ -30,7 +30,7 @@ make_mirror(Float specular, Float shininess, Float reflectivity);
 
 template<typename Float>
 constexpr material<Float>
-make_solid(const colors::srgb_linear<Float> &color, Float ambient, Float specular, Float shininess, Float reflectivity)
+make_solid(colors::srgb_linear<Float> const &color, Float ambient, Float specular, Float shininess, Float reflectivity)
 {
   return {ambient * color, color, specular, shininess, reflectivity};
 }

@@ -17,27 +17,23 @@ class image
   const uint32_t v_res_;
 
 public:
-  image(
-      uint32_t h_res,
-      uint32_t v_res,
-      std::vector<colors::srgb_linear<Float>> pixels);
+  image(uint32_t h_res, uint32_t v_res, std::vector<colors::srgb_linear<Float>> pixels);
 
   [[nodiscard]] uint32_t
   h_res() const;
   [[nodiscard]] uint32_t
   v_res() const;
 
-  [[nodiscard]] std::vector<colors::srgb_linear<Float>> const&
+  [[nodiscard]] std::vector<colors::srgb_linear<Float>> const &
   pixels() const;
 };
 
 
 template<typename Float>
-image<Float>::image(
-    uint32_t h_res,
-    uint32_t v_res,
-    std::vector<colors::srgb_linear<Float>> pixels)
-    : h_res_{h_res}, v_res_{v_res}, pixels_(std::move(pixels))
+image<Float>::image(uint32_t h_res, uint32_t v_res, std::vector<colors::srgb_linear<Float>> pixels)
+    : h_res_{h_res}
+    , v_res_{v_res}
+    , pixels_(std::move(pixels))
 {
   // TODO: Assert pixels_.size() == h_res_ * v_res_
 }
@@ -60,7 +56,7 @@ image<Float>::v_res() const
 
 
 template<typename Float>
-std::vector<colors::srgb_linear<Float>> const&
+std::vector<colors::srgb_linear<Float>> const &
 image<Float>::pixels() const
 {
   return pixels_;

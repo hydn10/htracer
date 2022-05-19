@@ -17,7 +17,7 @@ colors::srgb_linear<Float>
 sample(geometries::ray<Float> const &ray, scene::scene_view<scene::scene<Float, Geometries...>> scene);
 
 
-namespace detail_
+namespace
 {
 
 template<typename Float, template<typename> typename... Geometries>
@@ -31,11 +31,11 @@ template<typename Float, template<typename> typename... Geometries>
 colors::srgb_linear<Float>
 sample(geometries::ray<Float> const &ray, scene::scene_view<scene::scene<Float, Geometries...>> scene)
 {
-  return detail_::sample(ray, scene, 0);
+  return sample(ray, scene, 0);
 }
 
 
-namespace detail_
+namespace
 {
 
 template<typename Float, template<typename> typename... Geometries>

@@ -17,7 +17,7 @@ namespace htracer::raytracing
 template<typename Float, template<typename> typename... Geometries>
 auto
 intersect(
-    const geometries::ray<Float> &ray, scene::scene_view<scene::scene<Float, Geometries...>> scene, Float min_dist)
+    geometries::ray<Float> const &ray, scene::scene_view<scene::scene<Float, Geometries...>> scene, Float min_dist)
     -> std::optional<std::pair<Float, scene::object_base<Float> const &>>
 {
   constexpr auto MAX_DISTANCE = std::numeric_limits<Float>::max();
@@ -29,10 +29,13 @@ intersect(
   scene.for_each_object(
       [min_dist, &ray, &closest_dist, &closest_obj](auto const &obj)
       {
-        if (auto dist = obj.geometry().intersect(ray); dist && dist.value() < closest_dist && dist.value() > min_dist)
+        if (auto dist_o = obj.geometry().intersect(ray); dist_o)
         {
-          closest_dist = dist.value();
-          closest_obj = &obj;
+          if (auto dist = *dist_o; dist < closest_dist && dist > min_dist)
+          {
+            closest_dist = dist;
+            closest_obj = &obj;
+          }
         }
       });
 

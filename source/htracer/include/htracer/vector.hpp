@@ -77,11 +77,11 @@ operator*(TConv scale, vector<Float, N> rhs);
 
 template<typename Float, std::size_t N>
 constexpr Float
-dot(const vector<Float, N> &lhs, vector<Float, N> const &rhs);
+dot(vector<Float, N> const &lhs, vector<Float, N> const &rhs);
 
 template<typename Float>
 constexpr vector<Float, 3>
-cross(const vector<Float, 3> &lhs, vector<Float, 3> const &rhs);
+cross(vector<Float, 3> const &lhs, vector<Float, 3> const &rhs);
 
 
 template<typename Float>
@@ -139,7 +139,7 @@ operator*(TConv scale, vector<Float, N> rhs)
 
 template<typename Float, std::size_t N>
 constexpr Float
-dot(const vector<Float, N> &lhs, vector<Float, N> const &rhs)
+dot(vector<Float, N> const &lhs, vector<Float, N> const &rhs)
 {
   return std::inner_product(lhs.begin(), lhs.end(), rhs.begin(), Float{0});
 }
@@ -147,12 +147,13 @@ dot(const vector<Float, N> &lhs, vector<Float, N> const &rhs)
 
 template<typename Float>
 constexpr vector<Float, 3>
-cross(const vector<Float, 3> &lhs, vector<Float, 3> const &rhs)
+cross(vector<Float, 3> const &lhs, vector<Float, 3> const &rhs)
 {
   return {lhs[1] * rhs[2] - rhs[1] * lhs[2], lhs[2] * rhs[0] - rhs[2] * lhs[0], lhs[0] * rhs[1] - rhs[0] * lhs[1]};
 }
 
 
+// TODO: Probably should not exist here, this is just a debugging helper.
 template<typename Float, std::size_t N>
 std::ostream &
 operator<<(std::ostream &os, vector<Float, N> const &rhs)

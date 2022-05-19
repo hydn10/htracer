@@ -28,8 +28,9 @@ srgb_linear<Float>::to_srgb() const
 
   return utils::transform_into<srgb<Float>>(
       *this,
-      [](auto &&val)
+      [](auto val)
       {
+        // TODO: Assert 0 <= val <= 1;
         constexpr Float LINEAR_CUTOFF = 0.00313066844250063;
         constexpr Float SLOPE = 12.92;
         constexpr Float EXP_OFFSET = 0.055;

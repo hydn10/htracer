@@ -7,7 +7,7 @@
 
 namespace htracer::utils
 {
-namespace detail_
+namespace
 {
 
 template<typename VectorTo, typename Derived, typename Float, std::size_t N, typename F, std::size_t... Is>
@@ -24,14 +24,15 @@ transform_impl(VectorFrom const &v, F &&f, std::index_sequence<Is...>)
 {
   return {f(v[Is])...};
 }
-} // namespace detail_
+
+} // namespace
 
 
 template<typename VectorTo, typename Derived, typename Float, std::size_t N, typename F>
 VectorTo
 transform_into(vector_crtp<Derived, Float, N> const &v, F &&f)
 {
-  return detail_::transform_into_impl<VectorTo>(v, std::forward<F>(f), std::make_index_sequence<N>());
+  return transform_into_impl<VectorTo>(v, std::forward<F>(f), std::make_index_sequence<N>());
 }
 
 
@@ -39,7 +40,7 @@ template<typename Vector, typename F>
 Vector
 transform(Vector const &v, F &&f)
 {
-  return detail_::transform_impl<Vector, Vector, F>(v, std::forward<F>(f), std::make_index_sequence<Vector::size>());
+  return transform_impl<Vector>(v, std::forward<F>(f), std::make_index_sequence<Vector::size>());
 }
 
 } // namespace htracer::utils
