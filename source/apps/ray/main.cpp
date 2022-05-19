@@ -4,8 +4,6 @@
 #include <htracer/scene/scene.hpp>
 #include <htracer/vector.hpp>
 
-#include <fstream>
-#include <iostream>
 #include <variant>
 
 
@@ -62,12 +60,11 @@ main(int argc, char const *argv[])
   // htracer::v3<Float> const camera_dir = htracer::v3<Float>(1.5, 1.0, -3.0) - camera_pos;
   // htracer::v3<Float> const camera_up(0, 1, 0);
 
-  htracer::raytracing::camera<Float> cam(camera_pos, camera_dir, camera_up, 2560, 1440, 60 * std::atan(Float{1}) / 45, 0.05, focal_distance);
+  htracer::raytracing::camera<Float> cam(
+      camera_pos, camera_dir, camera_up, 2560, 1440, 60 * std::atan(Float{1}) / 45, 0.05, focal_distance);
 
-  auto image = cam.render(std::execution::par_unseq, htracer::scene::scene_view(scene), 250);
+  auto const image = cam.render(std::execution::par_unseq, htracer::scene::scene_view(scene), 250);
 
-  std::ofstream ofs(filename.data(), std::ios::out | std::ios::binary);
-  htracer::outputs::ppm ppm(ofs);
-
-  ppm << image;
+  htracer::outputs::ppm<htracer::outputs::ppm_bytes_per_value::PPM2> const ppm{};
+  ppm.save(filename, image);
 }

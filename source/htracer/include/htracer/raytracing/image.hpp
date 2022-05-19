@@ -9,6 +9,7 @@
 
 namespace htracer::raytracing
 {
+
 template<typename Float>
 class image
 {

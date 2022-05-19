@@ -13,7 +13,7 @@ class srgb_linear;
 
 
 template<typename Float>
-class srgb : private vector_crtp<srgb<Float>, Float, 3>
+class srgb final : private vector_crtp<srgb<Float>, Float, 3>
 {
 public:
   constexpr srgb(Float r, Float g, Float b) noexcept;

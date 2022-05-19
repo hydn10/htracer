@@ -7,6 +7,7 @@
 
 namespace htracer::geometries
 {
+
 template<typename Float>
 struct ray
 {

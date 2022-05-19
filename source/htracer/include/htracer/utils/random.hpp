@@ -11,13 +11,13 @@ namespace htracer::utils
 template<typename Float>
 class random
 {
-  // std::random_device r_;
+  std::random_device r_;
   std::default_random_engine g_;
   std::uniform_real_distribution<Float> dist_;
 
 public:
   random(Float a, Float b)
-      : g_{73}
+      : g_{r_()}
       , dist_{a, b}
   {
   }

@@ -21,7 +21,7 @@ operator<<(std::ostream &os, vector<Float, N> const &rhs);
 
 
 template<typename Float, std::size_t N>
-class vector : private vector_crtp<vector<Float, N>, Float, N>
+class vector final : private vector_crtp<vector<Float, N>, Float, N>
 {
   using VecCrtp = vector_crtp<vector<Float, N>, Float, N>;
   friend VecCrtp;
@@ -42,6 +42,7 @@ public:
   using VecCrtp::operator-=;
   using VecCrtp::operator*=;
 
+  // TODO: Move to non class function.
   [[nodiscard]] vector<Float, N>
   normalized() const;
 
@@ -50,9 +51,6 @@ public:
 
   using VecCrtp::cbegin;
   using VecCrtp::cend;
-
-  friend std::ostream &
-  operator<< <Float, N>(std::ostream &os, vector<Float, N> const &rhs);
 
   void
   swap(vector<Float, N> &rhs) noexcept;
@@ -150,22 +148,6 @@ constexpr vector<Float, 3>
 cross(vector<Float, 3> const &lhs, vector<Float, 3> const &rhs)
 {
   return {lhs[1] * rhs[2] - rhs[1] * lhs[2], lhs[2] * rhs[0] - rhs[2] * lhs[0], lhs[0] * rhs[1] - rhs[0] * lhs[1]};
-}
-
-
-// TODO: Probably should not exist here, this is just a debugging helper.
-template<typename Float, std::size_t N>
-std::ostream &
-operator<<(std::ostream &os, vector<Float, N> const &rhs)
-{
-  os << '[';
-
-  for (std::size_t i = 0; i < N - 1; ++i)
-    os << rhs[i] << ',';
-
-  os << rhs[N - 1] << ']';
-
-  return os;
 }
 
 } // namespace htracer

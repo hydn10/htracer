@@ -24,6 +24,7 @@ public:
   constexpr explicit vector_crtp(std::array<Float, N> values);
   template<typename... Args>
   constexpr vector_crtp(Args... values);
+  virtual ~vector_crtp() = default;
 
   constexpr Float &
   operator[](std::size_t index);
