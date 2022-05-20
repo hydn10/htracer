@@ -21,9 +21,9 @@ operator<<(std::ostream &os, vector<Float, N> const &rhs);
 
 
 template<typename Float, std::size_t N>
-class vector final : private vector_crtp<vector<Float, N>, Float, N>
+class vector final : private utils::vector_crtp<vector<Float, N>, Float, N>
 {
-  using VecCrtp = vector_crtp<vector<Float, N>, Float, N>;
+  using VecCrtp = utils::vector_crtp<vector<Float, N>, Float, N>;
   friend VecCrtp;
 
 public:
@@ -34,7 +34,7 @@ public:
   using const_iterator = typename VecCrtp::const_iterator;
 
   // TODO: For some reason clang++ doesnt like VecCrtp::vector_crtp
-  using vector_crtp<vector<Float, N>, Float, N>::vector_crtp;
+  using utils::vector_crtp<vector<Float, N>, Float, N>::vector_crtp;
 
   using VecCrtp::operator[];
 

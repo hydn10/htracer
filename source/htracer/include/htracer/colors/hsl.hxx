@@ -13,7 +13,7 @@ class srgb;
 
 
 template<typename Float>
-class hsl final : private vector_crtp<srgb<Float>, Float, 3>
+class hsl final : private utils::vector_crtp<srgb<Float>, Float, 3>
 {
 public:
   constexpr hsl(Float h, Float s, Float l) noexcept;

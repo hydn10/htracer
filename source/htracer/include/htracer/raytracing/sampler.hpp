@@ -52,7 +52,7 @@ sample(geometries::ray<Float> const &ray, scene::scene_view<scene::scene<Float, 
   // must be > 0 or else reflections/refractions wont work.
   constexpr Float MIN_DISTANCE = .002;
 
-  const auto intersection = intersect(ray, scene, MIN_DISTANCE);
+  auto const intersection = intersect(ray, scene, MIN_DISTANCE);
 
   if (!intersection)
     return {0., 0., 0.};
@@ -61,34 +61,34 @@ sample(geometries::ray<Float> const &ray, scene::scene_view<scene::scene<Float, 
 
   auto const &material = obj.material();
 
-  const auto p = ray.origin + obj_dist * ray.direction;
-  const auto n = obj.geometry().normal(p);
+  auto const p = ray.origin + obj_dist * ray.direction;
+  auto const n = obj.geometry().normal(p);
 
   auto pixel_color = material.ambient_color;
 
   for (auto const &light : scene.lights())
   {
-    const auto pl = light.position - p;
-    const auto light_dist2 = dot(pl, pl);
-    const auto light_dist = std::sqrt(light_dist2);
-    const auto light_dist2_inv = 1 / light_dist2;
-    const auto l = pl.normalized();
+    auto const pl = light.position - p;
+    auto const light_dist2 = dot(pl, pl);
+    auto const light_dist = std::sqrt(light_dist2);
+    auto const light_dist2_inv = 1 / light_dist2;
+    auto const l = pl.normalized();
 
-    const auto light_intersect = intersect({p, l}, scene, MIN_DISTANCE);
+    auto const light_intersect = intersect({p, l}, scene, MIN_DISTANCE);
 
     if (light_intersect && light_intersect->first < light_dist)
       continue;
 
-    const auto lambertian = std::max(dot(l, n), Float{0});
+    auto const lambertian = std::max(dot(l, n), Float{0});
 
     pixel_color += (lambertian * light.intensity * light_dist2_inv) * material.diffuse_color;
 
     if (lambertian > 0) // TODO: Is this necessary? I suspect if lambertian == 0
                         // then specular == 0, so it is an optimization.
     {
-      const auto h = (l - ray.direction).normalized();
-      const auto spec_angle = std::max(dot(h, n), Float{0});
-      const auto specular = std::pow(spec_angle, material.shininess);
+      auto const h = (l - ray.direction).normalized();
+      auto const spec_angle = std::max(dot(h, n), Float{0});
+      auto const specular = std::pow(spec_angle, material.shininess);
 
       pixel_color += (material.specular * specular * light.intensity * light_dist2_inv) * light.color;
     }
@@ -96,7 +96,7 @@ sample(geometries::ray<Float> const &ray, scene::scene_view<scene::scene<Float, 
 
   if (material.reflectivity > 0)
   {
-    const auto reflect_dir = reflect(ray.direction, n);
+    auto const reflect_dir = reflect(ray.direction, n);
     pixel_color += material.reflectivity * sample({p, reflect_dir}, scene, depth + 1);
   }
 

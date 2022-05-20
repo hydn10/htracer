@@ -12,18 +12,16 @@ namespace htracer::outputs
 {
 
 
-enum class ppm_bytes_per_value
-{
-  PPM1,
-  PPM2,
-};
-
-
-template<ppm_bytes_per_value BPV = ppm_bytes_per_value::PPM1>
 class ppm
 {
 public:
-  template<typename Float>
+  enum class bytes_per_value
+  {
+    BPV1,
+    BPV2,
+  };
+
+  template<bytes_per_value BPV, typename Float>
   void
   save(std::string_view filename, raytracing::image<Float> const &image) const;
 };
@@ -32,35 +30,48 @@ public:
 namespace detail_
 {
 
-template<ppm_bytes_per_value bpv>
+template<ppm::bytes_per_value BPV>
 struct bpv_traits
 {
 };
 
 
 template<>
-struct bpv_traits<ppm_bytes_per_value::PPM1>
+struct bpv_traits<ppm::bytes_per_value::BPV1>
 {
   static constexpr auto const NUM_COLORS = 256;
   using pixel_value_type = std::uint8_t;
+
+  static pixel_value_type
+  to_big_endian(pixel_value_type value)
+  {
+    return value;
+  }
 };
 
 
 template<>
-struct bpv_traits<ppm_bytes_per_value::PPM2>
+struct bpv_traits<ppm::bytes_per_value::BPV2>
 {
   static constexpr auto const NUM_COLORS = 65536;
   using pixel_value_type = std::uint16_t;
+
+  static pixel_value_type
+  to_big_endian(pixel_value_type value)
+  {
+    return (value >> 8) | (value << 8);
+  }
 };
 
 } // namespace detail_
 
 
-template<ppm_bytes_per_value BPV>
-template<typename Float>
+template<ppm::bytes_per_value BPV, typename Float>
 void
-ppm<BPV>::save(std::string_view filename, raytracing::image<Float> const &image) const
+ppm::save(std::string_view filename, raytracing::image<Float> const &image) const
 {
+  // http://netpbm.sourceforge.net/doc/ppm.html
+
   using traits_t = detail_::bpv_traits<BPV>;
 
   constexpr auto NUM_COLORS = traits_t::NUM_COLORS;
@@ -80,7 +91,7 @@ ppm<BPV>::save(std::string_view filename, raytracing::image<Float> const &image)
 
     if constexpr (std::endian::native != std::endian::big)
     {
-      return (res >> 8) | (res << 8);
+      return traits_t::to_big_endian(res);
     }
     else
     {

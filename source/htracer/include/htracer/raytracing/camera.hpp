@@ -118,14 +118,10 @@ camera<Float>::render(
       policy,
       std::begin(v_indices),
       std::end(v_indices),
-      [&](auto i)
+      [&](auto const i)
       {
-        // auto dv = v_tan * (1 - ((Float{2} * i) / (v_res_ - 1)));
-
         for (auto j = 0u; j < h_res_; ++j)
         {
-          // auto dh = h_tan * (((Float{2} * j) / (h_res_ - 1)) - 1);
-
           for (auto k = samples; k > 0; --k)
           {
             auto const dv = get_dv(i + rand_offset());

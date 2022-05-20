@@ -22,7 +22,7 @@ intersect(
 {
   constexpr auto MAX_DISTANCE = std::numeric_limits<Float>::max();
 
-  // Check performance diference with std::optional;
+  // Check performance diference with std::optional?
   Float closest_dist = MAX_DISTANCE;
   scene::object_base<Float> const *closest_obj;
 

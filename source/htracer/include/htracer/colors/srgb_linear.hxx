@@ -13,9 +13,9 @@ class srgb;
 
 
 template<typename Float>
-class srgb_linear final : private vector_crtp<srgb_linear<Float>, Float, 3>
+class srgb_linear final : private utils::vector_crtp<srgb_linear<Float>, Float, 3>
 {
-  using VecCrtp = vector_crtp<srgb_linear<Float>, Float, 3>;
+  using VecCrtp = utils::vector_crtp<srgb_linear<Float>, Float, 3>;
   friend VecCrtp;
 
 public:

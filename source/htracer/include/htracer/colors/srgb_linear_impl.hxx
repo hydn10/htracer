@@ -15,7 +15,7 @@ namespace htracer::colors
 
 template<typename Float>
 constexpr srgb_linear<Float>::srgb_linear(Float r, Float g, Float b) noexcept
-    : vector_crtp<srgb_linear<Float>, Float, 3>{r, g, b}
+    : utils::vector_crtp<srgb_linear<Float>, Float, 3>{r, g, b}
 {
 }
 

@@ -5,7 +5,7 @@
 #include <array>
 
 
-namespace htracer
+namespace htracer::utils
 {
 
 template<typename Derived, typename Float, std::size_t N>
@@ -20,7 +20,7 @@ public:
   using iterator = typename decltype(elems_)::iterator;
   using const_iterator = typename decltype(elems_)::const_iterator;
 
-  constexpr vector_crtp() = default;
+  constexpr vector_crtp();
   constexpr explicit vector_crtp(std::array<Float, N> values);
   template<typename... Args>
   constexpr vector_crtp(Args... values);
@@ -55,6 +55,13 @@ public:
   constexpr void
   swap(Derived &rhs) noexcept;
 };
+
+
+template<typename Derived, typename Float, std::size_t N>
+constexpr vector_crtp<Derived, Float, N>::vector_crtp()
+    : elems_{}
+{
+}
 
 
 template<typename Derived, typename Float, std::size_t N>
@@ -176,6 +183,6 @@ vector_crtp<Derived, Float, N>::operator[](std::size_t index) const
   return elems_[index];
 }
 
-} // namespace htracer
+} // namespace htracer::utils
 
 #endif
