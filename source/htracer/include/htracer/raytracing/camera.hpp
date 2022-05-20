@@ -72,8 +72,8 @@ camera<Float>::camera(
     , aperture_radius_{aperture_radius}
     , focal_distance_{focal_distance}
 {
-  view_ = view.normalized();
-  right_ = cross(view, up).normalized();
+  view_ = normalize(view);
+  right_ = normalize(cross(view, up));
   up_ = cross(right_, view_);
 }
 
@@ -140,7 +140,7 @@ camera<Float>::render(
 
             auto const origin = position_ + deviation;
 
-            auto const dir = (focal_distance_ * (view_ + dh * right_ + dv * up_) - deviation).normalized();
+            auto const dir = normalize((focal_distance_ * (view_ + dh * right_ + dv * up_) - deviation));
 
             pixels[h_res_ * i + j] += sample({origin, dir}, scene);
           }

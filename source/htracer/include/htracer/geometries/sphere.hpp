@@ -85,7 +85,7 @@ template<typename Float>
 v3<Float>
 sphere<Float>::normal(v3<Float> const &point) const
 {
-  return (point - center_).normalized();
+  return normalize(point - center_);
 }
 
 } // namespace htracer::geometries

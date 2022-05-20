@@ -42,7 +42,7 @@ public:
 template<typename Float>
 plane<Float>::plane(v3<Float> const &anchor, v3<Float> const &up)
     : anchor_{anchor}
-    , up_{up.normalized()}
+    , up_{normalize(up)}
 {
 }
 

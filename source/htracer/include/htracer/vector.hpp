@@ -42,10 +42,6 @@ public:
   using VecCrtp::operator-=;
   using VecCrtp::operator*=;
 
-  // TODO: Move to non class function.
-  [[nodiscard]] vector<Float, N>
-  normalized() const;
-
   using VecCrtp::begin;
   using VecCrtp::end;
 
@@ -77,6 +73,10 @@ template<typename Float, std::size_t N>
 constexpr Float
 dot(vector<Float, N> const &lhs, vector<Float, N> const &rhs);
 
+template<typename Float, std::size_t N>
+constexpr vector<Float, N>
+normalize(vector<Float, N> const &v);
+
 template<typename Float>
 constexpr vector<Float, 3>
 cross(vector<Float, 3> const &lhs, vector<Float, 3> const &rhs);
@@ -91,15 +91,6 @@ void
 vector<Float, N>::swap(vector<Float, N> &rhs) noexcept
 {
   VecCrtp::swap(rhs);
-}
-
-
-template<typename Float, std::size_t N>
-vector<Float, N>
-vector<Float, N>::normalized() const
-{
-  const Float norm = std::sqrt(dot(*this, *this));
-  return *this * (1 / norm);
 }
 
 
@@ -140,6 +131,15 @@ constexpr Float
 dot(vector<Float, N> const &lhs, vector<Float, N> const &rhs)
 {
   return std::inner_product(lhs.begin(), lhs.end(), rhs.begin(), Float{0});
+}
+
+
+template<typename Float, std::size_t N>
+constexpr vector<Float, N>
+normalize(vector<Float, N> const &v)
+{
+  auto const norm = std::sqrt(dot(v, v));
+  return v * (1 / norm);
 }
 
 

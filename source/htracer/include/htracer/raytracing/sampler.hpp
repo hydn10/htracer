@@ -72,7 +72,7 @@ sample(geometries::ray<Float> const &ray, scene::scene_view<scene::scene<Float, 
     auto const light_dist2 = dot(pl, pl);
     auto const light_dist = std::sqrt(light_dist2);
     auto const light_dist2_inv = 1 / light_dist2;
-    auto const l = pl.normalized();
+    auto const l = normalize(pl);
 
     auto const light_intersect = intersect({p, l}, scene, MIN_DISTANCE);
 
@@ -86,7 +86,7 @@ sample(geometries::ray<Float> const &ray, scene::scene_view<scene::scene<Float, 
     if (lambertian > 0) // TODO: Is this necessary? I suspect if lambertian == 0
                         // then specular == 0, so it is an optimization.
     {
-      auto const h = (l - ray.direction).normalized();
+      auto const h = normalize((l - ray.direction));
       auto const spec_angle = std::max(dot(h, n), Float{0});
       auto const specular = std::pow(spec_angle, material.shininess);
 
