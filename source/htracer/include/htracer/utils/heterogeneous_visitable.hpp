@@ -9,9 +9,8 @@
 namespace htracer::utils
 {
 
-// TODO: Put definitions outside declaration.
 template<typename... Ts>
-class heterogeneus_visitable
+class heterogeneous_visitable
 {
   std::tuple<std::vector<Ts>...> vectors_;
 
@@ -37,7 +36,7 @@ public:
 template<typename... Ts>
 template<typename T>
 constexpr void
-heterogeneus_visitable<Ts...>::push(T &&item)
+heterogeneous_visitable<Ts...>::push(T &&item)
 {
   std::get<std::vector<T>>(vectors_).push_back(std::forward<T>(item));
 }
@@ -46,7 +45,7 @@ heterogeneus_visitable<Ts...>::push(T &&item)
 template<typename... Ts>
 template<typename T, typename... Args>
 constexpr void
-heterogeneus_visitable<Ts...>::emplace(Args... args)
+heterogeneous_visitable<Ts...>::emplace(Args... args)
 {
   std::get<std::vector<T>>(vectors_).emplace_back(std::forward<Args>(args)...);
 }
@@ -55,7 +54,7 @@ heterogeneus_visitable<Ts...>::emplace(Args... args)
 template<typename... Ts>
 template<typename F>
 constexpr void
-heterogeneus_visitable<Ts...>::visit(F &&f) const
+heterogeneous_visitable<Ts...>::visit(F &&f) const
 {
   auto apply_f_to_vec = [&f](auto const &vec)
   {
@@ -70,7 +69,7 @@ heterogeneus_visitable<Ts...>::visit(F &&f) const
 template<typename... Ts>
 template<typename F>
 constexpr void
-heterogeneus_visitable<Ts...>::visit(F &&f)
+heterogeneous_visitable<Ts...>::visit(F &&f)
 {
   auto apply_f_to_vec = [&f](auto const &vec)
   {

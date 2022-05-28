@@ -6,7 +6,7 @@
 #include <htracer/geometries/sphere.hpp>
 #include <htracer/scene/light.hpp>
 #include <htracer/scene/object.hpp>
-#include <htracer/utils/heterogeneus_visitable.hpp>
+#include <htracer/utils/heterogeneous_visitable.hpp>
 
 #include <vector>
 
@@ -16,7 +16,7 @@ namespace htracer::scene
 template<typename Float, template<typename> typename... Geometries>
 class scene
 {
-  utils::heterogeneus_visitable<object<Float, Geometries>...> visitable_;
+  utils::heterogeneous_visitable<object<Float, Geometries>...> visitable_;
   std::vector<light<Float>> lights_;
 
 public:

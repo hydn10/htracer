@@ -39,25 +39,19 @@ struct bpv_traits
 template<>
 struct bpv_traits<ppm::bytes_per_value::BPV1>
 {
-  static constexpr auto const NUM_COLORS = 256;
-  using pixel_value_type = std::uint8_t;
-
-  static pixel_value_type
-  to_big_endian(pixel_value_type value)
-  {
-    return value;
-  }
+  static auto constexpr NUM_COLORS = 256u;
+  using pixel_value_t = std::uint8_t;
 };
 
 
 template<>
 struct bpv_traits<ppm::bytes_per_value::BPV2>
 {
-  static constexpr auto const NUM_COLORS = 65536;
-  using pixel_value_type = std::uint16_t;
+  static auto constexpr NUM_COLORS = 65536u;
+  using pixel_value_t = std::uint16_t;
 
-  static pixel_value_type
-  to_big_endian(pixel_value_type value)
+  static pixel_value_t
+  to_big_endian(pixel_value_t value)
   {
     return (value >> 8) | (value << 8);
   }
@@ -74,10 +68,10 @@ ppm::save(std::string_view filename, raytracing::image<Float> const &image) cons
 
   using traits_t = detail_::bpv_traits<BPV>;
 
-  constexpr auto NUM_COLORS = traits_t::NUM_COLORS;
-  using pixel_value_t = traits_t::pixel_value_type;
+  auto constexpr NUM_COLORS = traits_t::NUM_COLORS;
+  using pixel_value_t = traits_t::pixel_value_t;
 
-  auto const to_out_value = [](Float x) -> pixel_value_t
+  auto const to_pixel_value = [](Float x) -> pixel_value_t
   {
     auto scaled = NUM_COLORS * x;
 
@@ -89,7 +83,7 @@ ppm::save(std::string_view filename, raytracing::image<Float> const &image) cons
 
     auto const res = static_cast<pixel_value_t>(scaled);
 
-    if constexpr (std::endian::native != std::endian::big)
+    if constexpr (BPV != ppm::bytes_per_value::BPV1 && std::endian::native != std::endian::big)
     {
       return traits_t::to_big_endian(res);
     }
@@ -112,9 +106,9 @@ ppm::save(std::string_view filename, raytracing::image<Float> const &image) cons
   {
     auto const final_pixel = pixel.to_srgb();
 
-    write_value(out, to_out_value(final_pixel.r()));
-    write_value(out, to_out_value(final_pixel.g()));
-    write_value(out, to_out_value(final_pixel.b()));
+    write_value(out, to_pixel_value(final_pixel.r()));
+    write_value(out, to_pixel_value(final_pixel.g()));
+    write_value(out, to_pixel_value(final_pixel.b()));
   }
 }
 
