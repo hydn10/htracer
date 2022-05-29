@@ -6,6 +6,7 @@
 
 #include <fstream>
 #include <string>
+#include <bit>
 
 
 namespace htracer::outputs

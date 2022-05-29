@@ -29,7 +29,7 @@ intersect(
   scene.for_each_object(
       [min_dist, &ray, &closest_dist, &closest_obj](auto const &obj)
       {
-        if (auto dist_o = obj.geometry().intersect(ray); dist_o)
+        if (auto dist_o = obj.get_geometry().intersect(ray); dist_o)
         {
           if (auto dist = *dist_o; dist < closest_dist && dist > min_dist)
           {

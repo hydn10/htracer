@@ -5,6 +5,7 @@
 #include <htracer/colors/colors.hpp>
 
 #include <vector>
+#include <cstdint>
 
 
 namespace htracer::raytracing

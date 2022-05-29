@@ -18,9 +18,9 @@ public:
   object(Geometry<Float> &&geometry, material<Float> &&material);
 
   Geometry<Float> &
-  geometry() override;
+  get_geometry() override;
   Geometry<Float> const &
-  geometry() const override;
+  get_geometry() const override;
 };
 
 
@@ -34,7 +34,7 @@ object<Float, Geometry>::object(Geometry<Float> &&geometry, material<Float> &&ma
 
 template<typename Float, template<typename> typename Geometry>
 Geometry<Float> &
-object<Float, Geometry>::geometry()
+object<Float, Geometry>::get_geometry()
 {
   return geometry_;
 }
@@ -42,7 +42,7 @@ object<Float, Geometry>::geometry()
 
 template<typename Float, template<typename> typename Geometry>
 Geometry<Float> const &
-object<Float, Geometry>::geometry() const
+object<Float, Geometry>::get_geometry() const
 {
   return geometry_;
 }

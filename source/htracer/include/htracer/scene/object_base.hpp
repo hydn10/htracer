@@ -27,7 +27,7 @@ public:
   virtual ~object_base() = default;
 
   material<Float> const &
-  material() const;
+  get_material() const;
 
   virtual geometries::geometry<Float> &
   geometry() = 0;
@@ -45,7 +45,7 @@ object_base<Float>::object_base(scene::material<Float> &&material)
 
 template<typename Float>
 material<Float> const &
-object_base<Float>::material() const
+object_base<Float>::get_material() const
 {
   return material_;
 }

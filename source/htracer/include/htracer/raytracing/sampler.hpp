@@ -59,10 +59,10 @@ sample(geometries::ray<Float> const &ray, scene::scene_view<scene::scene<Float, 
 
   auto const &[obj_dist, obj] = *intersection;
 
-  auto const &material = obj.material();
+  auto const &material = obj.get_material();
 
   auto const p = ray.origin + obj_dist * ray.direction;
-  auto const n = obj.geometry().normal(p);
+  auto const n = obj.get_geometry().normal(p);
 
   auto pixel_color = material.ambient_color;
 

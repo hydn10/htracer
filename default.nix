@@ -1,10 +1,14 @@
-{ lib, stdenv, cmake }:
+{ lib, llvmPackages_14, gcc11Stdenv, cmake }:
 
+let
+  # p-stdenv = gcc11Stdenv;
+  p-stdenv = llvmPackages_14.stdenv;
 
-stdenv.mkDerivation
-{
-  name = "htracer";
-  src = lib.cleanSource ./.;
+in
+  p-stdenv.mkDerivation
+  {
+    name = "htracer";
+    src = lib.cleanSource ./.;
 
-  nativeBuildInputs = [ cmake ];
-}
+    nativeBuildInputs = [ cmake ];
+  }

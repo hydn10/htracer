@@ -65,7 +65,7 @@ template<typename Float, template<typename> typename... Geometries>
 constexpr void
 scene<Float, Geometries...>::add_light(light<Float> &&light)
 {
-  lights_.push_back(light);
+  lights_.push_back(std::move(light));
 }
 
 
