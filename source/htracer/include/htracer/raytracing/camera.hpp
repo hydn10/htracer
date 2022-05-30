@@ -93,8 +93,8 @@ image<Float>
 camera<Float>::render(
     ExecutionPolicy &&policy, scene::scene_view<scene::scene<Float, Geometries...>> scene, uint32_t samples) const
 {
-  const auto h_tan = std::tan(fov_);
-  const auto v_tan = h_tan * v_res_ / h_res_;
+  auto const h_tan = std::tan(fov_);
+  auto const v_tan = h_tan * v_res_ / h_res_;
 
   std::vector<colors::srgb_linear<Float>> pixels(v_res_ * h_res_);
 
@@ -127,7 +127,7 @@ camera<Float>::render(
             auto const dv = get_dv(i + rand_offset());
             auto const dh = get_dh(j + rand_offset());
 
-            constexpr Float PI = std::numbers::pi_v<Float>;
+            Float constexpr PI = std::numbers::pi_v<Float>;
 
             // TODO: Optimize if radius = 0.
             //       Maybe pass a templated object Lens that returns an origin given a position?
@@ -149,7 +149,7 @@ camera<Float>::render(
 
   for (auto &pixel : pixels)
   {
-    const auto scale = Float{1} / samples;
+    auto const scale = Float{1} / samples;
     pixel *= scale;
   }
 

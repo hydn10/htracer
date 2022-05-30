@@ -66,6 +66,6 @@ main(int argc, char const *argv[])
   auto const image = cam.render(std::execution::par_unseq, htracer::scene::scene_view(scene), 250);
 
   htracer::outputs::ppm const ppm{};
-  constexpr auto ppmbpv = htracer::outputs::ppm::bytes_per_value::BPV1;
+  auto constexpr ppmbpv = htracer::outputs::ppm::bytes_per_value::BPV1;
   ppm.save<ppmbpv>(filename, image);
 }

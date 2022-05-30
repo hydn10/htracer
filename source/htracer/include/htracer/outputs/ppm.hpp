@@ -70,7 +70,7 @@ ppm::save(std::string_view filename, raytracing::image<Float> const &image) cons
   using traits_t = detail_::bpv_traits<BPV>;
 
   auto constexpr NUM_COLORS = traits_t::NUM_COLORS;
-  using pixel_value_t = traits_t::pixel_value_t;
+  using pixel_value_t = typename traits_t::pixel_value_t;
 
   auto const to_pixel_value = [](Float x) -> pixel_value_t
   {
@@ -79,7 +79,7 @@ ppm::save(std::string_view filename, raytracing::image<Float> const &image) cons
     // Handle case where x == 1.0.
     // Another option is scaling by (NUM_COLORS - .000001), but I feel it is more correct this way.
     // The branch predictor should almost always take the other path anyway.
-    if (scaled >= NUM_COLORS)
+    if (scaled >= NUM_COLORS) [[unlikely]]
       scaled = NUM_COLORS - 1;
 
     auto const res = static_cast<pixel_value_t>(scaled);

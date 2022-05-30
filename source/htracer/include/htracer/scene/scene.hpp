@@ -13,6 +13,7 @@
 
 namespace htracer::scene
 {
+
 template<typename Float, template<typename> typename... Geometries>
 class scene
 {
@@ -23,14 +24,10 @@ public:
   template<template<typename> typename Geometry>
   // TODO: concept restrictions!
   constexpr void
-  emplace_object(Geometry<Float> &&geometry, material<Float> &&material);
-  template<template<typename> typename Geometry>
-  // TODO: concept restrictions!
-  constexpr void
   emplace_object(Geometry<Float> &&geometry, material<Float> const &material);
 
   constexpr void
-  add_light(light<Float> &&light);
+  add_light(light<Float> const &light);
 
   template<typename F>
   void
@@ -46,26 +43,17 @@ public:
 template<typename Float, template<typename> typename... Geometries>
 template<template<typename> typename Geometry>
 constexpr void
-scene<Float, Geometries...>::emplace_object(Geometry<Float> &&geometry, material<Float> &&material)
-{
-  visitable_.emplace<object<Float, Geometry>>(std::forward<Geometry<Float>>(geometry), std::move(material));
-}
-
-
-template<typename Float, template<typename> typename... Geometries>
-template<template<typename> typename Geometry>
-constexpr void
 scene<Float, Geometries...>::emplace_object(Geometry<Float> &&geometry, material<Float> const &material)
 {
-  visitable_.emplace<object<Float, Geometry>>(std::forward<Geometry<Float>>(geometry), material);
+  visitable_.template emplace<object<Float, Geometry>>(std::forward<Geometry<Float>>(geometry), material);
 }
 
 
 template<typename Float, template<typename> typename... Geometries>
 constexpr void
-scene<Float, Geometries...>::add_light(light<Float> &&light)
+scene<Float, Geometries...>::add_light(light<Float> const &light)
 {
-  lights_.push_back(std::move(light));
+  lights_.push_back(light);
 }
 
 
@@ -76,6 +64,7 @@ scene<Float, Geometries...>::for_each_object(F &&f)
 {
   visitable_.visit(std::forward<F>(f));
 }
+
 
 template<typename Float, template<typename> typename... Geometries>
 template<typename F>

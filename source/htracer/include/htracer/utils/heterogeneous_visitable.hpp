@@ -22,7 +22,7 @@ public:
   template<typename T, typename... Args>
   // TODO: concept restrictions!
   constexpr void
-  emplace(Args... args);
+  emplace(Args &&...args);
 
   template<typename F>
   constexpr void
@@ -45,7 +45,7 @@ heterogeneous_visitable<Ts...>::push(T &&item)
 template<typename... Ts>
 template<typename T, typename... Args>
 constexpr void
-heterogeneous_visitable<Ts...>::emplace(Args... args)
+heterogeneous_visitable<Ts...>::emplace(Args &&...args)
 {
   std::get<std::vector<T>>(vectors_).emplace_back(std::forward<Args>(args)...);
 }

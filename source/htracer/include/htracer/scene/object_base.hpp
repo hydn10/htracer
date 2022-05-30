@@ -15,7 +15,7 @@ class object_base
   scene::material<Float> material_;
 
 public:
-  object_base(material<Float> &&material);
+  object_base(material<Float> const &material);
 
   object_base(object_base<Float> const &) = default;
   object_base(object_base<Float> &&) = default;
@@ -30,15 +30,15 @@ public:
   get_material() const;
 
   virtual geometries::geometry<Float> &
-  geometry() = 0;
+  get_geometry() = 0;
   virtual geometries::geometry<Float> const &
-  geometry() const = 0;
+  get_geometry() const = 0;
 };
 
 
 template<typename Float>
-object_base<Float>::object_base(scene::material<Float> &&material)
-    : material_{std::move(material)}
+object_base<Float>::object_base(scene::material<Float> const &material)
+    : material_{material}
 {
 }
 

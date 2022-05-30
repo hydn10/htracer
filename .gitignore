@@ -1,4 +1,4 @@
-**/CMakeUserPresets.json
+CMakeUserPresets.json
 
 /out*/
 
@@ -6,7 +6,7 @@
 **/.clangd
 **/.ccls
 
-**/.vs/
-**/.vscode/
+.vs/
+.vscode/
 
 **/result

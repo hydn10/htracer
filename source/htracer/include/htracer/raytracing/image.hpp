@@ -33,9 +33,9 @@ public:
 
 template<typename Float>
 image<Float>::image(uint32_t h_res, uint32_t v_res, std::vector<colors::srgb_linear<Float>> pixels)
-    : h_res_{h_res}
+    : pixels_(std::move(pixels))
+    , h_res_{h_res}
     , v_res_{v_res}
-    , pixels_(std::move(pixels))
 {
   // TODO: Assert pixels_.size() == h_res_ * v_res_
 }
