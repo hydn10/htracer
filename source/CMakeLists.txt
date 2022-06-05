@@ -1,2 +1,5 @@
 add_subdirectory(htracer)
-add_subdirectory(apps)
+
+if (HTRACER_BUILD_RAY)
+    add_subdirectory(apps)
+endif()

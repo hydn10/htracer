@@ -2,8 +2,16 @@
   "version": 3,
   "configurePresets": [
     {
+      "name": "build-ray",
+      "hidden": true,
+      "cacheVariables": {
+        "HTRACER_BUILD_RAY": "ON"
+      }
+    },
+    {
       "name": "windows-base",
       "hidden": true,
+      "inherits": "build-ray",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/out/build/${presetName}",
       "installDir": "${sourceDir}/out/install/${presetName}",
