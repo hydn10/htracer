@@ -5,6 +5,7 @@
 #include <htracer/vector.hpp>
 
 #include <variant>
+#include <execution>
 
 
 using Float = double;
@@ -30,8 +31,6 @@ int
 main(int argc, char const *argv[])
 {
   std::vector<std::string_view> args(argv + 1, argv + argc);
-
-  auto const filename = args.size() > 0 ? args[0] : "out.ppm";
 
   htracer::scene::scene<Float, sphere_t, plane_t> scene;
 
@@ -61,9 +60,11 @@ main(int argc, char const *argv[])
   // htracer::v3<Float> const camera_up(0, 1, 0);
 
   htracer::raytracing::camera<Float> const cam(
-      camera_pos, camera_dir, camera_up, 1024, 576, 60 * std::numbers::pi_v<Float> / 180, 0.05, focal_distance);
+      camera_pos, camera_dir, camera_up, 1024, 576, 45 * std::numbers::pi_v<Float> / 180, 0.05, focal_distance);
 
   auto const image = cam.render(std::execution::par_unseq, htracer::scene::scene_view(scene), 250);
+
+  auto const filename = args.size() > 0 ? args[0] : "out.ppm";
 
   htracer::outputs::ppm const ppm{};
   auto constexpr ppmbpv = htracer::outputs::ppm::bytes_per_value::BPV1;

@@ -10,9 +10,9 @@
 
 #include <algorithm>
 #include <cmath>
-#include <execution>
-#include <numbers>
 #include <ranges>
+#include <numbers>
+#include <execution>
 #include <vector>
 
 
@@ -93,8 +93,8 @@ image<Float>
 camera<Float>::render(
     ExecutionPolicy &&policy, scene::scene_view<scene::scene<Float, Geometries...>> scene, uint32_t samples) const
 {
-  auto const h_tan = std::tan(fov_);
-  auto const v_tan = h_tan * v_res_ / h_res_;
+  auto const v_tan = std::tan(fov_);
+  auto const h_tan = v_tan * h_res_ / v_res_;
 
   std::vector<colors::srgb_linear<Float>> pixels(v_res_ * h_res_);
 
