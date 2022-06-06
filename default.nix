@@ -1,14 +1,24 @@
-{ lib, llvmPackages_14, gcc11Stdenv, cmake }:
+{ lib, stdenv, cmake, buildRay ? true }:
 
 let
-  # p-stdenv = gcc11Stdenv;
-  p-stdenv = llvmPackages_14.stdenv;
-
+  pname = "htracer";
+  version = "0.3.0";
+  
+  buildRayFlag = if buildRay then "ON" else "OFF";
 in
-  p-stdenv.mkDerivation
+  stdenv.mkDerivation
   {
-    name = "htracer";
+    inherit pname;
+
+    name = "${pname}-${version}";
+    inherit version;
+
     src = lib.cleanSource ./.;
 
     nativeBuildInputs = [ cmake ];
+  
+    # TODO: Can this depend on whether "out" or "dev" is being built?
+    cmakeFlags = [ "-DHTRACER_BUILD_RAY=${buildRayFlag}" ];
+
+    #outputs = [ "out" "dev" ];
   }
