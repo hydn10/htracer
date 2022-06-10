@@ -1,15 +1,13 @@
-{ pkgs ? import <nixpkgs> {} }:
+{ pkgs ? import <nixpkgs> {}, pkg ? (pkgs.callPackage ./. {}) }:
 
 
 let
-  package = pkgs.callPackage ./. {};
-
   clang-tools = pkgs.clang-tools.override {
     llvmPackages = pkgs.llvmPackages_14;
   };
 in
-  pkgs.mkShell.override { stdenv = package.stdenv; } {
-    inputsFrom = [ package ];
+  pkgs.mkShell.override { stdenv = pkg.stdenv; } {
+    inputsFrom = [ pkg ];
     nativeBuildInputs = [
       clang-tools
       pkgs.gdb

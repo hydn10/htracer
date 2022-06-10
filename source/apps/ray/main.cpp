@@ -4,8 +4,8 @@
 #include <htracer/scene/scene.hpp>
 #include <htracer/vector.hpp>
 
-#include <variant>
 #include <execution>
+#include <variant>
 
 
 using Float = double;

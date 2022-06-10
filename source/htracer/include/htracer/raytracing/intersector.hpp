@@ -24,7 +24,7 @@ intersect(
 
   // Check performance diference with std::optional?
   Float closest_dist = MAX_DISTANCE;
-  scene::object_base<Float> const *closest_obj;
+  scene::object_base<Float> const *closest_obj = nullptr;
 
   scene.for_each_object(
       [min_dist, &ray, &closest_dist, &closest_obj](auto const &obj)

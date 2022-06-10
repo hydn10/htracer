@@ -5,8 +5,9 @@ CMakeUserPresets.json
 **/compile_commands.json
 **/.clangd
 **/.ccls
+**/.cache
+
+**/result
 
 .vs/
 .vscode/
-
-**/result
