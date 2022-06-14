@@ -7,7 +7,7 @@
       htracerDrv-lin64 = pkgs-lin64.callPackage ./default.nix {};
     in
     {
-      apps.x86_64-linux.ray = 
+      apps.x86_64-linux.ray =
       {
         type = "app";
         program = "${htracerDrv-lin64}/bin/ray";
@@ -18,7 +18,6 @@
       overlays.default = final: prev: { htracer = self.packages.x86_64-linux.htracer; };
 
       packages.x86_64-linux.htracer = htracerDrv-lin64;
-
       packages.x86_64-linux.default = self.packages.x86_64-linux.htracer;
 
       devShells.x86_64-linux.default = import ./shell.nix {
