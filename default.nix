@@ -2,7 +2,7 @@
 
 let
   pname = "htracer";
-  version = "0.3.0";
+  version = "0.3.1";
   
   buildRayFlag = if buildRay then "ON" else "OFF";
 in
@@ -17,8 +17,7 @@ in
 
     nativeBuildInputs = [ cmake ];
   
-    # TODO: Can this depend on whether "out" or "dev" is being built?
     cmakeFlags = [ "-DHTRACER_BUILD_RAY=${buildRayFlag}" ];
 
-    #outputs = [ "out" "dev" ];
+    outputs = [ "out" "dev" ];
   }
