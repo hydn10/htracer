@@ -21,5 +21,7 @@ in
 
     cmakeFlags = [ "-DHTRACER_BUILD_RAY=${buildRayFlag}" ];
 
-    outputs = [ "out" "dev" ];
+    # Multiple outputs using CMake appears to be broken when using the FILE_SET method.
+    # I may be doing something wrong or maybe it gets fixed upstream at some point.
+    #outputs = [ "out" "dev" ];
   }
