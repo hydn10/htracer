@@ -9,6 +9,13 @@
       }
     },
     {
+      "name": "build-tests",
+      "hidden": true,
+      "cacheVariables": {
+        "HTRACER_BUILD_TESTS": "ON"
+      }
+    },
+    {
       "name": "windows-base",
       "hidden": true,
       "generator": "Ninja",
@@ -71,7 +78,8 @@
         "x64",
         "windows-base",
         "debug",
-        "build-ray"
+        "build-ray",
+        "build-tests"
       ]
     },
     {
@@ -81,7 +89,8 @@
         "x64",
         "windows-base",
         "release",
-        "build-ray"
+        "build-ray",
+        "build-tests"
       ]
     },
     {
@@ -91,7 +100,8 @@
         "x64",
         "windows-base",
         "profile",
-        "build-ray"
+        "build-ray",
+        "build-tests"
       ]
     },
     {
@@ -101,7 +111,8 @@
         "x64",
         "linux-base",
         "debug",
-        "build-ray"
+        "build-ray",
+        "build-tests"
       ]
     },
     {
@@ -111,7 +122,8 @@
         "x64",
         "linux-base",
         "release",
-        "build-ray"
+        "build-ray",
+        "build-tests"
       ]
     },
     {
@@ -121,7 +133,8 @@
         "x64",
         "linux-base",
         "profile",
-        "build-ray"
+        "build-ray",
+        "build-tests"
       ]
     }
   ]

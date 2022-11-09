@@ -1,35 +1,6 @@
-set(
-    HTRACER_LIBRARY_SOURCE_FILES
-    include/htracer/colors/colors.hpp
-    include/htracer/colors/hsl.hxx
-    include/htracer/colors/hsl_impl.hxx
-    include/htracer/colors/srgb.hxx
-    include/htracer/colors/srgb_impl.hxx
-    include/htracer/colors/srgb_linear.hxx
-    include/htracer/colors/srgb_linear_impl.hxx
-    include/htracer/geometries/geometry.hpp
-    include/htracer/geometries/plane.hpp
-    include/htracer/geometries/ray.hpp
-    include/htracer/geometries/sphere.hpp
-    include/htracer/numerics.hpp
-    include/htracer/outputs/ppm.hpp
-    include/htracer/raytracing/camera.hpp
-    include/htracer/raytracing/image.hpp
-    include/htracer/raytracing/intersector.hpp
-    include/htracer/raytracing/sampler.hpp
-    include/htracer/scene/light.hpp
-    include/htracer/scene/material.hpp
-    include/htracer/scene/object_base.hpp
-    include/htracer/scene/object.hpp
-    include/htracer/scene/scene.hpp
-    include/htracer/scene/scene_view.hpp
-    include/htracer/utils/heterogeneous_visitable.hpp
-    include/htracer/utils/random.hpp
-    include/htracer/utils/vector_crtp.hpp
-    include/htracer/utils/vector_transform.hpp
-    include/htracer/vector.hpp
-)
-
+# Trigger configuratoin on file change.
+configure_file(include_files.txt include_files.txt)
+file(STRINGS ${CMAKE_CURRENT_BINARY_DIR}/include_files.txt HTRACER_LIBRARY_SOURCE_FILES)
 
 add_library(htracer INTERFACE)
 add_library(HTracer::HTracer ALIAS htracer)

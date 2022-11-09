@@ -11,7 +11,7 @@ namespace htracer::scene
 template<typename Scene>
 class scene_view
 {
-  std::reference_wrapper<const Scene> scene_wrp_;
+  Scene const &scene_;
 
 public:
   scene_view(Scene const &scene);
@@ -27,7 +27,7 @@ public:
 
 template<typename Scene>
 scene_view<Scene>::scene_view(Scene const &scene)
-    : scene_wrp_{scene}
+    : scene_{scene}
 {
 }
 
@@ -37,7 +37,7 @@ template<typename F>
 void
 scene_view<Scene>::for_each_object(F &&f) const
 {
-  scene_wrp_.get().for_each_object(std::forward<F>(f));
+  scene_.for_each_object(std::forward<F>(f));
 }
 
 
@@ -45,7 +45,7 @@ template<typename Scene>
 constexpr auto const &
 scene_view<Scene>::lights() const
 {
-  return scene_wrp_.get().lights();
+  return scene_.lights();
 }
 
 } // namespace htracer::scene

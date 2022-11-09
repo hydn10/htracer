@@ -45,6 +45,7 @@ sample(geometries::ray<Float> const &ray, scene::scene_view<scene::scene<Float, 
   // TODO: Move to a sampler class and set as parameter toghether with MIN_DISTANCE.
   constexpr unsigned MAX_DEPTH = 5;
 
+  // TODO: Small optimization: do not call if depth > MAX_DEPTH so ray is never created.
   if (depth > MAX_DEPTH)
     return {0., 0., 0.};
 

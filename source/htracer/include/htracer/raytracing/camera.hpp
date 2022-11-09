@@ -5,13 +5,11 @@
 #include <htracer/raytracing/image.hpp>
 #include <htracer/raytracing/sampler.hpp>
 #include <htracer/scene/scene_view.hpp>
-#include <htracer/utils/random.hpp>
 #include <htracer/vector.hpp>
 
 #include <algorithm>
 #include <cmath>
 #include <ranges>
-#include <numbers>
 #include <execution>
 #include <vector>
 
@@ -19,7 +17,28 @@
 namespace htracer::raytracing
 {
 
-template<typename Float>
+// clang-format off
+template<typename T, typename Float>
+concept camera_lens = requires(T a)
+{
+  {
+    a.get_ray(
+        Float{},
+        Float{},
+        std::declval<v3<Float>>(),
+        std::declval<v3<Float>>(),
+        std::declval<v3<Float>>(),
+        std::declval<v3<Float>>)
+  }
+  -> std::convertible_to<geometries::ray<Float>>;
+};
+
+template<typename T, typename Float>
+concept camera_pixel_sampler = true;
+// clang-format on
+
+
+template<typename Float, camera_lens<Float> Lens, camera_pixel_sampler<Float> PixelSampler>
 class camera
 {
   v3<Float> position_;
@@ -31,8 +50,9 @@ class camera
   uint32_t h_res_;
   uint32_t v_res_;
   Float fov_;
-  Float aperture_radius_;
-  Float focal_distance_;
+
+  Lens &lens_;
+  PixelSampler &pixel_sampler_;
 
 public:
   camera(
@@ -42,8 +62,8 @@ public:
       uint32_t horizontal_resolution,
       uint32_t vertical_resolution,
       Float fov,
-      Float aperture_radius,
-      Float focal_distance);
+      Lens &lens,
+      PixelSampler &pixel_sampler);
 
   template<template<typename> typename... Geometries>
   image<Float>
@@ -55,22 +75,22 @@ public:
 };
 
 
-template<typename Float>
-camera<Float>::camera(
+template<typename Float, camera_lens<Float> Lens, camera_pixel_sampler<Float> PixelSampler>
+camera<Float, Lens, PixelSampler>::camera(
     v3<Float> const &position,
     v3<Float> const &view,
     v3<Float> const &up,
     uint32_t horizontal_resolution,
     uint32_t vertical_resolution,
     Float fov,
-    Float aperture_radius,
-    Float focal_distance)
+    Lens &lens,
+    PixelSampler &pixel_sampler)
     : position_{position}
     , h_res_{horizontal_resolution}
     , v_res_{vertical_resolution}
     , fov_{fov}
-    , aperture_radius_{aperture_radius}
-    , focal_distance_{focal_distance}
+    , lens_{lens}
+    , pixel_sampler_{pixel_sampler}
 {
   view_ = normalize(view);
   right_ = normalize(cross(view, up));
@@ -78,19 +98,20 @@ camera<Float>::camera(
 }
 
 
-template<typename Float>
+template<typename Float, camera_lens<Float> Lens, camera_pixel_sampler<Float> PixelSampler>
 template<template<typename> typename... Geometries>
 image<Float>
-camera<Float>::render(scene::scene_view<scene::scene<Float, Geometries...>> scene, uint32_t samples) const
+camera<Float, Lens, PixelSampler>::render(
+    scene::scene_view<scene::scene<Float, Geometries...>> scene, uint32_t samples) const
 {
   return render(std::execution::unseq, scene, samples);
 }
 
 
-template<typename Float>
+template<typename Float, camera_lens<Float> Lens, camera_pixel_sampler<Float> PixelSampler>
 template<typename ExecutionPolicy, template<typename> typename... Geometries>
 image<Float>
-camera<Float>::render(
+camera<Float, Lens, PixelSampler>::render(
     ExecutionPolicy &&policy, scene::scene_view<scene::scene<Float, Geometries...>> scene, uint32_t samples) const
 {
   auto const v_tan = std::tan(fov_);
@@ -111,9 +132,6 @@ camera<Float>::render(
     return h_tan * (((2 * idx) / (h_res - 1)) - 1);
   };
 
-  utils::random<Float> rand_offset(-.5, .5);
-  utils::random<Float> rand_unit(0, 1);
-
   std::for_each(
       policy,
       std::begin(v_indices),
@@ -124,25 +142,13 @@ camera<Float>::render(
         {
           for (auto k = samples; k > 0; --k)
           {
-            auto const dv = get_dv(i + rand_offset());
-            auto const dh = get_dh(j + rand_offset());
+            auto const [v_coord, h_coord] = pixel_sampler_.get_coords(i, j);
+            auto const dv = get_dv(v_coord);
+            auto const dh = get_dh(h_coord);
 
-            Float constexpr PI = std::numbers::pi_v<Float>;
+            auto const ray = lens_.get_ray(dv, dh, position_, view_, up_, right_);
 
-            // TODO: Optimize if radius = 0.
-            //       Maybe pass a templated object Lens that returns an origin given a position?
-            //       Delve into different lens types (fisheye?) so I know what I do have to abstract.
-
-            auto const angle = 2 * PI * rand_unit();
-            auto const radius = aperture_radius_ * std::sqrt(rand_unit());
-
-            auto const deviation = radius * (std::cos(angle) * right_ + std::sin(angle) * up_);
-
-            auto const origin = position_ + deviation;
-
-            auto const dir = normalize((focal_distance_ * (view_ + dh * right_ + dv * up_) - deviation));
-
-            pixels[h_res_ * i + j] += sample({origin, dir}, scene);
+            pixels[h_res_ * i + j] += sample(ray, scene);
           }
         }
       });
