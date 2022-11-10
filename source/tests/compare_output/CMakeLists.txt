@@ -1,6 +1,5 @@
 add_executable(
     compare_output_test
-	EXCLUDE_FROM_ALL
     main.cpp
 )
 target_compile_features(compare_output_test PRIVATE cxx_std_17)

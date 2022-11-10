@@ -1,0 +1,76 @@
+name: ci
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-linux:
+    # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
+    # You can convert this to a matrix build if you need cross-platform coverage.
+    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
+    runs-on: ubuntu-latest
+
+    env:
+      CONFIG_PRESET: ghci-ubuntu
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up dev tools
+        run: |
+          sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
+          sudo apt-get update
+          sudo apt-get install build-essential g++-11 cmake 
+
+      - name: Configure CMake
+        run: cmake --preset ${{env.CONFIG_PRESET}}
+
+      - name: Build
+        run: cmake --build ${{github.workspace}}/out/build/${{env.CONFIG_PRESET}}
+
+      - name: Test
+        run: cmake --build ${{github.workspace}}/out/build/${{env.CONFIG_PRESET}} --target test
+
+  build-linux-nix:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: cachix/install-nix-action@v18
+
+      - name: Build
+        run: nix build
+
+      - name: Check
+        run: nix flake check
+
+  build-windows:
+    runs-on: windows-latest
+
+    env:
+      CONFIG_PRESET: ghci-windows
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up environment
+        run: |
+          $info = vswhere -latest -format json | ConvertFrom-Json
+          $module_name = 'Microsoft.VisualStudio.DevShell.dll'
+          $module_path = Join-Path $info.installationPath 'Common7' 'Tools' $module_name
+          Import-Module $module_path
+          Enter-VsDevShell -VsInstanceId $info.instanceId -SkipAutomaticLocation -DevCmdArguments "-arch=x64 -no_logo"
+          # Update the current environment:
+          Get-ChildItem 'env:' | %{ echo "$($_.Name)=$($_.Value)" >> $env:GITHUB_ENV }
+
+      - name: Configure CMake
+        run: cmake --preset ${{env.CONFIG_PRESET}}
+
+      - name: Build
+        run: cmake --build ${{github.workspace}}/out/build/${{env.CONFIG_PRESET}}
+
+      - name: Test
+        run: cmake --build ${{github.workspace}}/out/build/${{env.CONFIG_PRESET}} --target test

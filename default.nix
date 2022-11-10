@@ -1,4 +1,4 @@
-{ lib, stdenv, cmake, buildRay ? true }:
+{ lib, stdenv, cmake, buildRay ? false, buildTests ? false }:
 
 let
   pname = "htracer";
@@ -6,7 +6,10 @@ let
 
   version = htracerJson.version;
 
-  buildRayFlag = if buildRay then "ON" else "OFF";
+  mkCMakeFlag = opt: if opt then "ON" else "OFF";
+
+  buildRayFlag = mkCMakeFlag buildRay;
+  buildTestsFlag = mkCMakeFlag buildTests;
 in
   stdenv.mkDerivation
   {
@@ -19,7 +22,7 @@ in
 
     nativeBuildInputs = [ cmake ];
 
-    cmakeFlags = [ "-DHTRACER_BUILD_RAY=${buildRayFlag}" ];
+    cmakeFlags = [ "-DHTRACER_BUILD_RAY=${buildRayFlag}" "-DHTRACER_BUILD_TESTS=${buildTestsFlag}" ];
 
     # Multiple outputs using CMake appears to be broken when using the FILE_SET method.
     # I may be doing something wrong or maybe it gets fixed upstream at some point.

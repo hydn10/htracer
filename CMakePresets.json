@@ -72,7 +72,7 @@
       }
     },
     {
-      "name": "x64-win-debug",
+      "name": "dev-x64-win-debug",
       "displayName": "x64 Debug",
       "inherits": [
         "x64",
@@ -83,7 +83,7 @@
       ]
     },
     {
-      "name": "x64-win-release",
+      "name": "dev-x64-win-release",
       "displayName": "x64 Release",
       "inherits": [
         "x64",
@@ -94,7 +94,7 @@
       ]
     },
     {
-      "name": "x64-win-profile",
+      "name": "dev-x64-win-profile",
       "displayName": "x64 Profile",
       "inherits": [
         "x64",
@@ -105,7 +105,7 @@
       ]
     },
     {
-      "name": "x64-lin-debug",
+      "name": "dev-x64-lin-debug",
       "displayName": "x64 Debug",
       "inherits": [
         "x64",
@@ -116,7 +116,7 @@
       ]
     },
     {
-      "name": "x64-lin-release",
+      "name": "dev-x64-lin-release",
       "displayName": "x64 Release",
       "inherits": [
         "x64",
@@ -127,13 +127,34 @@
       ]
     },
     {
-      "name": "x64-lin-profile",
+      "name": "dev-x64-lin-profile",
       "displayName": "x64 Profile",
       "inherits": [
         "x64",
         "linux-base",
         "profile",
         "build-ray",
+        "build-tests"
+      ]
+    },
+    {
+      "name": "ghci-ubuntu",
+      "inherits": [
+        "x64",
+        "linux-base",
+        "release",
+        "build-tests"
+      ],
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "g++-11"
+      }
+    },
+    {
+      "name": "ghci-windows",
+      "inherits": [
+        "x64",
+        "windows-base",
+        "release",
         "build-tests"
       ]
     }

@@ -4,7 +4,7 @@
   outputs = { self, nixpkgs }:
     let
       pkgs-lin64 = import nixpkgs { system = "x86_64-linux"; };
-      htracerDrv-lin64 = pkgs-lin64.callPackage ./default.nix { buildRay = false; };
+      htracerDrv-lin64 = pkgs-lin64.callPackage ./default.nix {};
     in
     {
       overlays.default = final: prev: { htracer = self.packages.x86_64-linux.htracer; };
@@ -16,5 +16,13 @@
         pkgs = pkgs-lin64;
         pkg = htracerDrv-lin64;
       };
+
+      checks.x86_64-linux.default =
+        let
+          drvWithTests = htracerDrv-lin64.override { buildTests = true; };
+        in
+          drvWithTests.overrideAttrs (oldAttrs: {
+            doCheck = true;
+          });
     };
 }
