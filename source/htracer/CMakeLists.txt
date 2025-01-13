@@ -1,6 +1,10 @@
-# Trigger configuratoin on file change.
-configure_file(include_files.txt include_files.txt)
-file(STRINGS ${CMAKE_CURRENT_BINARY_DIR}/include_files.txt HTRACER_LIBRARY_SOURCE_FILES)
+# Automatically discover header files in the include directory
+file(
+    GLOB_RECURSE
+    HTRACER_LIBRARY_SOURCE_FILES
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/*.hxx"
+)
 
 add_library(htracer INTERFACE)
 add_library(HTracer::HTracer ALIAS htracer)
