@@ -5,22 +5,21 @@
 #include <htracer/raytracing/image.hpp>
 #include <htracer/raytracing/sampler.hpp>
 #include <htracer/scene/scene_view.hpp>
+#include <htracer/utils/randomness.hpp>
 #include <htracer/vector.hpp>
 
 #include <algorithm>
 #include <cmath>
-#include <ranges>
 #include <execution>
+#include <ranges>
 #include <vector>
 
 
 namespace htracer::raytracing
 {
 
-// clang-format off
 template<typename T, typename Float>
-concept camera_lens = requires(T a)
-{
+concept deterministic_lens = requires(T a) {
   {
     a.get_ray(
         Float{},
@@ -28,19 +27,69 @@ concept camera_lens = requires(T a)
         std::declval<v3<Float>>(),
         std::declval<v3<Float>>(),
         std::declval<v3<Float>>(),
-        std::declval<v3<Float>>)
-  }
-  -> std::convertible_to<geometries::ray<Float>>;
+        std::declval<v3<Float>>())
+  } -> std::same_as<geometries::ray<Float>>;
 };
 
+
 template<typename T, typename Float>
-concept camera_pixel_sampler = true;
-// clang-format on
+concept deterministic_pixel_sampler = requires(T a) {
+  {
+    a.get_coords(uint32_t{}, uint32_t{})
+  } -> std::same_as<std::pair<Float, Float>>;
+};
 
 
-template<typename Float, camera_lens<Float> Lens, camera_pixel_sampler<Float> PixelSampler>
-class camera
+template<typename T, typename Float>
+concept nondeterministic_lens = requires(T a, utils::randomness<> &r) {
+  {
+    a.get_ray(
+        Float{},
+        Float{},
+        std::declval<v3<Float>>(),
+        std::declval<v3<Float>>(),
+        std::declval<v3<Float>>(),
+        std::declval<v3<Float>>(),
+        r)
+  } -> std::same_as<geometries::ray<Float>>;
+};
+
+
+template<typename T, typename Float>
+concept nondeterministic_pixel_sampler = requires(T a, utils::randomness<> &r) {
+  {
+    a.get_coords(uint32_t{}, uint32_t{}, r)
+  } -> std::same_as<std::pair<Float, Float>>;
+};
+
+
+template<typename T, typename Float>
+concept lens = deterministic_lens<T, Float> || nondeterministic_lens<T, Float>;
+
+
+template<typename T, typename Float>
+concept pixel_sampler = deterministic_pixel_sampler<T, Float> || nondeterministic_pixel_sampler<T, Float>;
+
+
+template<typename Float, lens<Float> Lens, pixel_sampler<Float> PixelSampler>
+class sampling_camera
 {
+  template<utils::uniform_random_generator Generator>
+  static auto
+  get_coords(PixelSampler &pixel_sampler, uint32_t v_idx, uint32_t h_idx, utils::randomness<Generator> &rand);
+
+  template<utils::uniform_random_generator Generator>
+  static auto
+  get_ray(
+      Lens &lens,
+      Float dh,
+      Float dv,
+      v3<Float> const &position,
+      v3<Float> const &view,
+      v3<Float> const &up,
+      v3<Float> const &right,
+      utils::randomness<Generator> &rand);
+
   v3<Float> position_;
 
   v3<Float> view_;
@@ -54,8 +103,9 @@ class camera
   Lens &lens_;
   PixelSampler &pixel_sampler_;
 
+
 public:
-  camera(
+  sampling_camera(
       v3<Float> const &position,
       v3<Float> const &view,
       v3<Float> const &up,
@@ -65,18 +115,64 @@ public:
       Lens &lens,
       PixelSampler &pixel_sampler);
 
-  template<template<typename> typename... Geometries>
+  template<utils::uniform_random_generator Engine, template<typename> typename... Geometries>
   image<Float>
-  render(scene::scene_view<scene::scene<Float, Geometries...>> scene, uint32_t samples) const;
+  render(scene::scene_view<scene::scene<Float, Geometries...>> scene, uint32_t samples, utils::randomness<Engine> &rand)
+      const;
 
-  template<typename ExecutionPolicy, template<typename> typename... Geometries>
+  template<typename ExecutionPolicy, utils::uniform_random_generator Engine, template<typename> typename... Geometries>
   image<Float>
-  render(ExecutionPolicy &&policy, scene::scene_view<scene::scene<Float, Geometries...>> scene, uint32_t samples) const;
+  render(
+      ExecutionPolicy &&policy,
+      scene::scene_view<scene::scene<Float, Geometries...>> scene,
+      uint32_t samples,
+      utils::randomness<Engine> &rand) const;
 };
 
 
-template<typename Float, camera_lens<Float> Lens, camera_pixel_sampler<Float> PixelSampler>
-camera<Float, Lens, PixelSampler>::camera(
+template<typename Float, lens<Float> Lens, pixel_sampler<Float> PixelSampler>
+template<utils::uniform_random_generator Generator>
+auto
+sampling_camera<Float, Lens, PixelSampler>::get_coords(
+    PixelSampler &pixel_sampler, uint32_t v_idx, uint32_t h_idx, utils::randomness<Generator> &rand)
+{
+  if constexpr (deterministic_pixel_sampler<PixelSampler, Float>)
+  {
+    return pixel_sampler.get_coords(v_idx, h_idx);
+  }
+  else
+  {
+    return pixel_sampler.get_coords(v_idx, h_idx, rand);
+  }
+}
+
+
+template<typename Float, lens<Float> Lens, pixel_sampler<Float> PixelSampler>
+template<utils::uniform_random_generator Generator>
+auto
+sampling_camera<Float, Lens, PixelSampler>::get_ray(
+    Lens &lens,
+    Float dv,
+    Float dh,
+    v3<Float> const &position,
+    v3<Float> const &view,
+    v3<Float> const &up,
+    v3<Float> const &right,
+    utils::randomness<Generator> &rand)
+{
+  if constexpr (deterministic_lens<Lens, Float>)
+  {
+    return lens.get_ray(dv, dh, position, view, up, right);
+  }
+  else
+  {
+    return lens.get_ray(dv, dh, position, view, up, right, rand);
+  }
+}
+
+
+template<typename Float, lens<Float> Lens, pixel_sampler<Float> PixelSampler>
+sampling_camera<Float, Lens, PixelSampler>::sampling_camera(
     v3<Float> const &position,
     v3<Float> const &view,
     v3<Float> const &up,
@@ -98,21 +194,26 @@ camera<Float, Lens, PixelSampler>::camera(
 }
 
 
-template<typename Float, camera_lens<Float> Lens, camera_pixel_sampler<Float> PixelSampler>
-template<template<typename> typename... Geometries>
+template<typename Float, lens<Float> Lens, pixel_sampler<Float> PixelSampler>
+template<utils::uniform_random_generator Engine, template<typename> typename... Geometries>
 image<Float>
-camera<Float, Lens, PixelSampler>::render(
-    scene::scene_view<scene::scene<Float, Geometries...>> scene, uint32_t samples) const
+sampling_camera<Float, Lens, PixelSampler>::render(
+    scene::scene_view<scene::scene<Float, Geometries...>> scene,
+    uint32_t samples,
+    utils::randomness<Engine> &rand) const
 {
   return render(std::execution::unseq, scene, samples);
 }
 
 
-template<typename Float, camera_lens<Float> Lens, camera_pixel_sampler<Float> PixelSampler>
-template<typename ExecutionPolicy, template<typename> typename... Geometries>
+template<typename Float, lens<Float> Lens, pixel_sampler<Float> PixelSampler>
+template<typename ExecutionPolicy, utils::uniform_random_generator Engine, template<typename> typename... Geometries>
 image<Float>
-camera<Float, Lens, PixelSampler>::render(
-    ExecutionPolicy &&policy, scene::scene_view<scene::scene<Float, Geometries...>> scene, uint32_t samples) const
+sampling_camera<Float, Lens, PixelSampler>::render(
+    ExecutionPolicy &&policy,
+    scene::scene_view<scene::scene<Float, Geometries...>> scene,
+    uint32_t samples,
+    utils::randomness<Engine> &rand) const
 {
   auto const v_tan = std::tan(fov_);
   auto const h_tan = v_tan * h_res_ / v_res_;
@@ -138,15 +239,15 @@ camera<Float, Lens, PixelSampler>::render(
       std::end(v_indices),
       [&](auto const i)
       {
-        for (auto j = 0u; j < h_res_; ++j)
+        for (uint32_t j = 0; j < h_res_; ++j)
         {
           for (auto k = samples; k > 0; --k)
           {
-            auto const [v_coord, h_coord] = pixel_sampler_.get_coords(i, j);
+            auto const [v_coord, h_coord] = get_coords(pixel_sampler_, i, j, rand);
             auto const dv = get_dv(v_coord);
             auto const dh = get_dh(h_coord);
 
-            auto const ray = lens_.get_ray(dv, dh, position_, view_, up_, right_);
+            auto const ray = get_ray(lens_, dv, dh, position_, view_, up_, right_, rand);
 
             pixels[h_res_ * i + j] += sample(ray, scene);
           }

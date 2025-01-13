@@ -1,16 +1,16 @@
 #include <htracer/outputs/ppm.hpp>
 #include <htracer/raytracing/camera.hpp>
-#include <htracer/raytracing/sampler.hpp>
 #include <htracer/raytracing/lenses/pinhole.hpp>
 #include <htracer/raytracing/lenses/point.hpp>
 #include <htracer/raytracing/pixel_samplers/constant.hpp>
 #include <htracer/raytracing/pixel_samplers/uniform.hpp>
+#include <htracer/raytracing/sampler.hpp>
 #include <htracer/scene/scene.hpp>
 #include <htracer/vector.hpp>
 
 #include <execution>
-#include <variant>
 #include <numbers>
+#include <variant>
 
 
 using Float = double;
@@ -58,22 +58,24 @@ main(int argc, char const *argv[])
   htracer::v3<Float> const camera_up(0, 1, 0);
 
   auto const focal_vec = htracer::v3<Float>(0.0, 1.0, 0.0) - camera_pos;
-  //auto const focal_distance = std::sqrt(dot(focal_vec, focal_vec));
+  // auto const focal_distance = std::sqrt(dot(focal_vec, focal_vec));
 
   // htracer::v3<Float> const camera_pos(8, 4, 0.4);
   // htracer::v3<Float> const camera_dir = htracer::v3<Float>(1.5, 1.0, -3.0) - camera_pos;
   // htracer::v3<Float> const camera_up(0, 1, 0);
 
-  //htracer::raytracing::lenses::pinhole<Float> lens(0.5, 3);
+  // htracer::raytracing::lenses::pinhole<Float> lens(0.5, 3);
   htracer::raytracing::lenses::point<Float> lens;
 
   htracer::raytracing::pixel_samplers::constant<Float> pixel_sampler;
-  //htracer::raytracing::pixel_samplers::uniform<Float> pixel_sampler;
+  // htracer::raytracing::pixel_samplers::uniform<Float> pixel_sampler;
 
-  htracer::raytracing::camera const cam(
+  htracer::raytracing::sampling_camera const cam(
       camera_pos, camera_dir, camera_up, 1024, 576, 45 * std::numbers::pi_v<Float> / 180, lens, pixel_sampler);
 
-  auto const image = cam.render(std::execution::par_unseq, htracer::scene::scene_view(scene), 1);
+  htracer::utils::randomness<> rand;
+
+  auto const image = cam.render(std::execution::par_unseq, htracer::scene::scene_view(scene), 1, rand);
 
   auto const filename = args.size() > 0 ? args[0] : "out.ppm";
 

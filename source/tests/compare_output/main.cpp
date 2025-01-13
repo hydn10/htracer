@@ -56,10 +56,12 @@ main()
   htracer::raytracing::lenses::point<Float> lens;
   htracer::raytracing::pixel_samplers::constant<Float> pixel_sampler;
 
-  htracer::raytracing::camera const cam(
+  htracer::raytracing::sampling_camera const cam(
       camera_pos, camera_dir, camera_up, 144, 81, 45 * std::numbers::pi_v<Float> / 180, lens, pixel_sampler);
 
-  auto const image = cam.render(std::execution::par_unseq, htracer::scene::scene_view(scene), 1);
+  htracer::utils::randomness randomness;
+
+  auto const image = cam.render(std::execution::par_unseq, htracer::scene::scene_view(scene), 1, randomness);
 
   auto const filename = "ray_compare_test.ppm";
 

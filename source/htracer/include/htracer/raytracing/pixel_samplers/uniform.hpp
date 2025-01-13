@@ -2,8 +2,9 @@
 #define HTRACER_RAYTRACING_PIXEL_SAMPLERS_UNIFORM_HPP
 
 
-#include <htracer/utils/random.hpp>
+#include <htracer/utils/randomness.hpp>
 
+#include <random>
 #include <utility>
 
 
@@ -13,18 +14,23 @@ namespace htracer::raytracing::pixel_samplers
 template<typename Float>
 class uniform
 {
-  utils::random<Float> rand_offset_;
+  std::uniform_real_distribution<Float> pixel_limits_dist_;
 
 public:
   uniform()
-      : rand_offset_{-.5, .5}
+      : pixel_limits_dist_{-.5, .5}
   {
   }
 
+  template<typename Engine>
   std::pair<Float, Float>
-  get_coords(uint32_t v_idx, uint32_t h_idx)
+  get_coords(uint32_t v_idx, uint32_t h_idx, htracer::utils::randomness<Engine> &rand)
   {
-    return {v_idx + rand_offset_(), h_idx + rand_offset_()};
+    auto const rand_offset = [&]()
+    {
+      return rand(pixel_limits_dist_);
+    };
+    return {v_idx + rand_offset(), h_idx + rand_offset()};
   }
 };
 

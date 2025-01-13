@@ -12,7 +12,7 @@ target_sources(
     FILES ${HTRACER_LIBRARY_SOURCE_FILES}
 )
 
-target_compile_features(htracer INTERFACE cxx_std_20)
+target_compile_features(htracer INTERFACE cxx_std_23)
 
 
 include(GNUInstallDirs)
