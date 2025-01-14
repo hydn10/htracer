@@ -1,7 +1,8 @@
-#ifndef HTRACER_RAYTRACING_CAMERA_HPP
-#define HTRACER_RAYTRACING_CAMERA_HPP
+#ifndef HTRACER_RAYTRACING_CAMERAS_SAMPLING_HPP
+#define HTRACER_RAYTRACING_CAMERAS_SAMPLING_HPP
 
 
+#include <htracer/raytracing/concepts.hpp>
 #include <htracer/raytracing/image.hpp>
 #include <htracer/raytracing/sampler.hpp>
 #include <htracer/scene/scene_view.hpp>
@@ -11,64 +12,14 @@
 #include <algorithm>
 #include <cmath>
 #include <execution>
-#include <ranges>
 #include <vector>
 
 
-namespace htracer::raytracing
+namespace htracer::raytracing::cameras
 {
 
-template<typename T, typename Float>
-concept deterministic_lens = requires(T a) {
-  {
-    a.get_ray(
-        Float{},
-        Float{},
-        std::declval<v3<Float>>(),
-        std::declval<v3<Float>>(),
-        std::declval<v3<Float>>(),
-        std::declval<v3<Float>>())
-  } -> std::same_as<geometries::ray<Float>>;
-};
-
-
-template<typename T, typename Float>
-concept deterministic_pixel_sampler = requires(T a) {
-  { a.get_coords(uint32_t{}, uint32_t{}) } -> std::same_as<std::pair<Float, Float>>;
-};
-
-
-template<typename T, typename Float>
-concept nondeterministic_lens = requires(T a, utils::randomness<> &r) {
-  {
-    a.get_ray(
-        Float{},
-        Float{},
-        std::declval<v3<Float>>(),
-        std::declval<v3<Float>>(),
-        std::declval<v3<Float>>(),
-        std::declval<v3<Float>>(),
-        r)
-  } -> std::same_as<geometries::ray<Float>>;
-};
-
-
-template<typename T, typename Float>
-concept nondeterministic_pixel_sampler = requires(T a, utils::randomness<> &r) {
-  { a.get_coords(uint32_t{}, uint32_t{}, r) } -> std::same_as<std::pair<Float, Float>>;
-};
-
-
-template<typename T, typename Float>
-concept lens = deterministic_lens<T, Float> || nondeterministic_lens<T, Float>;
-
-
-template<typename T, typename Float>
-concept pixel_sampler = deterministic_pixel_sampler<T, Float> || nondeterministic_pixel_sampler<T, Float>;
-
-
 template<typename Float, lens<Float> Lens, pixel_sampler<Float> PixelSampler>
-class sampling_camera
+class sampling
 {
   template<utils::uniform_random_generator Generator>
   static auto
@@ -101,7 +52,7 @@ class sampling_camera
 
 
 public:
-  sampling_camera(
+  sampling(
       v3<Float> const &position,
       v3<Float> const &view,
       v3<Float> const &up,
@@ -129,7 +80,7 @@ public:
 template<typename Float, lens<Float> Lens, pixel_sampler<Float> PixelSampler>
 template<utils::uniform_random_generator Generator>
 auto
-sampling_camera<Float, Lens, PixelSampler>::get_coords(
+sampling<Float, Lens, PixelSampler>::get_coords(
     PixelSampler &pixel_sampler, uint32_t v_idx, uint32_t h_idx, utils::randomness<Generator> &rand)
 {
   if constexpr (deterministic_pixel_sampler<PixelSampler, Float>)
@@ -146,7 +97,7 @@ sampling_camera<Float, Lens, PixelSampler>::get_coords(
 template<typename Float, lens<Float> Lens, pixel_sampler<Float> PixelSampler>
 template<utils::uniform_random_generator Generator>
 auto
-sampling_camera<Float, Lens, PixelSampler>::get_ray(
+sampling<Float, Lens, PixelSampler>::get_ray(
     Lens &lens,
     Float dv,
     Float dh,
@@ -168,7 +119,7 @@ sampling_camera<Float, Lens, PixelSampler>::get_ray(
 
 
 template<typename Float, lens<Float> Lens, pixel_sampler<Float> PixelSampler>
-sampling_camera<Float, Lens, PixelSampler>::sampling_camera(
+sampling<Float, Lens, PixelSampler>::sampling(
     v3<Float> const &position,
     v3<Float> const &view,
     v3<Float> const &up,
@@ -193,7 +144,7 @@ sampling_camera<Float, Lens, PixelSampler>::sampling_camera(
 template<typename Float, lens<Float> Lens, pixel_sampler<Float> PixelSampler>
 template<utils::uniform_random_generator Engine, template<typename> typename... Geometries>
 image<Float>
-sampling_camera<Float, Lens, PixelSampler>::render(
+sampling<Float, Lens, PixelSampler>::render(
     scene::scene_view<scene::scene<Float, Geometries...>> scene,
     uint32_t samples,
     utils::randomness<Engine> &rand) const
@@ -205,7 +156,7 @@ sampling_camera<Float, Lens, PixelSampler>::render(
 template<typename Float, lens<Float> Lens, pixel_sampler<Float> PixelSampler>
 template<typename ExecutionPolicy, utils::uniform_random_generator Engine, template<typename> typename... Geometries>
 image<Float>
-sampling_camera<Float, Lens, PixelSampler>::render(
+sampling<Float, Lens, PixelSampler>::render(
     ExecutionPolicy &&policy,
     scene::scene_view<scene::scene<Float, Geometries...>> scene,
     uint32_t samples,
@@ -259,6 +210,6 @@ sampling_camera<Float, Lens, PixelSampler>::render(
   return {h_res_, v_res_, std::move(pixels)};
 }
 
-} // namespace htracer::raytracing
+} // namespace htracer::raytracing::cameras
 
 #endif

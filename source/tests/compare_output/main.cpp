@@ -1,5 +1,5 @@
 #include <htracer/outputs/ppm.hpp>
-#include <htracer/raytracing/cameras/camera.hpp>
+#include <htracer/raytracing/cameras/sampling.hpp>
 #include <htracer/raytracing/lenses/point.hpp>
 #include <htracer/raytracing/pixel_samplers/constant.hpp>
 #include <htracer/scene/scene.hpp>
@@ -33,7 +33,7 @@ get_sphere_material(Float hue)
 int
 main(int argc, char const *argv[])
 {
-  std::vector<std::string_view> args(argv + 1, argv + argc);
+  std::vector<std::string_view> const args(argv + 1, argv + argc);
 
   if (args.size() != 1)
   {
@@ -63,10 +63,10 @@ main(int argc, char const *argv[])
   htracer::v3<Float> const camera_up(0, 1, 0);
 
   // Non-random lens and pixel sampler so output is deterministic.
-  htracer::raytracing::lenses::point<Float> lens;
-  htracer::raytracing::pixel_samplers::constant<Float> pixel_sampler;
+  htracer::raytracing::lenses::point<Float> const lens;
+  htracer::raytracing::pixel_samplers::constant<Float> const pixel_sampler;
 
-  htracer::raytracing::sampling_camera const cam(
+  htracer::raytracing::cameras::sampling const cam(
       camera_pos, camera_dir, camera_up, 144, 81, 45 * std::numbers::pi_v<Float> / 180, lens, pixel_sampler);
 
   htracer::utils::randomness randomness;
