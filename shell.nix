@@ -4,7 +4,7 @@
 pkgs.mkShell.override { stdenv = pkg.stdenv; } {
   inputsFrom = [ pkg ];
   nativeBuildInputs = [
-    pkgs.clang-tools_14
+    pkgs.clang-tools_18
     pkgs.gdb
     pkgs.valgrind
     pkgs.kcachegrind

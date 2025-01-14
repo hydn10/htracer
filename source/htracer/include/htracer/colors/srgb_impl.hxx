@@ -21,7 +21,7 @@ constexpr srgb<Float>::srgb(Float r, Float g, Float b) noexcept
 
 
 template<typename Float>
-constexpr const Float &
+constexpr Float const &
 srgb<Float>::r() const
 {
   return (*this)[0];
@@ -29,7 +29,7 @@ srgb<Float>::r() const
 
 
 template<typename Float>
-constexpr const Float &
+constexpr Float const &
 srgb<Float>::g() const
 {
   return (*this)[1];
@@ -37,7 +37,7 @@ srgb<Float>::g() const
 
 
 template<typename Float>
-constexpr const Float &
+constexpr Float const &
 srgb<Float>::b() const
 {
   return (*this)[2];
@@ -61,9 +61,11 @@ srgb<Float>::to_linear() const
         constexpr Float EXPONENT = 2.4;
 
         if (val <= SRGB_CUTOFF)
+        {
           return val / SLOPE;
+        }
 
-        const auto base = (val + EXP_OFFSET) / (1 + EXP_OFFSET);
+        auto const base = (val + EXP_OFFSET) / (1 + EXP_OFFSET);
         return std::pow(base, EXPONENT);
       });
 }

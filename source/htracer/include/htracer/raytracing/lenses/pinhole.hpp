@@ -18,7 +18,6 @@ class pinhole
 {
   Float aperture_radius_;
   Float focal_distance_;
-
   std::uniform_real_distribution<Float> zero_one_dist_;
 
 public:
@@ -38,29 +37,42 @@ public:
       v3<Float> const &view,
       v3<Float> const &up,
       v3<Float> const &right,
-      htracer::utils::randomness<Engine> &rand)
-  {
-    auto constexpr PI = std::numbers::pi_v<Float>;
-
-    auto constexpr random_unit = [&]()
-    {
-      return rand(zero_one_dist_);
-    };
-
-    auto const angle = 2 * PI * random_unit();
-    auto const radius = aperture_radius_ * std::sqrt(random_unit());
-
-    auto const deviation = radius * (std::cos(angle) * right + std::sin(angle) * up);
-
-    auto const origin = position + deviation;
-    auto const target = view + dh * right + dv * up;
-    auto const target_at_focus_plane = focal_distance_ * target;
-
-    auto const dir = normalize((target_at_focus_plane - deviation));
-
-    return {origin, dir};
-  }
+      htracer::utils::randomness<Engine> &rand);
 };
+
+
+template<typename Float>
+template<typename Engine>
+geometries::ray<Float>
+pinhole<Float>::get_ray(
+    Float dv,
+    Float dh,
+    v3<Float> const &position,
+    v3<Float> const &view,
+    v3<Float> const &up,
+    v3<Float> const &right,
+    htracer::utils::randomness<Engine> &rand)
+{
+  auto constexpr PI = std::numbers::pi_v<Float>;
+
+  auto const random_unit = [&]()
+  {
+    return rand(zero_one_dist_);
+  };
+
+  auto const angle = 2 * PI * random_unit();
+  auto const radius = aperture_radius_ * std::sqrt(random_unit());
+
+  auto const deviation = radius * (std::cos(angle) * right + std::sin(angle) * up);
+
+  auto const origin = position + deviation;
+  auto const target = view + dh * right + dv * up;
+  auto const target_at_focus_plane = focal_distance_ * target;
+
+  auto const dir = normalize((target_at_focus_plane - deviation));
+
+  return {origin, dir};
+}
 
 } // namespace htracer::raytracing::lenses
 

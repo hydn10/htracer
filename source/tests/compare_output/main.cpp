@@ -1,13 +1,14 @@
 #include <htracer/outputs/ppm.hpp>
-#include <htracer/raytracing/camera.hpp>
+#include <htracer/raytracing/cameras/camera.hpp>
 #include <htracer/raytracing/lenses/point.hpp>
 #include <htracer/raytracing/pixel_samplers/constant.hpp>
 #include <htracer/scene/scene.hpp>
 #include <htracer/vector.hpp>
 
+#include <cstdlib>
 #include <execution>
-#include <variant>
 #include <numbers>
+#include <variant>
 
 
 using Float = double;
@@ -24,14 +25,23 @@ get_sphere_material(Float hue)
 {
   using htracer::colors::hsl;
 
-  const auto color = hsl<Float>{hue, 0.7, 0.5}.to_srgb().to_linear();
+  auto const color = hsl<Float>{hue, 0.7, 0.5}.to_srgb().to_linear();
   return htracer::scene::make_solid<Float>(color, 0.125, 0.05, 200, .4);
 }
 
 
 int
-main()
+main(int argc, char const *argv[])
 {
+  std::vector<std::string_view> args(argv + 1, argv + argc);
+
+  if (args.size() != 1)
+  {
+    return EXIT_FAILURE;
+  }
+
+  auto const &filename = args[0];
+
   htracer::scene::scene<Float, sphere_t, plane_t> scene;
 
   scene.add_light({{-3., 6., 0.}, {1., 1., 1.}, 20});
@@ -63,9 +73,9 @@ main()
 
   auto const image = cam.render(std::execution::par_unseq, htracer::scene::scene_view(scene), 1, randomness);
 
-  auto const filename = "ray_compare_test.ppm";
-
   htracer::outputs::ppm const ppm;
   auto constexpr ppmbpv = htracer::outputs::ppm::bytes_per_value::BPV1;
   ppm.save<ppmbpv>(filename, image);
+
+  return EXIT_SUCCESS;
 }

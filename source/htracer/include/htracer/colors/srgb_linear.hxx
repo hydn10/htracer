@@ -31,7 +31,8 @@ public:
   using VecCrtp::operator-=;
   using VecCrtp::operator*=;
 
-  [[nodiscard]] constexpr srgb<Float>
+  [[nodiscard]]
+  constexpr srgb<Float>
   to_srgb() const;
 };
 

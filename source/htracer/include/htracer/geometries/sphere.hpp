@@ -21,10 +21,12 @@ class sphere final : public geometry<Float>
 public:
   sphere(v3<Float> const &center, Float radius);
 
-  [[nodiscard]] v3<Float> const &
+  [[nodiscard]]
+  v3<Float> const &
   center() const;
 
-  [[nodiscard]] Float
+  [[nodiscard]]
+  Float
   radius() const;
 
   // TODO: nodiscard?
@@ -48,7 +50,7 @@ sphere<Float>::sphere(v3<Float> const &center, Float radius)
 
 
 template<typename Float>
-const v3<Float> &
+v3<Float> const &
 sphere<Float>::center() const
 {
   return center_;
@@ -75,7 +77,9 @@ sphere<Float>::intersect(ray<Float> const &ray) const
   auto disc = dot_voc * dot_voc - dot_ococ + radius_ * radius_;
 
   if (disc <= 0)
+  {
     return {};
+  }
 
   return dot_voc - std::sqrt(disc);
 }

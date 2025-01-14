@@ -10,9 +10,7 @@ namespace htracer::utils
 
 template<typename T>
 concept uniform_random_generator = requires(T a) {
-  {
-    a()
-  } -> std::same_as<typename T::result_type>;
+  { a() } -> std::same_as<typename T::result_type>;
   requires std::is_unsigned_v<typename T::result_type>;
   requires std::numeric_limits<typename T::result_type>::min() == 0;
   requires std::numeric_limits<typename T::result_type>::max() > 0;
@@ -36,7 +34,7 @@ public:
 
   template<typename Distribution>
   decltype(auto)
-  operator()(Distribution & dist);
+  operator()(Distribution &dist);
 };
 
 

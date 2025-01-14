@@ -18,14 +18,18 @@ class hsl final : private utils::vector_crtp<srgb<Float>, Float, 3>
 public:
   constexpr hsl(Float h, Float s, Float l) noexcept;
 
-  [[nodiscard]] constexpr const Float &
+  [[nodiscard]]
+  constexpr Float const &
   h() const;
-  [[nodiscard]] constexpr const Float &
+  [[nodiscard]]
+  constexpr Float const &
   s() const;
-  [[nodiscard]] constexpr const Float &
+  [[nodiscard]]
+  constexpr Float const &
   l() const;
 
-  [[nodiscard]] constexpr srgb<Float>
+  [[nodiscard]]
+  constexpr srgb<Float>
   to_srgb() const;
 };
 

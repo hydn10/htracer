@@ -18,14 +18,18 @@ class srgb final : private utils::vector_crtp<srgb<Float>, Float, 3>
 public:
   constexpr srgb(Float r, Float g, Float b) noexcept;
 
-  [[nodiscard]] constexpr const Float &
+  [[nodiscard]]
+  constexpr Float const &
   r() const;
-  [[nodiscard]] constexpr const Float &
+  [[nodiscard]]
+  constexpr Float const &
   g() const;
-  [[nodiscard]] constexpr const Float &
+  [[nodiscard]]
+  constexpr Float const &
   b() const;
 
-  [[nodiscard]] constexpr srgb_linear<Float>
+  [[nodiscard]]
+  constexpr srgb_linear<Float>
   to_linear() const;
 };
 

@@ -15,7 +15,7 @@ template<typename Vector>
 constexpr Vector
 clamp(Vector const &v, typename Vector::float_type min, typename Vector::float_type max) noexcept
 {
-  return utils::transform(v, [min, max](const auto &val) { return std::clamp(val, min, max); });
+  return utils::transform(v, [min, max](auto const &val) { return std::clamp(val, min, max); });
 }
 
 

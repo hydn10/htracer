@@ -1,5 +1,5 @@
 #include <htracer/outputs/ppm.hpp>
-#include <htracer/raytracing/camera.hpp>
+#include <htracer/raytracing/cameras/camera.hpp>
 #include <htracer/raytracing/lenses/pinhole.hpp>
 #include <htracer/raytracing/lenses/point.hpp>
 #include <htracer/raytracing/pixel_samplers/constant.hpp>
@@ -21,7 +21,7 @@ get_sphere_material(Float hue)
 {
   using htracer::colors::hsl;
 
-  const auto color = hsl<Float>{hue, 0.7, 0.5}.to_srgb().to_linear();
+  auto const color = hsl<Float>{hue, 0.7, 0.5}.to_srgb().to_linear();
   return htracer::scene::make_solid<Float>(color, 0.125, 0.05, 200, .4);
 }
 
@@ -64,8 +64,8 @@ main(int argc, char const *argv[])
   // htracer::v3<Float> const camera_dir = htracer::v3<Float>(1.5, 1.0, -3.0) - camera_pos;
   // htracer::v3<Float> const camera_up(0, 1, 0);
 
-  // htracer::raytracing::lenses::pinhole<Float> lens(0.5, 3);
   htracer::raytracing::lenses::point<Float> lens;
+  // htracer::raytracing::lenses::pinhole<Float> lens(0.5, 3);
 
   htracer::raytracing::pixel_samplers::constant<Float> pixel_sampler;
   // htracer::raytracing::pixel_samplers::uniform<Float> pixel_sampler;

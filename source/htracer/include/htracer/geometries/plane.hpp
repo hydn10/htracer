@@ -19,12 +19,14 @@ class plane final : public geometry<Float>
   v3<Float> up_;
 
 public:
-  plane(const v3<Float> &anchor, v3<Float> const &up);
+  plane(v3<Float> const &anchor, v3<Float> const &up);
 
-  [[nodiscard]] const v3<Float> &
+  [[nodiscard]]
+  v3<Float> const &
   anchor() const;
 
-  [[nodiscard]] const v3<Float> &
+  [[nodiscard]]
+  v3<Float> const &
   up() const;
 
   // TODO: nodiscard?
@@ -48,7 +50,7 @@ plane<Float>::plane(v3<Float> const &anchor, v3<Float> const &up)
 
 
 template<typename Float>
-const v3<Float> &
+v3<Float> const &
 plane<Float>::anchor() const
 {
   return anchor_;
@@ -56,7 +58,7 @@ plane<Float>::anchor() const
 
 
 template<typename Float>
-const v3<Float> &
+v3<Float> const &
 plane<Float>::up() const
 {
   return up_;
@@ -70,7 +72,9 @@ plane<Float>::intersect(ray<Float> const &ray) const
   auto dot_dn = dot(ray.direction, up_);
 
   if (dot_dn == Float{0})
+  {
     return {};
+  }
 
   auto dot_aon = dot(anchor_ - ray.origin, up_);
   return dot_aon / dot_dn;

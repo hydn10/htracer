@@ -37,9 +37,11 @@ srgb_linear<Float>::to_srgb() const
         constexpr Float EXPONENT = 2.4;
 
         if (val <= LINEAR_CUTOFF)
+        {
           return val * SLOPE;
+        }
 
-        const auto raised = std::pow(val, 1 / EXPONENT);
+        auto const raised = std::pow(val, 1 / EXPONENT);
         return (1 + EXP_OFFSET) * raised - EXP_OFFSET;
       });
 }

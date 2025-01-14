@@ -34,9 +34,7 @@ concept deterministic_lens = requires(T a) {
 
 template<typename T, typename Float>
 concept deterministic_pixel_sampler = requires(T a) {
-  {
-    a.get_coords(uint32_t{}, uint32_t{})
-  } -> std::same_as<std::pair<Float, Float>>;
+  { a.get_coords(uint32_t{}, uint32_t{}) } -> std::same_as<std::pair<Float, Float>>;
 };
 
 
@@ -57,9 +55,7 @@ concept nondeterministic_lens = requires(T a, utils::randomness<> &r) {
 
 template<typename T, typename Float>
 concept nondeterministic_pixel_sampler = requires(T a, utils::randomness<> &r) {
-  {
-    a.get_coords(uint32_t{}, uint32_t{}, r)
-  } -> std::same_as<std::pair<Float, Float>>;
+  { a.get_coords(uint32_t{}, uint32_t{}, r) } -> std::same_as<std::pair<Float, Float>>;
 };
 
 

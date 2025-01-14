@@ -59,7 +59,9 @@ heterogeneous_visitable<Ts...>::visit(F &&f) const
   auto apply_f_to_vec = [&f](auto const &vec)
   {
     for (auto const &item : vec)
+    {
       f(item);
+    }
   };
 
   (apply_f_to_vec(std::get<std::vector<Ts>>(vectors_)), ...);
@@ -74,7 +76,9 @@ heterogeneous_visitable<Ts...>::visit(F &&f)
   auto apply_f_to_vec = [&f](auto const &vec)
   {
     for (auto const &item : vec)
+    {
       f(item);
+    }
   };
 
   (apply_f_to_vec(std::get<std::vector<Ts>>(vectors_)), ...);

@@ -11,8 +11,8 @@ target_link_libraries(
 
 add_custom_target(
 	compare_output_test_wrapper
-	COMMAND compare_output_test
-	COMMAND ${CMAKE_COMMAND} -E compare_files ray_compare_test.ppm ${CMAKE_CURRENT_SOURCE_DIR}/ray_compare_test-golden.ppm
+	COMMAND compare_output_test compare_output.ppm
+	COMMAND ${CMAKE_COMMAND} -E compare_files compare_output.ppm ${CMAKE_CURRENT_SOURCE_DIR}/golden.ppm
 	VERBATIM
 )
 

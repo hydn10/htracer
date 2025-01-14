@@ -84,7 +84,9 @@ constexpr Derived &
 vector_crtp<Derived, Float, N>::operator+=(Derived const &rhs)
 {
   for (std::size_t i = 0; i < N; ++i)
+  {
     this->elems_[i] += rhs.elems_[i];
+  }
 
   return static_cast<Derived &>(*this);
 }
@@ -95,7 +97,9 @@ constexpr Derived &
 vector_crtp<Derived, Float, N>::operator-=(Derived const &rhs)
 {
   for (std::size_t i = 0; i < N; ++i)
+  {
     this->elems_[i] -= rhs.elems_[i];
+  }
 
   return static_cast<Derived &>(*this);
 }
@@ -106,7 +110,9 @@ constexpr Derived &
 vector_crtp<Derived, Float, N>::operator*=(Float scale)
 {
   for (std::size_t i = 0; i < N; ++i)
+  {
     elems_[i] *= scale;
+  }
 
   return static_cast<Derived &>(*this);
 }

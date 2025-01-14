@@ -4,9 +4,9 @@
 
 #include <htracer/raytracing/image.hpp>
 
+#include <bit>
 #include <fstream>
 #include <string>
-#include <bit>
 
 
 namespace htracer::outputs
@@ -80,7 +80,9 @@ ppm::save(std::string_view filename, raytracing::image<Float> const &image) cons
     // Another option is scaling by (NUM_COLORS - .000001), but I feel it is more correct this way.
     // The branch predictor should almost always take the other path anyway.
     if (scaled >= NUM_COLORS) [[unlikely]]
+    {
       scaled = NUM_COLORS - 1;
+    }
 
     auto const res = static_cast<pixel_value_t>(scaled);
 

@@ -4,8 +4,8 @@
 
 #include <htracer/colors/colors.hpp>
 
-#include <vector>
 #include <cstdint>
+#include <vector>
 
 
 namespace htracer::raytracing
@@ -14,19 +14,22 @@ namespace htracer::raytracing
 template<typename Float>
 class image
 {
-  const std::vector<colors::srgb_linear<Float>> pixels_;
-  const uint32_t h_res_;
-  const uint32_t v_res_;
+  std::vector<colors::srgb_linear<Float>> const pixels_;
+  uint32_t const h_res_;
+  uint32_t const v_res_;
 
 public:
   image(uint32_t h_res, uint32_t v_res, std::vector<colors::srgb_linear<Float>> pixels);
 
-  [[nodiscard]] uint32_t
+  [[nodiscard]]
+  uint32_t
   h_res() const;
-  [[nodiscard]] uint32_t
+  [[nodiscard]]
+  uint32_t
   v_res() const;
 
-  [[nodiscard]] std::vector<colors::srgb_linear<Float>> const &
+  [[nodiscard]]
+  std::vector<colors::srgb_linear<Float>> const &
   pixels() const;
 };
 
