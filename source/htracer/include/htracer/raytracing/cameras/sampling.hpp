@@ -13,7 +13,7 @@
 #include <algorithm>
 #include <cmath>
 #include <execution>
-#include <numeric>
+#include <ranges>
 #include <vector>
 
 
@@ -32,19 +32,11 @@ template<
     typename... Geometries>
 class sampling_render_operation
 {
-  static auto
-  get_coords(PixelSampler &pixel_sampler, uint32_t v_idx, uint32_t h_idx, utils::randomness<Generator> &rand);
+  constexpr auto
+  get_coords(uint32_t v_idx, uint32_t h_idx) const;
 
-  static auto
-  get_ray(
-      Lens &lens,
-      Float dh,
-      Float dv,
-      v3<Float> const &position,
-      v3<Float> const &view,
-      v3<Float> const &up,
-      v3<Float> const &right,
-      utils::randomness<Generator> &rand);
+  constexpr auto
+  get_ray(Float dh, Float dv) const;
 
   sampling<Float, Lens, PixelSampler> const &camera_;
 
@@ -72,60 +64,50 @@ public:
     using PolicyType = std::remove_cvref_t<Policy>;
     auto constexpr std_policy = policy_traits<PolicyType::style>::std_policy;
 
-    auto const &position = camera_.position();
-    auto const &view = camera_.view();
-    auto const &up = camera_.up();
-    auto const &right = camera_.right();
     auto const h_res = camera_.h_res();
     auto const v_res = camera_.v_res();
     auto const fov = camera_.fov();
-    auto const &lens = camera_.lens();
-    auto const &pixel_sampler = camera_.pixel_sampler();
 
     auto const v_tan = std::tan(fov);
     auto const h_tan = v_tan * h_res / v_res;
 
-    std::vector<colors::srgb_linear<Float>> pixels(v_res * h_res);
-
-    std::vector<uint32_t> v_indices(v_res);
-    std::iota(std::begin(v_indices), std::end(v_indices), 0);
-
-    auto get_dv = [v_tan, v_res = v_res](Float idx)
+    auto const get_dv = [v_tan, v_res](Float idx)
     {
       return v_tan * (1 - ((2 * idx) / (v_res - 1)));
     };
 
-    auto get_dh = [h_tan, h_res = h_res](Float idx)
+    auto const get_dh = [h_tan, h_res](Float idx)
     {
       return h_tan * (((2 * idx) / (h_res - 1)) - 1);
     };
 
-    std::for_each(
-        std_policy,
-        std::begin(v_indices),
-        std::end(v_indices),
-        [&](auto const i)
-        {
-          for (uint32_t j = 0; j < h_res; ++j)
-          {
-            for (auto k = samples_; k > 0; --k)
-            {
-              auto const [v_coord, h_coord] = get_coords(pixel_sampler, i, j, rand_);
-              auto const dv = get_dv(v_coord);
-              auto const dh = get_dh(h_coord);
+    uint32_t constexpr zero = 0;
 
-              auto const ray = get_ray(lens, dv, dh, position, view, up, right, rand_);
+    std::vector<colors::srgb_linear<Float>> pixels(v_res * h_res);
+    auto v_indices = std::views::iota(zero, uint32_t{v_res});
 
-              pixels[h_res * i + j] += sample(ray, scene_);
-            }
-          }
-        });
-
-    for (auto &pixel : pixels)
+    auto process_column = [&](auto const v_idx)
     {
-      auto const scale = Float{1} / samples_;
-      pixel *= scale;
-    }
+      auto range = std::views::cartesian_product(std::views::iota(zero, h_res), std::views::iota(zero, samples_));
+
+      for (auto const &[h_idx, sample_idx] : range)
+      {
+        auto const [v_coord, h_coord] = get_coords(v_idx, h_idx);
+        auto const dv = get_dv(v_coord);
+        auto const dh = get_dh(h_coord);
+
+        auto const ray = get_ray(dv, dh);
+
+        auto const scale = Float{1} / samples_;
+        pixels[h_res * v_idx + h_idx] += sample(ray, scene_) * scale;
+      }
+    };
+
+    // Jobs are batched by column.
+    // Different approaches could be tested.
+    // For example, do it for each pixel, for each sample, or even for each pixel and sample.
+    // It is a tradeoff between contention and parallelization. It needs to be empirically tested.
+    std::for_each(std_policy, std::begin(v_indices), std::end(v_indices), std::move(process_column));
 
     return {h_res, v_res, std::move(pixels)};
   }
@@ -139,17 +121,19 @@ template<
     utils::uniform_random_generator Generator,
     template<typename>
     typename... Geometries>
-auto
+constexpr auto
 sampling_render_operation<Float, Lens, PixelSampler, Generator, Geometries...>::get_coords(
-    PixelSampler &pixel_sampler, uint32_t v_idx, uint32_t h_idx, utils::randomness<Generator> &rand)
+    uint32_t v_idx, uint32_t h_idx) const
 {
+  auto const &pixel_sampler = camera_.pixel_sampler();
+
   if constexpr (deterministic_pixel_sampler<PixelSampler, Float>)
   {
     return pixel_sampler.get_coords(v_idx, h_idx);
   }
   else
   {
-    return pixel_sampler.get_coords(v_idx, h_idx, rand);
+    return pixel_sampler.get_coords(v_idx, h_idx, rand_);
   }
 }
 
@@ -161,24 +145,23 @@ template<
     utils::uniform_random_generator Generator,
     template<typename>
     typename... Geometries>
-auto
-sampling_render_operation<Float, Lens, PixelSampler, Generator, Geometries...>::get_ray(
-    Lens &lens,
-    Float dv,
-    Float dh,
-    v3<Float> const &position,
-    v3<Float> const &view,
-    v3<Float> const &up,
-    v3<Float> const &right,
-    utils::randomness<Generator> &rand)
+constexpr auto
+sampling_render_operation<Float, Lens, PixelSampler, Generator, Geometries...>::get_ray(Float dv, Float dh) const
 {
+  auto const &lens = camera_.lens();
+
+  auto const &position = camera_.position();
+  auto const &view = camera_.view();
+  auto const &up = camera_.up();
+  auto const &right = camera_.right();
+
   if constexpr (deterministic_lens<Lens, Float>)
   {
     return lens.get_ray(dv, dh, position, view, up, right);
   }
   else
   {
-    return lens.get_ray(dv, dh, position, view, up, right, rand);
+    return lens.get_ray(dv, dh, position, view, up, right, rand_);
   }
 }
 
