@@ -1,12 +1,13 @@
-#ifndef HTRACER_SCENE_MATERIAL_HPP
-#define HTRACER_SCENE_MATERIAL_HPP
+#ifndef HTRACER_STAGING_MATERIAL_HPP
+#define HTRACER_STAGING_MATERIAL_HPP
 
 
 #include <htracer/colors/colors.hpp>
 
 
-namespace htracer::scene
+namespace htracer::staging
 {
+
 template<typename Float>
 struct material
 {
@@ -20,7 +21,7 @@ struct material
 
 template<typename Float>
 constexpr material<Float>
-make_solid(const colors::srgb_linear<Float> &color, Float ambient, Float specular, Float shininess, Float reflectivity);
+make_solid(colors::srgb_linear<Float> const &color, Float ambient, Float specular, Float shininess, Float reflectivity);
 
 
 template<typename Float>
@@ -46,6 +47,6 @@ make_mirror(Float specular, Float shininess, Float reflectivity)
   return {{0., 0., 0.}, {0., 0., 0.}, specular, shininess, reflectivity};
 }
 
-} // namespace htracer::scene
+} // namespace htracer::staging
 
 #endif

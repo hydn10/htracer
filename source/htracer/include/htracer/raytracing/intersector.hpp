@@ -3,7 +3,7 @@
 
 
 #include <htracer/geometries/ray.hpp>
-#include <htracer/scene/scene_view.hpp>
+#include <htracer/staging/scene_view.hpp>
 
 #include <limits>
 #include <utility>
@@ -18,14 +18,14 @@ template<typename Float, template<typename> typename... Geometries>
 auto
 intersect(
     geometries::ray<Float> const &ray,
-    scene::scene_view<scene::scene<Float, Geometries...>> scene,
-    Float min_dist) -> std::optional<std::pair<Float, scene::object_base<Float> const &>>
+    staging::scene_view<Float, Geometries...> scene,
+    Float min_dist) -> std::optional<std::pair<Float, staging::object_base<Float> const &>>
 {
   constexpr auto MAX_DISTANCE = std::numeric_limits<Float>::max();
 
   // Check performance diference with std::optional?
   Float closest_dist = MAX_DISTANCE;
-  scene::object_base<Float> const *closest_obj = nullptr;
+  staging::object_base<Float> const *closest_obj = nullptr;
 
   scene.for_each_object(
       [min_dist, &ray, &closest_dist, &closest_obj](auto const &obj)
@@ -42,7 +42,7 @@ intersect(
 
   if (closest_dist < MAX_DISTANCE)
   {
-    return std::pair<Float, scene::object_base<Float> const &>(closest_dist, *closest_obj);
+    return std::pair<Float, staging::object_base<Float> const &>(closest_dist, *closest_obj);
   }
 
   return {};

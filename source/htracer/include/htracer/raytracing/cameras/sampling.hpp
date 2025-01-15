@@ -6,7 +6,7 @@
 #include <htracer/raytracing/image.hpp>
 #include <htracer/raytracing/policies.hpp>
 #include <htracer/raytracing/sampler.hpp>
-#include <htracer/scene/scene_view.hpp>
+#include <htracer/staging/scene_view.hpp>
 #include <htracer/utils/randomness.hpp>
 #include <htracer/vector.hpp>
 
@@ -40,14 +40,14 @@ class sampling_render_operation
 
   sampling<Float, Lens, PixelSampler> const &camera_;
 
-  scene::scene_view<scene::scene<Float, Geometries...>> scene_;
+  staging::scene_view<Float, Geometries...> scene_;
   uint32_t samples_;
   utils::randomness<Generator> &rand_;
 
 public:
   sampling_render_operation(
       sampling<Float, Lens, PixelSampler> const &camera,
-      scene::scene_view<scene::scene<Float, Geometries...>> scene,
+      staging::scene_view<Float, Geometries...> scene,
       uint32_t samples,
       utils::randomness<Generator> &rand)
       : camera_{camera}
@@ -215,7 +215,7 @@ public:
   template<utils::uniform_random_generator Generator, template<typename> typename... Geometries>
   sampling_render_operation<Float, Lens, PixelSampler, Generator, Geometries...>
   render(
-      scene::scene_view<scene::scene<Float, Geometries...>> scene,
+      staging::scene_view<Float, Geometries...> scene,
       uint32_t samples,
       utils::randomness<Generator> &rand) const;
 };
@@ -320,7 +320,7 @@ template<typename Float, lens<Float> Lens, pixel_sampler<Float> PixelSampler>
 template<utils::uniform_random_generator Generator, template<typename> typename... Geometries>
 sampling_render_operation<Float, Lens, PixelSampler, Generator, Geometries...>
 sampling<Float, Lens, PixelSampler>::render(
-    scene::scene_view<scene::scene<Float, Geometries...>> scene,
+    staging::scene_view<Float, Geometries...> scene,
     uint32_t samples,
     utils::randomness<Generator> &rand) const
 {

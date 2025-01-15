@@ -1,12 +1,12 @@
-#ifndef HTRACER_SCENE_LIGHT_HPP
-#define HTRACER_SCENE_LIGHT_HPP
+#ifndef HTRACER_STAGING_LIGHT_HPP
+#define HTRACER_STAGING_LIGHT_HPP
 
 
 #include <htracer/colors/colors.hpp>
 #include <htracer/vector.hpp>
 
 
-namespace htracer::scene
+namespace htracer::staging
 {
 
 template<typename Float>
@@ -17,6 +17,6 @@ struct light
   Float intensity;
 };
 
-} // namespace htracer::scene
+} // namespace htracer::staging
 
 #endif

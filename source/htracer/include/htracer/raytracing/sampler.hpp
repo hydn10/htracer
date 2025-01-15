@@ -5,7 +5,7 @@
 #include <htracer/geometries/ray.hpp>
 #include <htracer/numerics.hpp>
 #include <htracer/raytracing/intersector.hpp>
-#include <htracer/scene/scene.hpp>
+#include <htracer/staging/scene.hpp>
 #include <htracer/vector.hpp>
 
 
@@ -14,7 +14,7 @@ namespace htracer::raytracing
 
 template<typename Float, template<typename> typename... Geometries>
 colors::srgb_linear<Float>
-sample(geometries::ray<Float> const &ray, scene::scene_view<scene::scene<Float, Geometries...>> scene);
+sample(geometries::ray<Float> const &ray, staging::scene_view<Float, Geometries...> scene);
 
 
 namespace detail_
@@ -22,14 +22,15 @@ namespace detail_
 
 template<typename Float, template<typename> typename... Geometries>
 colors::srgb_linear<Float>
-sample(geometries::ray<Float> const &ray, scene::scene_view<scene::scene<Float, Geometries...>> scene, unsigned depth);
+sample(
+    geometries::ray<Float> const &ray, staging::scene_view<Float, Geometries...> scene, unsigned depth);
 
 }
 
 
 template<typename Float, template<typename> typename... Geometries>
 colors::srgb_linear<Float>
-sample(geometries::ray<Float> const &ray, scene::scene_view<scene::scene<Float, Geometries...>> scene)
+sample(geometries::ray<Float> const &ray, staging::scene_view<Float, Geometries...> scene)
 {
   return detail_::sample(ray, scene, 0);
 }
@@ -40,14 +41,17 @@ namespace detail_
 
 template<typename Float, template<typename> typename... Geometries>
 colors::srgb_linear<Float>
-sample(geometries::ray<Float> const &ray, scene::scene_view<scene::scene<Float, Geometries...>> scene, unsigned depth)
+sample(
+    geometries::ray<Float> const &ray, staging::scene_view<Float, Geometries...> scene, unsigned depth)
 {
   // TODO: Move to a sampler class and set as parameter toghether with MIN_DISTANCE.
   constexpr unsigned MAX_DEPTH = 5;
 
   // TODO: Small optimization: do not call if depth > MAX_DEPTH so ray is never created.
   if (depth > MAX_DEPTH)
+  {
     return {0., 0., 0.};
+  }
 
   // TODO: This should be a parameter since it is scale-dependant. The value
   // must be > 0 or else reflections/refractions wont work.
@@ -56,7 +60,9 @@ sample(geometries::ray<Float> const &ray, scene::scene_view<scene::scene<Float, 
   auto const intersection = intersect(ray, scene, MIN_DISTANCE);
 
   if (!intersection)
+  {
     return {0., 0., 0.};
+  }
 
   auto const &[obj_dist, obj] = *intersection;
 
@@ -78,7 +84,9 @@ sample(geometries::ray<Float> const &ray, scene::scene_view<scene::scene<Float, 
     auto const light_intersect = intersect({p, l}, scene, MIN_DISTANCE);
 
     if (light_intersect && light_intersect->first < light_dist)
+    {
       continue;
+    }
 
     auto const lambertian = std::max(dot(l, n), Float{0});
 

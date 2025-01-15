@@ -1,18 +1,18 @@
-#ifndef HTRACER_SCENE_OBJECT_BASE_HPP
-#define HTRACER_SCENE_OBJECT_BASE_HPP
+#ifndef HTRACER_STAGING_OBJECT_BASE_HPP
+#define HTRACER_STAGING_OBJECT_BASE_HPP
 
 
 #include <htracer/geometries/geometry.hpp>
-#include <htracer/scene/material.hpp>
+#include <htracer/staging/material.hpp>
 
 
-namespace htracer::scene
+namespace htracer::staging
 {
 
 template<typename Float>
 class object_base
 {
-  scene::material<Float> material_;
+  material<Float> material_;
 
 public:
   object_base(material<Float> const &material);
@@ -37,7 +37,7 @@ public:
 
 
 template<typename Float>
-object_base<Float>::object_base(scene::material<Float> const &material)
+object_base<Float>::object_base(material<Float> const &material)
     : material_{material}
 {
 }
@@ -50,6 +50,6 @@ object_base<Float>::get_material() const
   return material_;
 }
 
-} // namespace htracer::scene
+} // namespace htracer::staging
 
 #endif

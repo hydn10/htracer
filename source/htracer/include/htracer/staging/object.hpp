@@ -1,12 +1,12 @@
-#ifndef HTRACER_SCENE_OBJECT_HPP
-#define HTRACER_SCENE_OBJECT_HPP
+#ifndef HTRACER_STAGING_OBJECT_HPP
+#define HTRACER_STAGING_OBJECT_HPP
 
 
-#include <htracer/scene/material.hpp>
-#include <htracer/scene/object_base.hpp>
+#include <htracer/staging/material.hpp>
+#include <htracer/staging/object_base.hpp>
 
 
-namespace htracer::scene
+namespace htracer::staging
 {
 
 template<typename Float, template<typename> typename Geometry>
@@ -47,6 +47,6 @@ object<Float, Geometry>::get_geometry() const
   return geometry_;
 }
 
-} // namespace htracer::scene
+} // namespace htracer::staging
 
 #endif
