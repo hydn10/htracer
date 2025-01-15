@@ -2,6 +2,7 @@
 #include <htracer/raytracing/cameras/sampling.hpp>
 #include <htracer/raytracing/lenses/point.hpp>
 #include <htracer/raytracing/pixel_samplers/constant.hpp>
+#include <htracer/raytracing/policies.hpp>
 #include <htracer/scene/scene.hpp>
 #include <htracer/vector.hpp>
 
@@ -71,7 +72,8 @@ main(int argc, char const *argv[])
 
   htracer::utils::randomness randomness;
 
-  auto const image = cam.render(std::execution::par_unseq, htracer::scene::scene_view(scene), 1, randomness);
+  auto const render_op = cam.render(htracer::scene::scene_view(scene), 1, randomness);
+  auto const image = render_op(htracer::raytracing::unseq);
 
   htracer::outputs::ppm const ppm;
   auto constexpr ppmbpv = htracer::outputs::ppm::bytes_per_value::BPV1;

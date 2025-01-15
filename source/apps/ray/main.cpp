@@ -75,7 +75,8 @@ main(int argc, char const *argv[])
 
   htracer::utils::randomness rand;
 
-  auto const image = camera.render(std::execution::par_unseq, htracer::scene::scene_view(scene), 1, rand);
+  auto const render_op = camera.render(htracer::scene::scene_view(scene), 1, rand);
+  auto const image = render_op(htracer::raytracing::unseq);
 
   auto const filename = args.size() > 0 ? args[0] : "out.ppm";
 

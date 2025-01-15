@@ -2,11 +2,11 @@
 #define HTRACER_RAYTRACING_CONCEPTS_HPP
 
 
-#include <htracer/utils/randomness.hpp>
 #include <htracer/geometries/ray.hpp>
+#include <htracer/utils/randomness.hpp>
 
-#include <utility>
 #include <concepts>
+#include <utility>
 
 
 namespace htracer::raytracing
