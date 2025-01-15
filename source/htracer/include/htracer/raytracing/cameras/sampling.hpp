@@ -32,26 +32,6 @@ template<
     typename... Geometries>
 class sampling_render_operation
 {
-  template<policy_type PolicyType>
-  struct policy_traits
-  {
-    static auto constexpr good = false;
-  };
-
-  template<>
-  struct policy_traits<policy_type::UNSEQUENCED>
-  {
-    static auto constexpr good = true;
-    static auto constexpr std_policy = std::execution::unseq;
-  };
-
-  template<>
-  struct policy_traits<policy_type::PARALLEL>
-  {
-    static auto constexpr good = true;
-    static auto constexpr std_policy = std::execution::par_unseq;
-  };
-
   static auto
   get_coords(PixelSampler &pixel_sampler, uint32_t v_idx, uint32_t h_idx, utils::randomness<Generator> &rand);
 
@@ -90,7 +70,7 @@ public:
   operator()(Policy &&) const
   {
     using PolicyType = std::remove_cvref_t<Policy>;
-    auto constexpr std_policy = policy_traits<PolicyType::policy_type>::std_policy;
+    auto constexpr std_policy = policy_traits<PolicyType::style>::std_policy;
 
     auto const &position = camera_.position();
     auto const &view = camera_.view();

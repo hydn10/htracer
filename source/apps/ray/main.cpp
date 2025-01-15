@@ -8,7 +8,6 @@
 #include <htracer/scene/scene.hpp>
 #include <htracer/vector.hpp>
 
-#include <execution>
 #include <numbers>
 #include <variant>
 
