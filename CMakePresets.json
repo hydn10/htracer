@@ -146,7 +146,7 @@
         "build-tests"
       ],
       "cacheVariables": {
-        "CMAKE_CXX_COMPILER": "g++-11"
+        "CMAKE_CXX_COMPILER": "g++-14"
       }
     },
     {
