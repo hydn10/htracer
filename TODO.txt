@@ -1,41 +1,32 @@
-- Check clang-format options, fill them all and then format all files.
 - Templatize container in scene (so std::array can be used for constexpr raytracer).
-- Check std::forward is used when needed.
-- Use concepts!
 
-
-- Textures. Use object local coordinates for textures and also normals (UVs)?
-
-- Finish material system. Specular color. Handle light color multiplication
-  correctly, in both diffuse and specular.
-
-- Finish sampling: refractions, ...
-
-- Motion blur. Allow position to be function of time between shutter intervals.
-  Time when ray is cast is then random.
-
-- Depth of field. Lenses?
-
-- Different lenses/projections. Fisheye?
-
-- Add more primitives.
+- Add more concepts where needed.
 
 - Adaptive sampling (cast more rays if there is more variance in the pixel color).
 
 - Octree? R-d tree?
 
-- Colormaps?
+- Textures. Use object local coordinates for textures and also normals (UVs)?
 
-- ASCII renderer?
+- Finish material system. Specular color. Handle light color multiplication
+  correctly, in both diffuse and specular. OpenPBR?
+
+- Finish sampling: refractions, ...
+
+- Objects should be able to be moved/rotated and removed.
+
+- Add more primitives.
+
+- Motion blur. Allow position to be function of time between shutter intervals.
+  Time when ray is cast is then random.
+
+- Different lenses/projections. Fisheye?
+
+- Colormaps?
 
 - CLI interface/options.
 
-- Multithreading. Maybe use [1]? Test it.
-  [1]: https://en.cppreference.com/w/cpp/algorithm/transform_reduce
-
 - Wide performance diferences between clang++ and g++. Benchmark and study.
-
-- Multithreading. Batch system?
 
 - Add constexpr where applicable.
 
@@ -45,10 +36,10 @@
 
 - Post-processing.
 
+- ASCII renderer?
+
 - Study using normalized_vector class. I probably should implement it.
 
 - Tone mapping?
 
 - Signed Distance Functions. Raymarching.
-
-- Objects should be able to be moved/rotated and removed.
