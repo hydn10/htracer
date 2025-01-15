@@ -1,6 +1,6 @@
 #include <htracer/outputs/ppm.hpp>
 #include <htracer/raytracing/cameras/sampling.hpp>
-#include <htracer/raytracing/lenses/point.hpp>
+#include <htracer/raytracing/lenses/pinhole.hpp>
 #include <htracer/raytracing/pixel_samplers/constant.hpp>
 #include <htracer/raytracing/policies.hpp>
 #include <htracer/scene/scene.hpp>
@@ -63,7 +63,7 @@ main(int argc, char const *argv[])
   htracer::v3<Float> const camera_up(0, 1, 0);
 
   // Non-random lens and pixel sampler so output is deterministic.
-  htracer::raytracing::lenses::point<Float> const lens;
+  htracer::raytracing::lenses::pinhole<Float> const lens;
   htracer::raytracing::pixel_samplers::constant<Float> const pixel_sampler;
 
   htracer::raytracing::cameras::sampling const cam(

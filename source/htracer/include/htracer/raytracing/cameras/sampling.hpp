@@ -125,7 +125,7 @@ constexpr auto
 sampling_render_operation<Float, Lens, PixelSampler, Generator, Geometries...>::get_coords(
     uint32_t v_idx, uint32_t h_idx) const
 {
-  auto const &pixel_sampler = camera_.pixel_sampler();
+  auto &pixel_sampler = camera_.pixel_sampler();
 
   if constexpr (deterministic_pixel_sampler<PixelSampler, Float>)
   {
@@ -148,7 +148,7 @@ template<
 constexpr auto
 sampling_render_operation<Float, Lens, PixelSampler, Generator, Geometries...>::get_ray(Float dv, Float dh) const
 {
-  auto const &lens = camera_.lens();
+  auto &lens = camera_.lens();
 
   auto const &position = camera_.position();
   auto const &view = camera_.view();
@@ -164,6 +164,7 @@ sampling_render_operation<Float, Lens, PixelSampler, Generator, Geometries...>::
     return lens.get_ray(dv, dh, position, view, up, right, rand_);
   }
 }
+
 
 template<typename Float, lens<Float> Lens, pixel_sampler<Float> PixelSampler>
 class sampling
@@ -181,7 +182,6 @@ class sampling
   Lens &lens_;
   PixelSampler &pixel_sampler_;
 
-
 public:
   sampling(
       v3<Float> const &position,
@@ -194,50 +194,23 @@ public:
       PixelSampler &pixel_sampler);
 
   constexpr v3<Float> const &
-  position() const noexcept
-  {
-    return position_;
-  }
+  position() const noexcept;
   constexpr v3<Float> const &
-  view() const noexcept
-  {
-    return view_;
-  }
+  view() const noexcept;
   constexpr v3<Float> const &
-  up() const noexcept
-  {
-    return up_;
-  }
+  up() const noexcept;
   constexpr v3<Float> const &
-  right() const noexcept
-  {
-    return right_;
-  }
+  right() const noexcept;
   constexpr uint32_t
-  h_res() const noexcept
-  {
-    return h_res_;
-  }
+  h_res() const noexcept;
   constexpr uint32_t
-  v_res() const noexcept
-  {
-    return v_res_;
-  }
+  v_res() const noexcept;
   constexpr Float
-  fov() const noexcept
-  {
-    return fov_;
-  }
+  fov() const noexcept;
   constexpr Lens &
-  lens() const noexcept
-  {
-    return lens_;
-  }
+  lens() const noexcept;
   constexpr PixelSampler &
-  pixel_sampler() const noexcept
-  {
-    return pixel_sampler_;
-  }
+  pixel_sampler() const noexcept;
 
   template<utils::uniform_random_generator Generator, template<typename> typename... Geometries>
   sampling_render_operation<Float, Lens, PixelSampler, Generator, Geometries...>
@@ -268,6 +241,78 @@ sampling<Float, Lens, PixelSampler>::sampling(
   view_ = normalize(view);
   right_ = normalize(cross(view, up));
   up_ = cross(right_, view_);
+}
+
+
+template<typename Float, lens<Float> Lens, pixel_sampler<Float> PixelSampler>
+constexpr v3<Float> const &
+sampling<Float, Lens, PixelSampler>::position() const noexcept
+{
+  return position_;
+}
+
+
+template<typename Float, lens<Float> Lens, pixel_sampler<Float> PixelSampler>
+constexpr v3<Float> const &
+sampling<Float, Lens, PixelSampler>::view() const noexcept
+{
+  return view_;
+}
+
+
+template<typename Float, lens<Float> Lens, pixel_sampler<Float> PixelSampler>
+constexpr v3<Float> const &
+sampling<Float, Lens, PixelSampler>::up() const noexcept
+{
+  return up_;
+}
+
+
+template<typename Float, lens<Float> Lens, pixel_sampler<Float> PixelSampler>
+constexpr v3<Float> const &
+sampling<Float, Lens, PixelSampler>::right() const noexcept
+{
+  return right_;
+}
+
+
+template<typename Float, lens<Float> Lens, pixel_sampler<Float> PixelSampler>
+constexpr uint32_t
+sampling<Float, Lens, PixelSampler>::h_res() const noexcept
+{
+  return h_res_;
+}
+
+
+template<typename Float, lens<Float> Lens, pixel_sampler<Float> PixelSampler>
+constexpr uint32_t
+sampling<Float, Lens, PixelSampler>::v_res() const noexcept
+{
+  return v_res_;
+}
+
+
+template<typename Float, lens<Float> Lens, pixel_sampler<Float> PixelSampler>
+constexpr Float
+sampling<Float, Lens, PixelSampler>::fov() const noexcept
+{
+  return fov_;
+}
+
+
+template<typename Float, lens<Float> Lens, pixel_sampler<Float> PixelSampler>
+constexpr Lens &
+sampling<Float, Lens, PixelSampler>::lens() const noexcept
+{
+  return lens_;
+}
+
+
+template<typename Float, lens<Float> Lens, pixel_sampler<Float> PixelSampler>
+constexpr PixelSampler &
+sampling<Float, Lens, PixelSampler>::pixel_sampler() const noexcept
+{
+  return pixel_sampler_;
 }
 
 
