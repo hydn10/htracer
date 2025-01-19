@@ -1,3 +1,7 @@
+- Pixel samplers only need to return an offset, the imput indices are redundant.
+
+- FOV parameter should go in lens, not in camera.
+
 - Templatize container in scene (so std::array can be used for constexpr raytracer).
 
 - Add more concepts where needed.
@@ -21,6 +25,11 @@
   Time when ray is cast is then random.
 
 - Different lenses/projections. Fisheye?
+
+- In theory the position, view, right and up parameters are not needed in the lens.
+  It should be possible to return a transformation-agnostic value and then transform
+  it on the caller side.
+  Do it that way to remove unnecessary dependencies if it is not too inconvenient/inefficient.
 
 - Colormaps?
 
