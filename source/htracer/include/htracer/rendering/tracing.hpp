@@ -1,20 +1,30 @@
-#ifndef HTRACER_RAYTRACING_SAMPLER_HPP
-#define HTRACER_RAYTRACING_SAMPLER_HPP
+#ifndef HTRACER_RENDERING_TRACING_HPP
+#define HTRACER_RENDERING_TRACING_HPP
 
 
 #include <htracer/geometries/ray.hpp>
 #include <htracer/numerics.hpp>
-#include <htracer/raytracing/intersector.hpp>
+#include <htracer/rendering/intersector.hpp>
 #include <htracer/staging/scene.hpp>
 #include <htracer/vector.hpp>
 
 
-namespace htracer::raytracing
+namespace htracer::rendering
 {
 
 template<typename Float, template<typename> typename... Geometries>
 colors::srgb_linear<Float>
-sample(geometries::ray<Float> const &ray, staging::scene_view<Float, Geometries...> scene);
+sample(geometries::ray<Float> const &ray, staging::scene<Float, Geometries...> const &scene);
+
+
+template<typename Float, typename Adapter, template<typename> typename... Geometries>
+colors::srgb_linear<Float>
+render_single_pixel(
+    uint32_t v_idx,
+    uint32_t h_idx,
+    staging::scene<Float, Geometries...> const &scene,
+    camera<Float> const &camera,
+    Adapter const &adapter);
 
 
 namespace detail_
@@ -22,29 +32,65 @@ namespace detail_
 
 template<typename Float, template<typename> typename... Geometries>
 colors::srgb_linear<Float>
-sample(
-    geometries::ray<Float> const &ray, staging::scene_view<Float, Geometries...> scene, unsigned depth);
+sample(geometries::ray<Float> const &ray, staging::scene<Float, Geometries...> const &scene, unsigned depth);
 
 }
 
 
 template<typename Float, template<typename> typename... Geometries>
 colors::srgb_linear<Float>
-sample(geometries::ray<Float> const &ray, staging::scene_view<Float, Geometries...> scene)
+sample(geometries::ray<Float> const &ray, staging::scene<Float, Geometries...> const &scene)
 {
   return detail_::sample(ray, scene, 0);
 }
 
 
+template<typename Float, typename Adapter, template<typename> typename... Geometries>
+colors::srgb_linear<Float>
+render_single_pixel(
+    uint32_t v_idx,
+    uint32_t h_idx,
+    staging::scene<Float, Geometries...> const &scene,
+    camera<Float> const &camera,
+    Adapter const &adapter)
+{
+  auto const h_res = camera.h_res();
+  auto const v_res = camera.v_res();
+  auto const fov = camera.fov();
+
+  // TODO: h_tan and v_tan should not be repeated each time render_single_pixel is called,
+  // since it is constant for all pixels. Will be fixed when moving FOV from camera to lens.
+  auto const v_tan = std::tan(fov);
+  auto const h_tan = v_tan * h_res / v_res;
+
+  auto const get_dv = [v_tan, v_res](Float idx)
+  {
+    return v_tan * (1 - ((2 * idx) / (v_res - 1)));
+  };
+
+  auto const get_dh = [h_tan, h_res](Float idx)
+  {
+    return h_tan * (((2 * idx) / (h_res - 1)) - 1);
+  };
+
+  auto const [v_coord, h_coord] = adapter.get_coords(v_idx, h_idx);
+  auto const dv = get_dv(v_coord);
+  auto const dh = get_dh(h_coord);
+
+  auto const ray = adapter.get_ray(dv, dh, camera);
+
+  return sample(ray, scene);
+}
+
+
 namespace detail_
 {
 
 template<typename Float, template<typename> typename... Geometries>
 colors::srgb_linear<Float>
-sample(
-    geometries::ray<Float> const &ray, staging::scene_view<Float, Geometries...> scene, unsigned depth)
+sample(geometries::ray<Float> const &ray, staging::scene<Float, Geometries...> const &scene, unsigned depth)
 {
-  // TODO: Move to a sampler class and set as parameter toghether with MIN_DISTANCE.
+  // TODO: Move to a tracing class and set as parameter toghether with MIN_DISTANCE.
   constexpr unsigned MAX_DEPTH = 5;
 
   // TODO: Small optimization: do not call if depth > MAX_DEPTH so ray is never created.
@@ -115,6 +161,6 @@ sample(
 }
 
 } // namespace detail_
-} // namespace htracer::raytracing
+} // namespace htracer::rendering
 
 #endif

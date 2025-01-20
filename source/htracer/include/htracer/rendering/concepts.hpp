@@ -1,15 +1,15 @@
-#ifndef HTRACER_RAYTRACING_CONCEPTS_HPP
-#define HTRACER_RAYTRACING_CONCEPTS_HPP
+#ifndef HTRACER_RENDERING_CONCEPTS_HPP
+#define HTRACER_RENDERING_CONCEPTS_HPP
 
 
 #include <htracer/geometries/ray.hpp>
-#include <htracer/utils/randomness.hpp>
 
 #include <concepts>
+#include <random>
 #include <utility>
 
 
-namespace htracer::raytracing
+namespace htracer::rendering
 {
 
 template<typename T, typename Float>
@@ -27,7 +27,7 @@ concept deterministic_lens = requires(T a) {
 
 
 template<typename T, typename Float>
-concept nondeterministic_lens = requires(T a, utils::randomness<> &r) {
+concept nondeterministic_lens = requires(T a, std::default_random_engine &g) {
   {
     a.get_ray(
         Float{},
@@ -36,20 +36,20 @@ concept nondeterministic_lens = requires(T a, utils::randomness<> &r) {
         std::declval<v3<Float>>(),
         std::declval<v3<Float>>(),
         std::declval<v3<Float>>(),
-        r)
+        g)
   } -> std::same_as<geometries::ray<Float>>;
 };
 
 
 template<typename T, typename Float>
-concept deterministic_pixel_sampler = requires(T a) {
+concept deterministic_sensor = requires(T a) {
   { a.get_coords(uint32_t{}, uint32_t{}) } -> std::same_as<std::pair<Float, Float>>;
 };
 
 
 template<typename T, typename Float>
-concept nondeterministic_pixel_sampler = requires(T a, utils::randomness<> &r) {
-  { a.get_coords(uint32_t{}, uint32_t{}, r) } -> std::same_as<std::pair<Float, Float>>;
+concept nondeterministic_sensor = requires(T a, std::default_random_engine &g) {
+  { a.get_coords(uint32_t{}, uint32_t{}, g) } -> std::same_as<std::pair<Float, Float>>;
 };
 
 
@@ -58,8 +58,8 @@ concept lens = deterministic_lens<T, Float> || nondeterministic_lens<T, Float>;
 
 
 template<typename T, typename Float>
-concept pixel_sampler = deterministic_pixel_sampler<T, Float> || nondeterministic_pixel_sampler<T, Float>;
+concept sensor = deterministic_sensor<T, Float> || nondeterministic_sensor<T, Float>;
 
-} // namespace htracer::raytracing
+} // namespace htracer::rendering
 
 #endif

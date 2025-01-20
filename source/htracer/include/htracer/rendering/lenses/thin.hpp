@@ -1,16 +1,15 @@
-#ifndef HTRACER_RAYTRACING_LENSES_THIN_HPP
-#define HTRACER_RAYTRACING_LENSES_THIN_HPP
+#ifndef HTRACER_RENDERING_LENSES_THIN_HPP
+#define HTRACER_RENDERING_LENSES_THIN_HPP
 
 
 #include <htracer/geometries/ray.hpp>
-#include <htracer/utils/randomness.hpp>
 #include <htracer/vector.hpp>
 
 #include <numbers>
 #include <random>
 
 
-namespace htracer::raytracing::lenses
+namespace htracer::rendering::lenses
 {
 
 template<typename Float>
@@ -18,16 +17,11 @@ class thin
 {
   Float aperture_radius_;
   Float focal_distance_;
-  std::uniform_real_distribution<Float> zero_one_dist_{0, 1};
 
 public:
-  thin(Float aperture_radius, Float focal_distance)
-      : aperture_radius_{aperture_radius}
-      , focal_distance_{focal_distance}
-  {
-  }
+  thin(Float aperture_radius, Float focal_distance) noexcept;
 
-  template<typename Engine>
+  template<std::uniform_random_bit_generator Generator>
   geometries::ray<Float>
   get_ray(
       Float dv,
@@ -36,12 +30,20 @@ public:
       v3<Float> const &view,
       v3<Float> const &up,
       v3<Float> const &right,
-      htracer::utils::randomness<Engine> &rand);
+      Generator &generator) const;
 };
 
 
 template<typename Float>
-template<typename Engine>
+thin<Float>::thin(Float aperture_radius, Float focal_distance) noexcept
+    : aperture_radius_{aperture_radius}
+    , focal_distance_{focal_distance}
+{
+}
+
+
+template<typename Float>
+template<std::uniform_random_bit_generator Generator>
 geometries::ray<Float>
 thin<Float>::get_ray(
     Float dv,
@@ -50,13 +52,15 @@ thin<Float>::get_ray(
     v3<Float> const &view,
     v3<Float> const &up,
     v3<Float> const &right,
-    htracer::utils::randomness<Engine> &rand)
+    Generator &generator) const
 {
   auto constexpr PI = std::numbers::pi_v<Float>;
 
-  auto const random_unit = [this, &rand]()
+  std::uniform_real_distribution<Float> zero_one_dist{0, 1};
+
+  auto const random_unit = [&zero_one_dist, &generator]()
   {
-    return rand(zero_one_dist_);
+    return zero_one_dist(generator);
   };
 
   auto const angle = 2 * PI * random_unit();
@@ -73,6 +77,6 @@ thin<Float>::get_ray(
   return {origin, dir};
 }
 
-} // namespace htracer::raytracing::lenses
+} // namespace htracer::rendering::lenses
 
 #endif

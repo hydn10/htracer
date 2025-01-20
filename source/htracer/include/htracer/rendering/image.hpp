@@ -1,5 +1,5 @@
-#ifndef HTRACER_RAYTRACING_IMAGE_HPP
-#define HTRACER_RAYTRACING_IMAGE_HPP
+#ifndef HTRACER_RENDERING_IMAGE_HPP
+#define HTRACER_RENDERING_IMAGE_HPP
 
 
 #include <htracer/colors/colors.hpp>
@@ -8,7 +8,7 @@
 #include <vector>
 
 
-namespace htracer::raytracing
+namespace htracer::rendering
 {
 
 template<typename Float>
@@ -67,6 +67,6 @@ image<Float>::pixels() const
   return pixels_;
 }
 
-} // namespace htracer::raytracing
+} // namespace htracer::rendering
 
 #endif

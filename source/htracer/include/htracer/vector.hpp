@@ -6,18 +6,12 @@
 
 #include <cmath>
 #include <numeric>
-#include <ostream>
-
 
 namespace htracer
 {
 
 template<typename Float, std::size_t N>
 class vector;
-
-template<typename Float, std::size_t N>
-std::ostream &
-operator<<(std::ostream &os, vector<Float, N> const &rhs);
 
 
 template<typename Float, std::size_t N>

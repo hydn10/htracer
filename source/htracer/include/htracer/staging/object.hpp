@@ -15,7 +15,7 @@ class object final : public object_base<Float>
   Geometry<Float> geometry_;
 
 public:
-  object(Geometry<Float> const &geometry, material<Float> const &material);
+  object(Geometry<Float> geometry, material<Float> material);
 
   Geometry<Float> &
   get_geometry() override;
@@ -25,9 +25,9 @@ public:
 
 
 template<typename Float, template<typename> typename Geometry>
-object<Float, Geometry>::object(Geometry<Float> const &geometry, material<Float> const &material)
-    : object_base<Float>(material)
-    , geometry_{geometry}
+object<Float, Geometry>::object(Geometry<Float> geometry, material<Float> material)
+    : object_base<Float>(std::move(material))
+    , geometry_{std::move(geometry)}
 {
 }
 

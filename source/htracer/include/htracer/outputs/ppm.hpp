@@ -1,8 +1,8 @@
-#ifndef HTRACER_OUTPUT_PPM_HPP
-#define HTRACER_OUTPUT_PPM_HPP
+#ifndef HTRACER_OUTPUTS_PPM_HPP
+#define HTRACER_OUTPUTS_PPM_HPP
 
 
-#include <htracer/raytracing/image.hpp>
+#include <htracer/rendering/image.hpp>
 
 #include <bit>
 #include <fstream>
@@ -24,7 +24,7 @@ public:
 
   template<bytes_per_value BPV, typename Float>
   void
-  save(std::string_view filename, raytracing::image<Float> const &image) const;
+  save(std::string_view filename, rendering::image<Float> const &image) const;
 };
 
 
@@ -63,7 +63,7 @@ struct bpv_traits<ppm::bytes_per_value::BPV2>
 
 template<ppm::bytes_per_value BPV, typename Float>
 void
-ppm::save(std::string_view filename, raytracing::image<Float> const &image) const
+ppm::save(std::string_view filename, rendering::image<Float> const &image) const
 {
   // http://netpbm.sourceforge.net/doc/ppm.html
 

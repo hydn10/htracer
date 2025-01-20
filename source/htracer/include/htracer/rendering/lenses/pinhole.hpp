@@ -1,12 +1,12 @@
-#ifndef HTRACER_RAYTRACING_LENSES_PINHOLE_HPP
-#define HTRACER_RAYTRACING_LENSES_PINHOLE_HPP
+#ifndef HTRACER_RENDERING_LENSES_PINHOLE_HPP
+#define HTRACER_RENDERING_LENSES_PINHOLE_HPP
 
 
 #include <htracer/geometries/ray.hpp>
 #include <htracer/vector.hpp>
 
 
-namespace htracer::raytracing::lenses
+namespace htracer::rendering::lenses
 {
 
 template<typename Float>
@@ -32,6 +32,6 @@ pinhole<Float>::get_ray(
   return {position, dir};
 }
 
-} // namespace htracer::raytracing::lenses
+} // namespace htracer::rendering::lenses
 
 #endif

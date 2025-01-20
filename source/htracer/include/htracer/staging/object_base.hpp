@@ -15,7 +15,8 @@ class object_base
   material<Float> material_;
 
 public:
-  object_base(material<Float> const &material);
+  object_base(material<Float> material);
+  virtual ~object_base() = default;
 
   object_base(object_base<Float> const &) = default;
   object_base(object_base<Float> &&) = default;
@@ -23,8 +24,6 @@ public:
   operator=(object_base<Float> const &) = default;
   object_base<Float> &
   operator=(object_base<Float> &&) = default;
-
-  virtual ~object_base() = default;
 
   material<Float> const &
   get_material() const;
@@ -37,8 +36,8 @@ public:
 
 
 template<typename Float>
-object_base<Float>::object_base(material<Float> const &material)
-    : material_{material}
+object_base<Float>::object_base(material<Float> material)
+    : material_{std::move(material)}
 {
 }
 

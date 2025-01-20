@@ -1,17 +1,20 @@
 #include <htracer/geometries/plane.hpp>
 #include <htracer/geometries/sphere.hpp>
 #include <htracer/outputs/ppm.hpp>
-#include <htracer/raytracing/cameras/sampling.hpp>
-#include <htracer/raytracing/lenses/pinhole.hpp>
-#include <htracer/raytracing/lenses/thin.hpp>
-#include <htracer/raytracing/pixel_samplers/constant.hpp>
-#include <htracer/raytracing/pixel_samplers/uniform.hpp>
-#include <htracer/raytracing/sampler.hpp>
+#include <htracer/rendering/batchers/column_batcher.hpp>
+#include <htracer/rendering/batchers/pixel_batcher.hpp>
+#include <htracer/rendering/camera.hpp>
+#include <htracer/rendering/lenses/pinhole.hpp>
+#include <htracer/rendering/lenses/thin.hpp>
+#include <htracer/rendering/policies.hpp>
+#include <htracer/rendering/rendering.hpp>
+#include <htracer/rendering/sensors/constant.hpp>
+#include <htracer/rendering/sensors/uniform.hpp>
 #include <htracer/staging/scene.hpp>
 #include <htracer/vector.hpp>
 
 #include <numbers>
-#include <variant>
+#include <vector>
 
 
 using Float = double;
@@ -74,19 +77,20 @@ main(int argc, char const *argv[])
   // htracer::v3<Float> const camera_dir = htracer::v3<Float>(1.5, 1.0, -3.0) - camera_pos;
   // htracer::v3<Float> const camera_up(0, 1, 0);
 
-  // htracer::raytracing::lenses::pinhole<Float> const lens;
-  htracer::raytracing::lenses::thin<Float> lens(0.2, 3);
+  htracer::rendering::batchers::column_batcher batcher;
+  // htracer::rendering::batchers::pixel_batcher batcher;
 
-  htracer::raytracing::pixel_samplers::constant<Float> const pixel_sampler;
-  // htracer::raytracing::pixel_samplers::uniform<Float> pixel_sampler;
+  htracer::rendering::camera const camera(
+      camera_pos, camera_dir, camera_up, 1024, 576, 45 * std::numbers::pi_v<Float> / 180);
 
-  htracer::raytracing::cameras::sampling const camera(
-      camera_pos, camera_dir, camera_up, 1024, 576, 45 * std::numbers::pi_v<Float> / 180, lens, pixel_sampler);
+  // htracer::rendering::sensors::constant<Float> const sensor;
+  htracer::rendering::sensors::uniform<Float> sensor;
 
-  htracer::utils::randomness rand;
+  htracer::rendering::lenses::pinhole<Float> const lens;
+  // htracer::rendering::lenses::thin<Float> lens(0.2, 3);
 
-  auto const render_op = camera.render(htracer::staging::scene_view(scene), 100, rand);
-  auto const image = render_op(htracer::raytracing::par);
+  auto const renderer = htracer::rendering::make_renderer(batcher, scene, camera, sensor, lens);
+  auto const image = renderer.render(htracer::rendering::unseq, 100);
 
   auto const filename = args.size() > 0 ? args[0] : "out.ppm";
 

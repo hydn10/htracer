@@ -1,16 +1,19 @@
 #include <htracer/geometries/plane.hpp>
 #include <htracer/geometries/sphere.hpp>
 #include <htracer/outputs/ppm.hpp>
-#include <htracer/raytracing/cameras/sampling.hpp>
-#include <htracer/raytracing/lenses/pinhole.hpp>
-#include <htracer/raytracing/pixel_samplers/constant.hpp>
-#include <htracer/raytracing/policies.hpp>
+#include <htracer/rendering/batchers/column_batcher.hpp>
+#include <htracer/rendering/camera.hpp>
+#include <htracer/rendering/lenses/pinhole.hpp>
+#include <htracer/rendering/policies.hpp>
+#include <htracer/rendering/rendering.hpp>
+#include <htracer/rendering/sensors/constant.hpp>
 #include <htracer/staging/scene.hpp>
 #include <htracer/vector.hpp>
 
 #include <cstdlib>
 #include <numbers>
-#include <variant>
+#include <string_view>
+#include <vector>
 
 
 using Float = double;
@@ -73,17 +76,17 @@ main(int argc, char const *argv[])
   htracer::v3<Float> const camera_dir(0, -0.4, -1.);
   htracer::v3<Float> const camera_up(0, 1, 0);
 
+  htracer::rendering::batchers::column_batcher batcher;
+
+  htracer::rendering::camera const camera(
+      camera_pos, camera_dir, camera_up, 144, 81, 45 * std::numbers::pi_v<Float> / 180);
+
   // Non-random lens and pixel sampler so output is deterministic.
-  htracer::raytracing::lenses::pinhole<Float> const lens;
-  htracer::raytracing::pixel_samplers::constant<Float> const pixel_sampler;
+  htracer::rendering::sensors::constant<Float> const sensor;
+  htracer::rendering::lenses::pinhole<Float> const lens;
 
-  htracer::raytracing::cameras::sampling const camera(
-      camera_pos, camera_dir, camera_up, 144, 81, 45 * std::numbers::pi_v<Float> / 180, lens, pixel_sampler);
-
-  htracer::utils::randomness randomness;
-
-  auto const render_op = camera.render(htracer::staging::scene_view(scene), 1, randomness);
-  auto const image = render_op(htracer::raytracing::unseq);
+  auto const renderer = htracer::rendering::make_renderer(batcher, scene, camera, sensor, lens);
+  auto const image = renderer.render(htracer::rendering::unseq);
 
   htracer::outputs::ppm const ppm;
   auto constexpr ppmbpv = htracer::outputs::ppm::bytes_per_value::BPV1;

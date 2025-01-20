@@ -1,10 +1,30 @@
+- Fix get_dv and get_dh when h_res or v_res is 1.
+
+- Swap h_res and v_res order in image constructor to be consistent with the rest of the interface.
+
+- Lens takes camera const& instead of position, view, etc.
+
+- Use std::floating_point as concept for Float.
+
+- Add more concepts where needed.
+
+- Replace all uint32_t for uint_fast32_t.
+
+- Image has operator[] with multiindex instead of pixels().
+  This also means the result type of render can be image instead of vector of colors.
+
+- Turn tracing functions into tracer class:
+    * detail_ goes into private members.
+    * epsilon and max_depth ara parameters instead of hardcoded.
+
 - Pixel samplers only need to return an offset, the imput indices are redundant.
 
 - FOV parameter should go in lens, not in camera.
 
-- Templatize container in scene (so std::array can be used for constexpr raytracer).
+- Use a system of `static constexpr bool is_thread_safe` to mark thread safe components.
+  Use it to check that components passed into a renderer are thread_safe when using parallel policies.
 
-- Add more concepts where needed.
+- Templatize container in scene (so std::array can be used for constexpr raytracer).
 
 - Adaptive sampling (cast more rays if there is more variance in the pixel color).
 

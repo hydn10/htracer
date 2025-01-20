@@ -1,25 +1,23 @@
-#ifndef HTRACER_RAYTRACING_INTERSECTOR_HPP
-#define HTRACER_RAYTRACING_INTERSECTOR_HPP
+#ifndef HTRACER_RENDERING_INTERSECTOR_HPP
+#define HTRACER_RENDERING_INTERSECTOR_HPP
 
 
 #include <htracer/geometries/ray.hpp>
-#include <htracer/staging/scene_view.hpp>
+#include <htracer/staging/scene.hpp>
 
 #include <limits>
 #include <utility>
 #include <vector>
 
 
-namespace htracer::raytracing
+namespace htracer::rendering
 {
 
 // TODO: Try returning normals and material etc intead of pointer and see if performance changes.
 template<typename Float, template<typename> typename... Geometries>
 auto
-intersect(
-    geometries::ray<Float> const &ray,
-    staging::scene_view<Float, Geometries...> scene,
-    Float min_dist) -> std::optional<std::pair<Float, staging::object_base<Float> const &>>
+intersect(geometries::ray<Float> const &ray, staging::scene<Float, Geometries...> const &scene, Float min_dist)
+    -> std::optional<std::pair<Float, staging::object_base<Float> const &>>
 {
   constexpr auto MAX_DISTANCE = std::numeric_limits<Float>::max();
 
@@ -48,6 +46,6 @@ intersect(
   return {};
 }
 
-} // namespace htracer::raytracing
+} // namespace htracer::rendering
 
 #endif
