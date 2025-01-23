@@ -2,6 +2,13 @@
   "version": 3,
   "configurePresets": [
     {
+      "name": "build-tests",
+      "hidden": true,
+      "cacheVariables": {
+        "HTRACER_BUILD_TESTS": "ON"
+      }
+    },
+    {
       "name": "build-ray",
       "hidden": true,
       "cacheVariables": {
@@ -9,10 +16,10 @@
       }
     },
     {
-      "name": "build-tests",
+      "name": "build-examples",
       "hidden": true,
       "cacheVariables": {
-        "HTRACER_BUILD_TESTS": "ON"
+        "HTRACER_BUILD_EXAMPLES": "ON"
       }
     },
     {
@@ -79,7 +86,8 @@
         "windows-base",
         "debug",
         "build-ray",
-        "build-tests"
+        "build-tests",
+        "build-examples"
       ]
     },
     {
@@ -90,7 +98,8 @@
         "windows-base",
         "release",
         "build-ray",
-        "build-tests"
+        "build-tests",
+        "build-examples"
       ]
     },
     {
@@ -101,7 +110,8 @@
         "windows-base",
         "profile",
         "build-ray",
-        "build-tests"
+        "build-tests",
+        "build-examples"
       ]
     },
     {
@@ -112,7 +122,8 @@
         "linux-base",
         "debug",
         "build-ray",
-        "build-tests"
+        "build-tests",
+        "build-examples"
       ]
     },
     {
@@ -123,7 +134,8 @@
         "linux-base",
         "release",
         "build-ray",
-        "build-tests"
+        "build-tests",
+        "build-examples"
       ]
     },
     {
@@ -134,7 +146,8 @@
         "linux-base",
         "profile",
         "build-ray",
-        "build-tests"
+        "build-tests",
+        "build-examples"
       ]
     },
     {
@@ -143,7 +156,9 @@
         "x64",
         "linux-base",
         "release",
-        "build-tests"
+        "build-ray",
+        "build-tests",
+        "build-examples"
       ],
       "cacheVariables": {
         "CMAKE_CXX_COMPILER": "g++-14"
@@ -155,7 +170,9 @@
         "x64",
         "windows-base",
         "release",
-        "build-tests"
+        "build-ray",
+        "build-tests",
+        "build-examples"
       ]
     }
   ]

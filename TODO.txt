@@ -1,3 +1,10 @@
+- Set up performance benchmarks.
+
+- thin_lens should take FOV parameter instead of radius, since the effect of radius depens on focal distance.
+
+- Batcher only needed in multithreading?
+  I need to know the best batcher for the not parallel case first.
+
 - Fix get_dv and get_dh when h_res or v_res is 1.
 
 - Swap h_res and v_res order in image constructor to be consistent with the rest of the interface.
@@ -8,10 +15,11 @@
 
 - Add more concepts where needed.
 
-- Replace all uint32_t for uint_fast32_t.
+- Many concepts (scene...) should depend on Float type (e.g. lens<Float>).
 
-- Image has operator[] with multiindex instead of pixels().
-  This also means the result type of render can be image instead of vector of colors.
+- Change templated functions to use `concept auto param` syntax instead.
+
+- Replace all uint32_t for uint_fast32_t.
 
 - Turn tracing functions into tracer class:
     * detail_ goes into private members.
@@ -24,9 +32,17 @@
 - Use a system of `static constexpr bool is_thread_safe` to mark thread safe components.
   Use it to check that components passed into a renderer are thread_safe when using parallel policies.
 
+- Image has operator[] with multiindex instead of pixels().
+  This also means the result type of render can be image instead of vector of colors.
+  Although now that I think about it, that would mean an image can now be modified
+  instead of being view only.
+  Think about what the best API is.
+
 - Templatize container in scene (so std::array can be used for constexpr raytracer).
 
 - Adaptive sampling (cast more rays if there is more variance in the pixel color).
+
+- Tone mapping?
 
 - Octree? R-d tree?
 
@@ -37,9 +53,9 @@
 
 - Finish sampling: refractions, ...
 
-- Objects should be able to be moved/rotated and removed.
-
 - Add more primitives.
+
+- Objects should be able to be moved/rotated and removed.
 
 - Motion blur. Allow position to be function of time between shutter intervals.
   Time when ray is cast is then random.
@@ -51,10 +67,6 @@
   it on the caller side.
   Do it that way to remove unnecessary dependencies if it is not too inconvenient/inefficient.
 
-- Colormaps?
-
-- CLI interface/options.
-
 - Wide performance diferences between clang++ and g++. Benchmark and study.
 
 - Add constexpr where applicable.
@@ -63,12 +75,14 @@
   constructors/assignments). See [1].
   [1]: https://stackoverflow.com/questions/10787766/
 
+- Study using normalized_vector class. I probably should implement it.
+
+- Signed Distance Functions. Raymarching.
+
+- Colormaps?
+
+- CLI interface/options.
+
 - Post-processing.
 
 - ASCII renderer?
-
-- Study using normalized_vector class. I probably should implement it.
-
-- Tone mapping?
-
-- Signed Distance Functions. Raymarching.

@@ -1,5 +1,5 @@
 {
-  description = "A simple C++ CPU raytracer library.";
+  description = "A modern, modular, header-only C++23 CPU raytracing library.";
 
   outputs = { self, nixpkgs }:
     let
@@ -19,9 +19,13 @@
 
       checks.x86_64-linux.default =
         let
-          drvWithTests = htracerDrv-lin64.override { buildTests = true; };
+          drvWithTestsRayExamples = htracerDrv-lin64.override {
+            buildTests = true;
+            buildRay = true;
+            buildExamples = true;
+          };
         in
-          drvWithTests.overrideAttrs (oldAttrs: {
+          drvWithTestsRayExamples.overrideAttrs (oldAttrs: {
             doCheck = true;
           });
     };
