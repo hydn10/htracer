@@ -23,13 +23,28 @@
       }
     },
     {
-      "name": "windows-base",
+      "name": "windows-cl-base",
       "hidden": true,
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/out/build/${presetName}",
       "installDir": "${sourceDir}/out/install/${presetName}",
       "cacheVariables": {
         "CMAKE_CXX_COMPILER": "cl.exe"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "windows-clang-base",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "installDir": "${sourceDir}/out/install/${presetName}",
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "clang-cl.exe"
       },
       "condition": {
         "type": "equals",
@@ -80,10 +95,10 @@
     },
     {
       "name": "dev-x64-win-debug",
-      "displayName": "x64 Debug",
+      "displayName": "x64 Debug (cl)",
       "inherits": [
         "x64",
-        "windows-base",
+        "windows-cl-base",
         "debug",
         "build-ray",
         "build-tests",
@@ -92,10 +107,10 @@
     },
     {
       "name": "dev-x64-win-release",
-      "displayName": "x64 Release",
+      "displayName": "x64 Release (cl)",
       "inherits": [
         "x64",
-        "windows-base",
+        "windows-cl-base",
         "release",
         "build-ray",
         "build-tests",
@@ -104,11 +119,35 @@
     },
     {
       "name": "dev-x64-win-profile",
-      "displayName": "x64 Profile",
+      "displayName": "x64 Profile (cl)",
       "inherits": [
         "x64",
-        "windows-base",
+        "windows-cl-base",
         "profile",
+        "build-ray",
+        "build-tests",
+        "build-examples"
+      ]
+    },
+    {
+      "name": "dev-x64-win-clang-debug",
+      "displayName": "x64 Debug (clang)",
+      "inherits": [
+        "x64",
+        "windows-clang-base",
+        "debug",
+        "build-ray",
+        "build-tests",
+        "build-examples"
+      ]
+    },
+    {
+      "name": "dev-x64-win-clang-release",
+      "displayName": "x64 Release (clang)",
+      "inherits": [
+        "x64",
+        "windows-clang-base",
+        "release",
         "build-ray",
         "build-tests",
         "build-examples"
@@ -168,7 +207,7 @@
       "name": "ghci-windows",
       "inherits": [
         "x64",
-        "windows-base",
+        "windows-cl-base",
         "release",
         "build-ray",
         "build-tests",
