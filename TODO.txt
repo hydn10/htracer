@@ -2,12 +2,20 @@
 
 - thin_lens should take FOV parameter instead of radius, since the effect of radius depens on focal distance.
 
+- Add batchers:
+    * Splits image in equal (n) parts.
+    * Splits each n columns.
+
 - Batcher only needed in multithreading?
   I need to know the best batcher for the not parallel case first.
+
+- Add some standard resolutions while still allowing custom ones.
 
 - Fix get_dv and get_dh when h_res or v_res is 1.
 
 - Swap h_res and v_res order in image constructor to be consistent with the rest of the interface.
+
+- Check vector classes. See if they get autovectorized, or add vectorization manually.
 
 - Lens takes camera const& instead of position, view, etc.
 
@@ -18,6 +26,8 @@
 - Many concepts (scene...) should depend on Float type (e.g. lens<Float>).
 
 - Change templated functions to use `concept auto param` syntax instead.
+
+- Handle global illumination. Global light should have a fixed direction instead of a fixed point.
 
 - Replace all uint32_t for uint_fast32_t.
 
@@ -75,7 +85,7 @@
   constructors/assignments). See [1].
   [1]: https://stackoverflow.com/questions/10787766/
 
-- Study using normalized_vector class. I probably should implement it.
+- Consider using normalized_vector class. I probably should implement it.
 
 - Signed Distance Functions. Raymarching.
 
@@ -83,6 +93,4 @@
 
 - CLI interface/options.
 
-- Post-processing.
-
-- ASCII renderer?
+- Post-processing?
