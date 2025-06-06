@@ -15,13 +15,13 @@ namespace htracer::rendering
 
 // TODO: Try returning normals and material etc intead of pointer and see if performance changes.
 template<typename Float, typename Scene>
-auto
+constexpr auto
 intersect(geometries::ray<Float> const &ray, Scene const &scene, Float min_dist)
     -> std::optional<std::pair<Float, staging::object_base<Float> const &>>;
 
 
 template<typename Float, typename Scene>
-auto
+constexpr auto
 intersect(geometries::ray<Float> const &ray, Scene const &scene, Float min_dist)
     -> std::optional<std::pair<Float, staging::object_base<Float> const &>>
 {

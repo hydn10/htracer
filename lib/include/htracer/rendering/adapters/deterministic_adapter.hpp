@@ -16,7 +16,7 @@ class deterministic_adapter
   Lens const &lens_;
 
 public:
-  deterministic_adapter(Sensor const &sensor, Lens const &lens) noexcept;
+  constexpr deterministic_adapter(Sensor const &sensor, Lens const &lens) noexcept;
 
   constexpr auto
   get_coords(uint32_t v_idx, uint32_t h_idx) const;
@@ -27,7 +27,7 @@ public:
 
 
 template<typename Float, deterministic_sensor<Float> Sensor, deterministic_lens<Float> Lens>
-deterministic_adapter<Float, Sensor, Lens>::deterministic_adapter(Sensor const &sensor, Lens const &lens) noexcept
+constexpr deterministic_adapter<Float, Sensor, Lens>::deterministic_adapter(Sensor const &sensor, Lens const &lens) noexcept
     : sensor_{sensor}
     , lens_{lens}
 {

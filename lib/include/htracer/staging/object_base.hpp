@@ -15,7 +15,7 @@ class object_base
   material<Float> material_;
 
 public:
-  object_base(material<Float> material);
+  constexpr object_base(material<Float> material);
   virtual ~object_base() = default;
 
   object_base(object_base<Float> const &) = default;
@@ -25,25 +25,25 @@ public:
   object_base<Float> &
   operator=(object_base<Float> &&) = default;
 
-  material<Float> const &
+  constexpr material<Float> const &
   get_material() const;
 
-  virtual geometries::geometry<Float> &
+  virtual constexpr geometries::geometry<Float> &
   get_geometry() = 0;
-  virtual geometries::geometry<Float> const &
+  virtual constexpr geometries::geometry<Float> const &
   get_geometry() const = 0;
 };
 
 
 template<typename Float>
-object_base<Float>::object_base(material<Float> material)
+constexpr object_base<Float>::object_base(material<Float> material)
     : material_{std::move(material)}
 {
 }
 
 
 template<typename Float>
-material<Float> const &
+constexpr material<Float> const &
 object_base<Float>::get_material() const
 {
   return material_;

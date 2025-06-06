@@ -19,30 +19,30 @@ class sphere final : public geometry<Float>
   Float radius_;
 
 public:
-  sphere(v3<Float> const &center, Float radius);
+  constexpr sphere(v3<Float> const &center, Float radius);
 
   [[nodiscard]]
-  v3<Float> const &
+  constexpr v3<Float> const &
   center() const;
 
   [[nodiscard]]
-  Float
+  constexpr Float
   radius() const;
 
   // TODO: nodiscard?
   // TODO: Return 0 as distance if no intersection and check performance?
   //       Should be careful as in theory it can return negative values.
-  std::optional<Float>
+  constexpr std::optional<Float>
   intersect(ray<Float> const &ray) const;
 
   // TODO: nodiscard? how does it work with inheritance?
-  v3<Float>
+  constexpr v3<Float>
   normal(v3<Float> const &point) const override;
 };
 
 
 template<typename Float>
-sphere<Float>::sphere(v3<Float> const &center, Float radius)
+constexpr sphere<Float>::sphere(v3<Float> const &center, Float radius)
     : center_{center}
     , radius_{radius}
 {
@@ -50,7 +50,7 @@ sphere<Float>::sphere(v3<Float> const &center, Float radius)
 
 
 template<typename Float>
-v3<Float> const &
+constexpr v3<Float> const &
 sphere<Float>::center() const
 {
   return center_;
@@ -58,7 +58,7 @@ sphere<Float>::center() const
 
 
 template<typename Float>
-Float
+constexpr Float
 sphere<Float>::radius() const
 {
   return radius_;
@@ -66,7 +66,7 @@ sphere<Float>::radius() const
 
 
 template<typename Float>
-std::optional<Float>
+constexpr std::optional<Float>
 sphere<Float>::intersect(ray<Float> const &ray) const
 {
   auto oc = center_ - ray.origin;
@@ -86,7 +86,7 @@ sphere<Float>::intersect(ray<Float> const &ray) const
 
 
 template<typename Float>
-v3<Float>
+constexpr v3<Float>
 sphere<Float>::normal(v3<Float> const &point) const
 {
   return normalize(point - center_);

@@ -11,7 +11,7 @@ namespace detail_
 {
 
 template<typename VectorTo, typename Derived, typename Float, std::size_t N, typename F, std::size_t... Is>
-VectorTo
+constexpr VectorTo
 transform_into_impl(vector_crtp<Derived, Float, N> const &v, F f, std::index_sequence<Is...>)
 {
   return {f(v[Is])...};
@@ -19,7 +19,7 @@ transform_into_impl(vector_crtp<Derived, Float, N> const &v, F f, std::index_seq
 
 
 template<typename VectorTo, typename VectorFrom, typename F, std::size_t... Is>
-VectorTo
+constexpr VectorTo
 transform_impl(VectorFrom const &v, F &&f, std::index_sequence<Is...>)
 {
   return {f(v[Is])...};
@@ -29,7 +29,7 @@ transform_impl(VectorFrom const &v, F &&f, std::index_sequence<Is...>)
 
 
 template<typename VectorTo, typename Derived, typename Float, std::size_t N, typename F>
-VectorTo
+constexpr VectorTo
 transform_into(vector_crtp<Derived, Float, N> const &v, F &&f)
 {
   return detail_::transform_into_impl<VectorTo>(v, std::forward<F>(f), std::make_index_sequence<N>());
@@ -37,7 +37,7 @@ transform_into(vector_crtp<Derived, Float, N> const &v, F &&f)
 
 
 template<typename Vector, typename F>
-Vector
+constexpr Vector
 transform(Vector const &v, F &&f)
 {
   return detail_::transform_impl<Vector>(v, std::forward<F>(f), std::make_index_sequence<Vector::size>());

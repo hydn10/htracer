@@ -29,7 +29,7 @@ public:
       Lens const &lens) const noexcept;
 
   template<std::floating_point Float>
-  auto
+  constexpr auto
   make_range(camera<Float> const &camera) const noexcept;
 };
 
@@ -58,7 +58,7 @@ column_batcher::make_accumulator(
 
 
 template<std::floating_point Float>
-auto
+constexpr auto
 column_batcher::make_range(camera<Float> const &camera) const noexcept
 {
   return std::views::iota(uint32_t{0}, camera.h_res());

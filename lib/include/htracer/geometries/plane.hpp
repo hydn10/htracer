@@ -19,30 +19,30 @@ class plane final : public geometry<Float>
   v3<Float> up_;
 
 public:
-  plane(v3<Float> const &anchor, v3<Float> const &up);
+  constexpr plane(v3<Float> const &anchor, v3<Float> const &up);
 
   [[nodiscard]]
-  v3<Float> const &
+  constexpr v3<Float> const &
   anchor() const;
 
   [[nodiscard]]
-  v3<Float> const &
+  constexpr v3<Float> const &
   up() const;
 
   // TODO: nodiscard?
   // TODO: Return 0 as distance if no intersection and check performance?
   //       Should be careful as in theory it can return negative values.
-  std::optional<Float>
+  constexpr std::optional<Float>
   intersect(ray<Float> const &ray) const;
 
   // TODO: nodiscard? how does it work with inheritance?
-  v3<Float>
+  constexpr v3<Float>
   normal(v3<Float> const &point) const override;
 };
 
 
 template<typename Float>
-plane<Float>::plane(v3<Float> const &anchor, v3<Float> const &up)
+constexpr plane<Float>::plane(v3<Float> const &anchor, v3<Float> const &up)
     : anchor_{anchor}
     , up_{normalize(up)}
 {
@@ -50,7 +50,7 @@ plane<Float>::plane(v3<Float> const &anchor, v3<Float> const &up)
 
 
 template<typename Float>
-v3<Float> const &
+constexpr v3<Float> const &
 plane<Float>::anchor() const
 {
   return anchor_;
@@ -58,7 +58,7 @@ plane<Float>::anchor() const
 
 
 template<typename Float>
-v3<Float> const &
+constexpr v3<Float> const &
 plane<Float>::up() const
 {
   return up_;
@@ -66,7 +66,7 @@ plane<Float>::up() const
 
 
 template<typename Float>
-std::optional<Float>
+constexpr std::optional<Float>
 plane<Float>::intersect(ray<Float> const &ray) const
 {
   auto dot_dn = dot(ray.direction, up_);
@@ -82,7 +82,7 @@ plane<Float>::intersect(ray<Float> const &ray) const
 
 
 template<typename Float>
-v3<Float>
+constexpr v3<Float>
 plane<Float>::normal(v3<Float> const &) const
 {
   return up_;

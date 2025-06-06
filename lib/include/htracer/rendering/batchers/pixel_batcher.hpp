@@ -29,7 +29,7 @@ public:
       Lens const &lens) const noexcept;
 
   template<std::floating_point Float>
-  auto
+  constexpr auto
   make_range(camera<Float> const &camera) const noexcept;
 };
 
@@ -55,7 +55,7 @@ pixel_batcher::make_accumulator(
 
 
 template<std::floating_point Float>
-auto
+constexpr auto
 pixel_batcher::make_range(camera<Float> const &camera) const noexcept
 {
   constexpr uint32_t zero{0};

@@ -15,17 +15,17 @@ class object final : public object_base<Float>
   Geometry<Float> geometry_;
 
 public:
-  object(Geometry<Float> geometry, material<Float> material);
+  constexpr object(Geometry<Float> geometry, material<Float> material);
 
-  Geometry<Float> &
+  constexpr Geometry<Float> &
   get_geometry() override;
-  Geometry<Float> const &
+  constexpr Geometry<Float> const &
   get_geometry() const override;
 };
 
 
 template<typename Float, template<typename> typename Geometry>
-object<Float, Geometry>::object(Geometry<Float> geometry, material<Float> material)
+constexpr object<Float, Geometry>::object(Geometry<Float> geometry, material<Float> material)
     : object_base<Float>(std::move(material))
     , geometry_{std::move(geometry)}
 {
@@ -33,7 +33,7 @@ object<Float, Geometry>::object(Geometry<Float> geometry, material<Float> materi
 
 
 template<typename Float, template<typename> typename Geometry>
-Geometry<Float> &
+constexpr Geometry<Float> &
 object<Float, Geometry>::get_geometry()
 {
   return geometry_;
@@ -41,7 +41,7 @@ object<Float, Geometry>::get_geometry()
 
 
 template<typename Float, template<typename> typename Geometry>
-Geometry<Float> const &
+constexpr Geometry<Float> const &
 object<Float, Geometry>::get_geometry() const
 {
   return geometry_;

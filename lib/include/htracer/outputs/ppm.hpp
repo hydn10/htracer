@@ -51,7 +51,7 @@ struct bpv_traits<ppm::bytes_per_value::BPV2>
   static auto constexpr NUM_COLORS = 65536u;
   using pixel_value_t = std::uint16_t;
 
-  static pixel_value_t
+  static constexpr pixel_value_t
   to_big_endian(pixel_value_t value)
   {
     return (value >> 8) | (value << 8);

@@ -24,7 +24,7 @@ class camera
   Float fov_;
 
 public:
-  camera(
+  constexpr camera(
       v3<Float> const &position,
       v3<Float> const &view,
       v3<Float> const &up,
@@ -50,7 +50,7 @@ public:
 
 
 template<std::floating_point Float>
-camera<Float>::camera(
+constexpr camera<Float>::camera(
     v3<Float> const &position,
     v3<Float> const &view,
     v3<Float> const &up,

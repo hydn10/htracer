@@ -28,7 +28,7 @@ public:
   using iterator = typename VecCrtp::iterator;
   using const_iterator = typename VecCrtp::const_iterator;
 
-  // TODO: For some reason clang++ doesnt like VecCrtp::vector_crtp
+  // TODO: For some reason clang++ does'nt like VecCrtp::vector_crtp
   using utils::vector_crtp<vector<Float, N>, Float, N>::vector_crtp;
 
   using VecCrtp::operator[];
@@ -61,7 +61,7 @@ constexpr vector<Float, N>
 operator*(vector<Float, N> lhs, TConv scale);
 
 template<typename Float, std::size_t N, typename TConv>
-vector<Float, N>
+constexpr vector<Float, N>
 operator*(TConv scale, vector<Float, N> rhs);
 
 template<typename Float, std::size_t N>
@@ -114,7 +114,7 @@ operator*(vector<Float, N> lhs, TConv scale)
 
 
 template<typename Float, std::size_t N, typename TConv>
-vector<Float, N>
+constexpr vector<Float, N>
 operator*(TConv scale, vector<Float, N> rhs)
 {
   return rhs *= scale;
