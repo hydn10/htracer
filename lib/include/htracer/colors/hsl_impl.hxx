@@ -15,7 +15,7 @@ namespace htracer::colors
 
 template<typename Float>
 constexpr hsl<Float>::hsl(Float h, Float s, Float l) noexcept
-    : utils::vector_crtp<srgb<Float>, Float, 3>{h, s, l}
+    : utils::vector_crtp<hsl<Float>, Float, 3>{h, s, l}
 {
 }
 
