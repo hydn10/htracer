@@ -73,9 +73,9 @@ template<typename F>
 constexpr void
 heterogeneous_visitable<Ts...>::visit(F &&f)
 {
-  auto apply_f_to_vec = [&f](auto const &vec)
+  auto apply_f_to_vec = [&f](auto &vec)
   {
-    for (auto const &item : vec)
+    for (auto &item : vec)
     {
       f(item);
     }

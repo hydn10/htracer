@@ -40,7 +40,7 @@ main()
   // The `pinhole` lens models is the simplest and renders all the image in focus.
   htracer::rendering::lenses::pinhole_lens<double> const lens;
 
-  // `make_renderer` will return the appropiate renderer for the properties of our components.
+  // `make_renderer` will return the appropriate renderer for the properties of our components.
   // In this case the all our components are deterministic (they have no randomness)
   // and so a deterministic_renderer will be returned.
   auto const renderer = htracer::rendering::make_renderer(batcher, scene, camera, sensor, lens);
