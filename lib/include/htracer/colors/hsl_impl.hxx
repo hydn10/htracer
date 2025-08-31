@@ -22,7 +22,7 @@ constexpr hsl<Float>::hsl(Float h, Float s, Float l) noexcept
 
 template<typename Float>
 constexpr Float const &
-hsl<Float>::h() const
+hsl<Float>::h() const noexcept
 {
   return (*this)[0];
 }
@@ -30,7 +30,7 @@ hsl<Float>::h() const
 
 template<typename Float>
 constexpr Float const &
-hsl<Float>::s() const
+hsl<Float>::s() const noexcept
 {
   return (*this)[1];
 }
@@ -38,7 +38,7 @@ hsl<Float>::s() const
 
 template<typename Float>
 constexpr Float const &
-hsl<Float>::l() const
+hsl<Float>::l() const noexcept
 {
   return (*this)[2];
 }

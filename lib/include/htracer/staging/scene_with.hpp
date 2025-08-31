@@ -34,7 +34,7 @@ public:
   void
   for_each_object(F &&f) const;
   constexpr auto const &
-  lights() const;
+  lights() const noexcept;
 };
 
 
@@ -75,7 +75,7 @@ scene_with<Float, Geometries...>::for_each_object(F &&f) const
 
 template<typename Float, template<typename> typename... Geometries>
 constexpr auto const &
-scene_with<Float, Geometries...>::lights() const
+scene_with<Float, Geometries...>::lights() const noexcept
 {
   return lights_;
 }

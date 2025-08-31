@@ -15,17 +15,17 @@ class object final : public object_base<Float>
   Geometry<Float> geometry_;
 
 public:
-  constexpr object(Geometry<Float> geometry, material<Float> material);
+  constexpr object(Geometry<Float> geometry, material<Float> material) noexcept;
 
-  constexpr Geometry<Float> &
-  get_geometry() override;
+    constexpr Geometry<Float> &
+  get_geometry() noexcept override;
   constexpr Geometry<Float> const &
-  get_geometry() const override;
+  get_geometry() const noexcept override;
 };
 
 
 template<typename Float, template<typename> typename Geometry>
-constexpr object<Float, Geometry>::object(Geometry<Float> geometry, material<Float> material)
+constexpr object<Float, Geometry>::object(Geometry<Float> geometry, material<Float> material) noexcept
     : object_base<Float>(std::move(material))
     , geometry_{std::move(geometry)}
 {
@@ -34,7 +34,7 @@ constexpr object<Float, Geometry>::object(Geometry<Float> geometry, material<Flo
 
 template<typename Float, template<typename> typename Geometry>
 constexpr Geometry<Float> &
-object<Float, Geometry>::get_geometry()
+object<Float, Geometry>::get_geometry() noexcept
 {
   return geometry_;
 }
@@ -42,7 +42,7 @@ object<Float, Geometry>::get_geometry()
 
 template<typename Float, template<typename> typename Geometry>
 constexpr Geometry<Float> const &
-object<Float, Geometry>::get_geometry() const
+object<Float, Geometry>::get_geometry() const noexcept
 {
   return geometry_;
 }

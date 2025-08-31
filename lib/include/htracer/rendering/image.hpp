@@ -19,23 +19,23 @@ class image
   uint32_t const v_res_;
 
 public:
-  image(uint32_t h_res, uint32_t v_res, std::vector<colors::srgb_linear<Float>> pixels);
+  image(uint32_t h_res, uint32_t v_res, std::vector<colors::srgb_linear<Float>> pixels) noexcept;
 
   [[nodiscard]]
   uint32_t
-  h_res() const;
+  h_res() const noexcept;
   [[nodiscard]]
   uint32_t
-  v_res() const;
+  v_res() const noexcept;
 
   [[nodiscard]]
   std::vector<colors::srgb_linear<Float>> const &
-  pixels() const;
+  pixels() const noexcept;
 };
 
 
 template<typename Float>
-image<Float>::image(uint32_t h_res, uint32_t v_res, std::vector<colors::srgb_linear<Float>> pixels)
+image<Float>::image(uint32_t h_res, uint32_t v_res, std::vector<colors::srgb_linear<Float>> pixels) noexcept
     : pixels_(std::move(pixels))
     , h_res_{h_res}
     , v_res_{v_res}
@@ -46,7 +46,7 @@ image<Float>::image(uint32_t h_res, uint32_t v_res, std::vector<colors::srgb_lin
 
 template<typename Float>
 uint32_t
-image<Float>::h_res() const
+image<Float>::h_res() const noexcept
 {
   return h_res_;
 }
@@ -54,7 +54,7 @@ image<Float>::h_res() const
 
 template<typename Float>
 uint32_t
-image<Float>::v_res() const
+image<Float>::v_res() const noexcept
 {
   return v_res_;
 }
@@ -62,7 +62,7 @@ image<Float>::v_res() const
 
 template<typename Float>
 std::vector<colors::srgb_linear<Float>> const &
-image<Float>::pixels() const
+image<Float>::pixels() const noexcept
 {
   return pixels_;
 }

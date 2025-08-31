@@ -30,7 +30,7 @@ saturate(Vector const &v) noexcept
 
 template<typename Vector, typename Float>
 Vector
-pow(Vector const &v, Float exp) noexcept
+pow(Vector const &v, Float exp)
 {
   return utils::transform(v, [exp](auto const &val) { return std::pow(val, exp); });
 }
@@ -38,7 +38,7 @@ pow(Vector const &v, Float exp) noexcept
 
 template<typename Float, std::size_t N>
 constexpr vector<Float, N>
-reflect(vector<Float, N> const &incident, vector<Float, N> const &normal)
+reflect(vector<Float, N> const &incident, vector<Float, N> const &normal) noexcept
 {
   return incident - 2 * dot(incident, normal) * normal;
 }

@@ -22,7 +22,7 @@ constexpr srgb<Float>::srgb(Float r, Float g, Float b) noexcept
 
 template<typename Float>
 constexpr Float const &
-srgb<Float>::r() const
+srgb<Float>::r() const noexcept
 {
   return (*this)[0];
 }
@@ -30,7 +30,7 @@ srgb<Float>::r() const
 
 template<typename Float>
 constexpr Float const &
-srgb<Float>::g() const
+srgb<Float>::g() const noexcept
 {
   return (*this)[1];
 }
@@ -38,7 +38,7 @@ srgb<Float>::g() const
 
 template<typename Float>
 constexpr Float const &
-srgb<Float>::b() const
+srgb<Float>::b() const noexcept
 {
   return (*this)[2];
 }

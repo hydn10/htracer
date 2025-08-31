@@ -20,13 +20,13 @@ public:
 
   [[nodiscard]]
   constexpr Float const &
-  h() const;
+  h() const noexcept;
   [[nodiscard]]
   constexpr Float const &
-  s() const;
+  s() const noexcept;
   [[nodiscard]]
   constexpr Float const &
-  l() const;
+  l() const noexcept;
 
   [[nodiscard]]
   constexpr srgb<Float>

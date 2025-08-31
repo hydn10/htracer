@@ -15,28 +15,28 @@ class object_base
   material<Float> material_;
 
 public:
-  constexpr object_base(material<Float> material);
+  constexpr object_base(material<Float> material) noexcept;
   virtual ~object_base() = default;
 
-  object_base(object_base<Float> const &) = default;
-  object_base(object_base<Float> &&) = default;
+  object_base(object_base<Float> const &) noexcept = default;
+  object_base(object_base<Float> &&) noexcept = default;
   object_base<Float> &
-  operator=(object_base<Float> const &) = default;
+  operator=(object_base<Float> const &) noexcept = default;
   object_base<Float> &
-  operator=(object_base<Float> &&) = default;
+  operator=(object_base<Float> &&) noexcept = default;
 
   constexpr material<Float> const &
-  get_material() const;
+  get_material() const noexcept;
 
   virtual constexpr geometries::geometry<Float> &
-  get_geometry() = 0;
+  get_geometry() noexcept = 0;
   virtual constexpr geometries::geometry<Float> const &
-  get_geometry() const = 0;
+  get_geometry() const noexcept = 0;
 };
 
 
 template<typename Float>
-constexpr object_base<Float>::object_base(material<Float> material)
+constexpr object_base<Float>::object_base(material<Float> material) noexcept
     : material_{std::move(material)}
 {
 }
@@ -44,7 +44,7 @@ constexpr object_base<Float>::object_base(material<Float> material)
 
 template<typename Float>
 constexpr material<Float> const &
-object_base<Float>::get_material() const
+object_base<Float>::get_material() const noexcept
 {
   return material_;
 }

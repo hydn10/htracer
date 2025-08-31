@@ -20,37 +20,37 @@ public:
   using iterator = typename decltype(elems_)::iterator;
   using const_iterator = typename decltype(elems_)::const_iterator;
 
-  constexpr vector_crtp();
-  constexpr explicit vector_crtp(std::array<Float, N> values);
+  constexpr vector_crtp() noexcept;
+  constexpr explicit vector_crtp(std::array<Float, N> values) noexcept;
   template<typename... Args>
-  constexpr vector_crtp(Args... values);
+  constexpr vector_crtp(Args... values) noexcept;
   virtual ~vector_crtp() = default;
 
   constexpr Float &
-  operator[](std::size_t index);
+  operator[](std::size_t index) noexcept;
 
   constexpr Float const &
-  operator[](std::size_t index) const;
+  operator[](std::size_t index) const noexcept;
 
   constexpr Derived &
-  operator+=(Derived const &rhs);
+  operator+=(Derived const &rhs) noexcept;
   constexpr Derived &
-  operator-=(Derived const &rhs);
+  operator-=(Derived const &rhs) noexcept;
   constexpr Derived &
-  operator*=(Float scale);
+  operator*=(Float scale) noexcept;
 
   constexpr iterator
-  begin();
+  begin() noexcept;
   constexpr iterator
-  end();
+  end() noexcept;
   constexpr const_iterator
-  begin() const;
+  begin() const noexcept;
   constexpr const_iterator
-  end() const;
+  end() const noexcept;
   constexpr const_iterator
-  cbegin() const;
+  cbegin() const noexcept;
   constexpr const_iterator
-  cend() const;
+  cend() const noexcept;
 
   constexpr void
   swap(Derived &rhs) noexcept;
@@ -58,14 +58,14 @@ public:
 
 
 template<typename Derived, typename Float, std::size_t N>
-constexpr vector_crtp<Derived, Float, N>::vector_crtp()
+constexpr vector_crtp<Derived, Float, N>::vector_crtp() noexcept
     : elems_{}
 {
 }
 
 
 template<typename Derived, typename Float, std::size_t N>
-constexpr vector_crtp<Derived, Float, N>::vector_crtp(std::array<Float, N> values)
+constexpr vector_crtp<Derived, Float, N>::vector_crtp(std::array<Float, N> values) noexcept
     : elems_{values}
 {
 }
@@ -73,7 +73,7 @@ constexpr vector_crtp<Derived, Float, N>::vector_crtp(std::array<Float, N> value
 
 template<typename Derived, typename Float, std::size_t N>
 template<typename... Args>
-constexpr vector_crtp<Derived, Float, N>::vector_crtp(Args... values)
+constexpr vector_crtp<Derived, Float, N>::vector_crtp(Args... values) noexcept
     : elems_{static_cast<Float>(values)...}
 {
 }
@@ -81,7 +81,7 @@ constexpr vector_crtp<Derived, Float, N>::vector_crtp(Args... values)
 
 template<typename Derived, typename Float, std::size_t N>
 constexpr Derived &
-vector_crtp<Derived, Float, N>::operator+=(Derived const &rhs)
+vector_crtp<Derived, Float, N>::operator+=(Derived const &rhs) noexcept
 {
   for (std::size_t i = 0; i < N; ++i)
   {
@@ -94,7 +94,7 @@ vector_crtp<Derived, Float, N>::operator+=(Derived const &rhs)
 
 template<typename Derived, typename Float, std::size_t N>
 constexpr Derived &
-vector_crtp<Derived, Float, N>::operator-=(Derived const &rhs)
+vector_crtp<Derived, Float, N>::operator-=(Derived const &rhs) noexcept
 {
   for (std::size_t i = 0; i < N; ++i)
   {
@@ -107,7 +107,7 @@ vector_crtp<Derived, Float, N>::operator-=(Derived const &rhs)
 
 template<typename Derived, typename Float, std::size_t N>
 constexpr Derived &
-vector_crtp<Derived, Float, N>::operator*=(Float scale)
+vector_crtp<Derived, Float, N>::operator*=(Float scale) noexcept
 {
   for (std::size_t i = 0; i < N; ++i)
   {
@@ -120,7 +120,7 @@ vector_crtp<Derived, Float, N>::operator*=(Float scale)
 
 template<typename Derived, typename Float, std::size_t N>
 constexpr auto
-vector_crtp<Derived, Float, N>::begin() -> iterator
+vector_crtp<Derived, Float, N>::begin() noexcept -> iterator
 {
   return elems_.begin();
 }
@@ -128,7 +128,7 @@ vector_crtp<Derived, Float, N>::begin() -> iterator
 
 template<typename Derived, typename Float, std::size_t N>
 constexpr auto
-vector_crtp<Derived, Float, N>::end() -> iterator
+vector_crtp<Derived, Float, N>::end() noexcept -> iterator
 {
   return elems_.end();
 }
@@ -136,7 +136,7 @@ vector_crtp<Derived, Float, N>::end() -> iterator
 
 template<typename Derived, typename Float, std::size_t N>
 constexpr auto
-vector_crtp<Derived, Float, N>::begin() const -> const_iterator
+vector_crtp<Derived, Float, N>::begin() const noexcept -> const_iterator
 {
   return elems_.begin();
 }
@@ -144,7 +144,7 @@ vector_crtp<Derived, Float, N>::begin() const -> const_iterator
 
 template<typename Derived, typename Float, std::size_t N>
 constexpr auto
-vector_crtp<Derived, Float, N>::end() const -> const_iterator
+vector_crtp<Derived, Float, N>::end() const noexcept -> const_iterator
 {
   return elems_.end();
 }
@@ -152,7 +152,7 @@ vector_crtp<Derived, Float, N>::end() const -> const_iterator
 
 template<typename Derived, typename Float, std::size_t N>
 constexpr auto
-vector_crtp<Derived, Float, N>::cbegin() const -> const_iterator
+vector_crtp<Derived, Float, N>::cbegin() const noexcept -> const_iterator
 {
   return elems_.cbegin();
 }
@@ -160,7 +160,7 @@ vector_crtp<Derived, Float, N>::cbegin() const -> const_iterator
 
 template<typename Derived, typename Float, std::size_t N>
 constexpr auto
-vector_crtp<Derived, Float, N>::cend() const -> const_iterator
+vector_crtp<Derived, Float, N>::cend() const noexcept -> const_iterator
 {
   return elems_.cend();
 }
@@ -176,7 +176,7 @@ vector_crtp<Derived, Float, N>::swap(Derived &rhs) noexcept
 
 template<typename Derived, typename Float, std::size_t N>
 constexpr Float &
-vector_crtp<Derived, Float, N>::operator[](std::size_t index)
+vector_crtp<Derived, Float, N>::operator[](std::size_t index) noexcept
 {
   return elems_[index];
 }
@@ -184,7 +184,7 @@ vector_crtp<Derived, Float, N>::operator[](std::size_t index)
 
 template<typename Derived, typename Float, std::size_t N>
 constexpr Float const &
-vector_crtp<Derived, Float, N>::operator[](std::size_t index) const
+vector_crtp<Derived, Float, N>::operator[](std::size_t index) const noexcept
 {
   return elems_[index];
 }

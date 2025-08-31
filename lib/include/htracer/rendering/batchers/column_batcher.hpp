@@ -26,7 +26,7 @@ public:
       Scene const &scene,
       camera<Float> const &camera,
       Sensor const &sensor,
-      Lens const &lens) const noexcept;
+      Lens const &lens) const;
 
   template<std::floating_point Float>
   constexpr auto
@@ -42,7 +42,7 @@ column_batcher::make_accumulator(
     Scene const &scene,
     camera<Float> const &camera,
     Sensor const &sensor,
-    Lens const &lens) const noexcept
+    Lens const &lens) const
 {
   return [&pixels, &sampler, &scene, &camera, &sensor, &lens](uint32_t h_idx)
   {

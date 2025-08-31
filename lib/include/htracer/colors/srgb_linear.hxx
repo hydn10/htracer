@@ -39,19 +39,19 @@ public:
 
 template<typename Float>
 constexpr srgb_linear<Float>
-operator+(srgb_linear<Float> lhs, srgb_linear<Float> const &rhs);
+operator+(srgb_linear<Float> lhs, srgb_linear<Float> const &rhs) noexcept;
 
 template<typename Float>
 constexpr srgb_linear<Float>
-operator-(srgb_linear<Float> lhs, srgb_linear<Float> const &rhs);
+operator-(srgb_linear<Float> lhs, srgb_linear<Float> const &rhs) noexcept;
 
 template<typename Float, typename TConv>
 constexpr srgb_linear<Float>
-operator*(srgb_linear<Float> lhs, TConv scale);
+operator*(srgb_linear<Float> lhs, TConv scale) noexcept;
 
 template<typename Float, typename TConv>
 constexpr srgb_linear<Float>
-operator*(TConv scale, srgb_linear<Float> rhs);
+operator*(TConv scale, srgb_linear<Float> rhs) noexcept;
 
 } // namespace htracer::colors
 

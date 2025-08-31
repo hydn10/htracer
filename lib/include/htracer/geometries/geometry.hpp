@@ -14,20 +14,20 @@ template<typename Float>
 class geometry
 {
 public:
-  geometry() = default;
+  geometry() noexcept = default;
 
-  geometry(geometry<Float> const &) = default;
-  geometry(geometry<Float> &&) = default;
+  geometry(geometry<Float> const &) noexcept = default;
+  geometry(geometry<Float> &&) noexcept = default;
   geometry<Float> &
-  operator=(geometry<Float> const &) = default;
+  operator=(geometry<Float> const &) noexcept = default;
   geometry<Float> &
-  operator=(geometry<Float> &&) = default;
+  operator=(geometry<Float> &&) noexcept = default;
 
   virtual ~geometry() = default;
 
   // TODO: nodiscard? how does it work with inheritance?
   virtual v3<Float>
-  normal(v3<Float> const &point) const = 0;
+  normal(v3<Float> const &point) const noexcept = 0;
 };
 
 } // namespace htracer::geometries

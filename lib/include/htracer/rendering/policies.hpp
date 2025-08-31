@@ -12,7 +12,7 @@ struct unsequenced_policy
 {
   static inline constexpr bool is_parallel = false;
   static inline constexpr auto
-  get_std_policy()
+  get_std_policy() noexcept
   {
     return std::execution::unseq;
   }
@@ -23,7 +23,7 @@ struct parallel_unsequenced_policy
 {
   static inline constexpr bool is_parallel = true;
   static inline constexpr auto
-  get_std_policy()
+  get_std_policy() noexcept
   {
     return std::execution::par_unseq;
   }

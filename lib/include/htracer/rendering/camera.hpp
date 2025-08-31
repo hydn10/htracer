@@ -30,7 +30,7 @@ public:
       v3<Float> const &up,
       uint32_t horizontal_resolution,
       uint32_t vertical_resolution,
-      Float fov);
+      Float fov) noexcept;
 
   constexpr v3<Float> const &
   position() const noexcept;
@@ -56,7 +56,7 @@ constexpr camera<Float>::camera(
     v3<Float> const &up,
     uint32_t horizontal_resolution,
     uint32_t vertical_resolution,
-    Float fov)
+    Float fov) noexcept
     : position_{position}
     , h_res_{horizontal_resolution}
     , v_res_{vertical_resolution}

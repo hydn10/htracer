@@ -19,15 +19,15 @@ class sphere final : public geometry<Float>
   Float radius_;
 
 public:
-  constexpr sphere(v3<Float> const &center, Float radius);
+  constexpr sphere(v3<Float> const &center, Float radius) noexcept;
 
   [[nodiscard]]
   constexpr v3<Float> const &
-  center() const;
+  center() const noexcept;
 
   [[nodiscard]]
   constexpr Float
-  radius() const;
+  radius() const noexcept;
 
   // TODO: nodiscard?
   // TODO: Return 0 as distance if no intersection and check performance?
@@ -37,12 +37,12 @@ public:
 
   // TODO: nodiscard? how does it work with inheritance?
   constexpr v3<Float>
-  normal(v3<Float> const &point) const override;
+  normal(v3<Float> const &point) const noexcept override;
 };
 
 
 template<typename Float>
-constexpr sphere<Float>::sphere(v3<Float> const &center, Float radius)
+constexpr sphere<Float>::sphere(v3<Float> const &center, Float radius) noexcept
     : center_{center}
     , radius_{radius}
 {
@@ -51,7 +51,7 @@ constexpr sphere<Float>::sphere(v3<Float> const &center, Float radius)
 
 template<typename Float>
 constexpr v3<Float> const &
-sphere<Float>::center() const
+sphere<Float>::center() const noexcept
 {
   return center_;
 }
@@ -59,7 +59,7 @@ sphere<Float>::center() const
 
 template<typename Float>
 constexpr Float
-sphere<Float>::radius() const
+sphere<Float>::radius() const noexcept
 {
   return radius_;
 }
@@ -87,7 +87,7 @@ sphere<Float>::intersect(ray<Float> const &ray) const
 
 template<typename Float>
 constexpr v3<Float>
-sphere<Float>::normal(v3<Float> const &point) const
+sphere<Float>::normal(v3<Float> const &point) const noexcept
 {
   return normalize(point - center_);
 }
