@@ -29,6 +29,7 @@ public:
   constexpr Float &
   operator[](std::size_t index) noexcept;
 
+  [[nodiscard]]
   constexpr Float const &
   operator[](std::size_t index) const noexcept;
 

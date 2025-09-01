@@ -38,6 +38,7 @@ public:
       Lens const &lens) noexcept;
 
   template<typename ExPolicy>
+  [[nodiscard]]
   image<Float>
   render(ExPolicy &&) const;
 };

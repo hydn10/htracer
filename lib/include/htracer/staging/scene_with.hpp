@@ -33,6 +33,7 @@ public:
   template<typename F>
   void
   for_each_object(F &&f) const;
+  [[nodiscard]]
   constexpr auto const &
   lights() const noexcept;
 };

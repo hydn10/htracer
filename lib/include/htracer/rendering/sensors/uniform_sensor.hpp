@@ -14,6 +14,7 @@ class uniform_sensor
 {
 public:
   template<std::uniform_random_bit_generator Generator>
+  [[nodiscard]]
   std::pair<Float, Float>
   get_coords(uint32_t v_idx, uint32_t h_idx, Generator &generator) const;
 };

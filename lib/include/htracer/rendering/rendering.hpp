@@ -13,6 +13,7 @@ namespace htracer::rendering
 {
 
 template<typename Float, typename Batcher, typename Scene, sensor<Float> Sensor, lens<Float> Lens>
+[[nodiscard]]
 constexpr auto
 make_renderer(
     Batcher const &batcher,

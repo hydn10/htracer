@@ -25,7 +25,7 @@ public:
 
   virtual ~geometry() = default;
 
-  // TODO: nodiscard? how does it work with inheritance?
+  [[nodiscard]]
   virtual v3<Float>
   normal(v3<Float> const &point) const noexcept = 0;
 };

@@ -38,10 +38,12 @@ public:
 
 
 template<typename Float>
+[[nodiscard]]
 constexpr srgb_linear<Float>
 operator+(srgb_linear<Float> lhs, srgb_linear<Float> const &rhs) noexcept;
 
 template<typename Float>
+[[nodiscard]]
 constexpr srgb_linear<Float>
 operator-(srgb_linear<Float> lhs, srgb_linear<Float> const &rhs) noexcept;
 

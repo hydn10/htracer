@@ -18,6 +18,7 @@ sample(geometries::ray<Float> const &ray, Scene const &scene);
 
 
 template<typename Float, typename Adapter, typename Scene>
+[[nodiscard]]
 constexpr colors::srgb_linear<Float>
 render_single_pixel(
     uint32_t v_idx, uint32_t h_idx, Scene const &scene, camera<Float> const &camera, Adapter const &adapter);
@@ -27,6 +28,7 @@ namespace detail_
 {
 
 template<typename Float, typename Scene>
+[[nodiscard]]
 constexpr colors::srgb_linear<Float>
 sample(geometries::ray<Float> const &ray, Scene const &scene, unsigned depth);
 

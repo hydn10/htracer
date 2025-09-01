@@ -22,6 +22,7 @@ public:
   thin_lens(Float aperture_radius, Float focal_distance) noexcept;
 
   template<std::uniform_random_bit_generator Generator>
+  [[nodiscard]]
   geometries::ray<Float>
   get_ray(
       Float dv,

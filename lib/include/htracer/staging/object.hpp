@@ -19,6 +19,7 @@ public:
 
     constexpr Geometry<Float> &
   get_geometry() noexcept override;
+  [[nodiscard]]
   constexpr Geometry<Float> const &
   get_geometry() const noexcept override;
 };

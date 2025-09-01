@@ -19,9 +19,11 @@ class randomized_adapter
 public:
   randomized_adapter(Sensor const &sensor, Lens const &lens, Generator &generator) noexcept;
 
+  [[nodiscard]]
   auto
   get_coords(uint32_t v_idx, uint32_t h_idx) const;
 
+  [[nodiscard]]
   auto
   get_ray(Float dv, Float dh, camera<Float> const &camera) const;
 };

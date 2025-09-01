@@ -22,6 +22,7 @@ public:
   repeat_sampler(uint32_t num_samples, GeneratorProvider rep) noexcept;
 
   template<typename Float, typename Scene, sensor<Float> Sensor, lens<Float> Lens>
+  [[nodiscard]]
   colors::srgb_linear<Float>
   render_pixel(
       uint32_t v_idx,

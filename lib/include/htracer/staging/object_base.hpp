@@ -30,6 +30,7 @@ public:
 
   virtual constexpr geometries::geometry<Float> &
   get_geometry() noexcept = 0;
+  [[nodiscard]]
   virtual constexpr geometries::geometry<Float> const &
   get_geometry() const noexcept = 0;
 };

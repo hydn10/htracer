@@ -18,9 +18,11 @@ class deterministic_adapter
 public:
   constexpr deterministic_adapter(Sensor const &sensor, Lens const &lens) noexcept;
 
+  [[nodiscard]]
   constexpr auto
   get_coords(uint32_t v_idx, uint32_t h_idx) const;
 
+  [[nodiscard]]
   constexpr auto
   get_ray(Float dv, Float dh, camera<Float> const &camera) const;
 };

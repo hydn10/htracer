@@ -25,6 +25,7 @@ make_solid(colors::srgb_linear<Float> const &color, Float ambient, Float specula
 
 
 template<typename Float>
+[[nodiscard]]
 constexpr material<Float>
 make_mirror(Float specular, Float shininess, Float reflectivity);
 

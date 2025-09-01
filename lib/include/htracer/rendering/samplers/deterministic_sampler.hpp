@@ -17,6 +17,7 @@ class deterministic_sampler
 {
 public:
   template<typename Float, typename Scene, deterministic_sensor<Float> Sensor, deterministic_lens<Float> Lens>
+  [[nodiscard]]
   colors::srgb_linear<Float>
   render_pixel(
       uint32_t v_idx,

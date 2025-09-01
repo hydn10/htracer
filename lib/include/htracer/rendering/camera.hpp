@@ -40,8 +40,10 @@ public:
   up() const noexcept;
   constexpr v3<Float> const &
   right() const noexcept;
+  [[nodiscard]]
   constexpr uint32_t
   h_res() const noexcept;
+  [[nodiscard]]
   constexpr uint32_t
   v_res() const noexcept;
   constexpr Float

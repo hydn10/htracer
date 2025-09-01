@@ -69,6 +69,7 @@ constexpr Float
 dot(vector<Float, N> const &lhs, vector<Float, N> const &rhs) noexcept;
 
 template<typename Float, std::size_t N>
+[[nodiscard]]
 constexpr vector<Float, N>
 normalize(vector<Float, N> const &v) noexcept;
 

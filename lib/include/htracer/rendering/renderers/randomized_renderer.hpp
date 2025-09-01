@@ -40,6 +40,7 @@ public:
       Lens const &lens) noexcept;
 
   template<typename ExPolicy>
+  [[nodiscard]]
   image<Float>
   render(ExPolicy &&policy, uint32_t num_samples) const;
 };

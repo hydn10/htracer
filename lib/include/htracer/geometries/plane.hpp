@@ -29,9 +29,7 @@ public:
   constexpr v3<Float> const &
   up() const noexcept;
 
-  // TODO: nodiscard?
-  // TODO: Return 0 as distance if no intersection and check performance?
-  //       Should be careful as in theory it can return negative values.
+  [[nodiscard]]
   constexpr std::optional<Float>
   intersect(ray<Float> const &ray) const noexcept;
 

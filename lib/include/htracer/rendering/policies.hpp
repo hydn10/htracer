@@ -11,6 +11,7 @@ namespace htracer::rendering
 struct unsequenced_policy
 {
   static inline constexpr bool is_parallel = false;
+  [[nodiscard]]
   static inline constexpr auto
   get_std_policy() noexcept
   {
@@ -22,6 +23,7 @@ struct unsequenced_policy
 struct parallel_unsequenced_policy
 {
   static inline constexpr bool is_parallel = true;
+  [[nodiscard]]
   static inline constexpr auto
   get_std_policy() noexcept
   {

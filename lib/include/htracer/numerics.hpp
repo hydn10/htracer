@@ -12,6 +12,7 @@ namespace htracer
 {
 
 template<typename Vector>
+[[nodiscard]]
 constexpr Vector
 clamp(Vector const &v, typename Vector::float_type min, typename Vector::float_type max) noexcept
 {
@@ -20,6 +21,7 @@ clamp(Vector const &v, typename Vector::float_type min, typename Vector::float_t
 
 
 template<typename Vector>
+[[nodiscard]]
 constexpr Vector
 saturate(Vector const &v) noexcept
 {
@@ -29,6 +31,7 @@ saturate(Vector const &v) noexcept
 
 
 template<typename Vector, typename Float>
+[[nodiscard]]
 Vector
 pow(Vector const &v, Float exp)
 {

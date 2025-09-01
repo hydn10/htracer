@@ -19,6 +19,7 @@ class column_batcher
 {
 public:
   template<std::floating_point Float, typename Sampler, typename Scene, sensor<Float> Sensor, lens<Float> Lens>
+  [[nodiscard]]
   auto
   make_accumulator(
       std::vector<colors::srgb_linear<Float>> &pixels,
@@ -29,6 +30,7 @@ public:
       Lens const &lens) const;
 
   template<std::floating_point Float>
+  [[nodiscard]]
   constexpr auto
   make_range(camera<Float> const &camera) const noexcept;
 };

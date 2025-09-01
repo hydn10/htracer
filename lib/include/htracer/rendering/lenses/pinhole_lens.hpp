@@ -13,6 +13,7 @@ template<typename Float>
 class pinhole_lens
 {
 public:
+  [[nodiscard]]
   geometries::ray<Float>
   get_ray(
       Float dv, Float dh, v3<Float> const &position, v3<Float> const &view, v3<Float> const &up, v3<Float> const &right)

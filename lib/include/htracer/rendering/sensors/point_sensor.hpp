@@ -12,6 +12,7 @@ template<typename Float>
 class point_sensor
 {
 public:
+  [[nodiscard]]
   constexpr std::pair<Float, Float>
   get_coords(uint32_t v_idx, uint32_t h_idx) const noexcept;
 };

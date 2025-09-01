@@ -29,6 +29,7 @@ public:
       Lens const &lens) const;
 
   template<std::floating_point Float>
+  [[nodiscard]]
   constexpr auto
   make_range(camera<Float> const &camera) const noexcept;
 };
