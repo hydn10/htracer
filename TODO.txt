@@ -2,12 +2,22 @@
 
 - thin_lens should take FOV parameter instead of radius, since the effect of radius depens on focal distance.
 
-- Add batchers:
-    * Splits image in equal (n) parts.
+- Add more batchers:
+    * Splits image in equal (n) tiles.
     * Splits each n columns.
 
 - Batcher only needed in multithreading?
   I need to know the best batcher for the not parallel case first.
+
+- Add more lenses:
+    * Fisheye
+    * Ortographic
+
+- Add more sensors:
+    * Jittered/Stratified
+
+- Add more samplers:
+    * Halton/Sobol (quasi-random)
 
 - Add some standard resolutions while still allowing custom ones.
 
@@ -69,8 +79,6 @@
 
 - Motion blur. Allow position to be function of time between shutter intervals.
   Time when ray is cast is then random.
-
-- Different lenses/projections. Fisheye?
 
 - In theory the position, view, right and up parameters are not needed in the lens.
   It should be possible to return a transformation-agnostic value and then transform
