@@ -1,14 +1,5 @@
-#include <htracer/geometries/plane.hpp>
-#include <htracer/geometries/sphere.hpp>
+#include <htracer/float_traits.hpp>
 #include <htracer/outputs/ppm.hpp>
-#include <htracer/rendering/batchers/column_batcher.hpp>
-#include <htracer/rendering/camera.hpp>
-#include <htracer/rendering/lenses/pinhole_lens.hpp>
-#include <htracer/rendering/policies.hpp>
-#include <htracer/rendering/rendering.hpp>
-#include <htracer/rendering/sensors/point_sensor.hpp>
-#include <htracer/staging/scene.hpp>
-#include <htracer/vector.hpp>
 
 #include <cstdlib>
 #include <numbers>
@@ -16,43 +7,35 @@
 #include <vector>
 
 
-using Float = double;
+using ht_f64 = htracer::float_traits<double>;
 
 
-template<typename Float>
-using sphere_t = htracer::geometries::sphere<Float>;
-template<typename Float>
-using plane_t = htracer::geometries::plane<Float>;
-
-
-static constexpr htracer::staging::material<Float>
-get_sphere_material(Float hue)
+static constexpr auto
+get_sphere_material(ht_f64::float_type hue)
 {
-  using htracer::colors::hsl;
-
-  auto const color = hsl<Float>{hue, 0.7, 0.5}.to_srgb().to_linear();
-  return htracer::staging::make_solid<Float>(color, 0.125, 0.05, 200, .4);
+  auto const color = ht_f64::hsl{hue, 0.7, 0.5}.to_srgb().to_linear();
+  return ht_f64::make_solid_material(color, 0.125, 0.05, 200, .4);
 }
 
 
 static auto
 build_test_scene()
 {
-  htracer::staging::scene_with<Float, sphere_t, plane_t> scene;
+  ht_f64::scene scene;
 
   scene.add_light({{-3., 6., 0.}, {1., 1., 1.}, 20});
   scene.add_light({{3., 6., 0.}, {1., 1., 1.}, 10});
 
-  auto const floor_material = htracer::staging::make_solid<Float>({0.2, 0.2, 0.2}, 0.125, 0, 200, .2);
-  auto const mirror_material = htracer::staging::make_mirror<Float>(0, 200, 0.92);
+  auto const floor_material = ht_f64::make_solid_material({0.2, 0.2, 0.2}, 0.125, 0, 200, .2);
+  auto const mirror_material = ht_f64::make_mirror_material(0, 200, 0.92);
 
-  scene.emplace_object<sphere_t>({{-8.5, 2.0, -5.0}, 2.0}, get_sphere_material(310));
-  scene.emplace_object<sphere_t>({{-1.5, 1.0, 0.0}, 1.0}, get_sphere_material(42));
-  scene.emplace_object<sphere_t>({{1.5, 1.0, 0.0}, 1.0}, get_sphere_material(110));
-  scene.emplace_object<sphere_t>({{6.8, 1.0, -3.0}, 1.0}, get_sphere_material(200));
+  scene.emplace_sphere({{-8.5, 2.0, -5.0}, 2.0}, get_sphere_material(310));
+  scene.emplace_sphere({{-1.5, 1.0, 0.0}, 1.0}, get_sphere_material(42));
+  scene.emplace_sphere({{1.5, 1.0, 0.0}, 1.0}, get_sphere_material(110));
+  scene.emplace_sphere({{6.8, 1.0, -3.0}, 1.0}, get_sphere_material(200));
 
-  scene.emplace_object<plane_t>({{0.0, 0.0, 0.0}, {0.0, 1.0, 0.0}}, floor_material);
-  scene.emplace_object<plane_t>({{0.0, 0.0, -11.0}, {0.0, -0.2, 1.0}}, mirror_material);
+  scene.emplace_plane({{0.0, 0.0, 0.0}, {0.0, 1.0, 0.0}}, floor_material);
+  scene.emplace_plane({{0.0, 0.0, -11.0}, {0.0, -0.2, 1.0}}, mirror_material);
 
   return scene;
 }
@@ -72,18 +55,18 @@ main(int argc, char const *argv[])
 
   auto const scene = build_test_scene();
 
-  htracer::v3<Float> const camera_pos(0, 2.7, 3.1);
-  htracer::v3<Float> const camera_view(0, -0.4, -1.);
-  htracer::v3<Float> const camera_up(0, 1, 0);
+  ht_f64::v3 const camera_pos(0, 2.7, 3.1);
+  ht_f64::v3 const camera_view(0, -0.4, -1.);
+  ht_f64::v3 const camera_up(0, 1, 0);
 
   htracer::rendering::batchers::column_batcher batcher;
 
-  htracer::rendering::camera const camera(
-      camera_pos, camera_view, camera_up, 144, 81, 45 * std::numbers::pi_v<Float> / 180);
+  ht_f64::camera const camera(
+      camera_pos, camera_view, camera_up, 144, 81, 45 * std::numbers::pi / 180);
 
   // Non-random lens and pixel sampler so output is deterministic.
-  htracer::rendering::sensors::point_sensor<Float> const sensor;
-  htracer::rendering::lenses::pinhole_lens<Float> const lens;
+  ht_f64::point_sensor const sensor;
+  ht_f64::pinhole_lens const lens;
 
   auto const renderer = htracer::rendering::make_renderer(batcher, scene, camera, sensor, lens);
   auto const image = renderer.render(htracer::rendering::unseq);

@@ -1,8 +1,11 @@
-#include <htracer/htracer.hpp>
+#include <htracer/float_traits.hpp>
 
 #include <cmath>
 #include <numbers>
 #include <ranges>
+
+
+using ht_f64 = htracer::float_traits<double>;
 
 
 double
@@ -17,7 +20,7 @@ make_ring_positions_range(unsigned size, double radius, double azimuth_offset_de
 {
   return std::views::iota(0u, size) | std::views::transform([=](auto idx)
   {
-    using vec = htracer::v3<double>;
+    using vec = typename ht_f64::v3;
     using std::sin;
     using std::cos;
 
@@ -39,23 +42,23 @@ make_ring_positions_range(unsigned size, double radius, double azimuth_offset_de
 int
 main()
 {
-  htracer::staging::scene<double> scene;
+  ht_f64::scene scene;
 
   scene.add_light({{0, 20, -1}, {1., 1., 1.}, 50});
 
-  auto const center_ball_material = htracer::staging::make_solid<double>({0.02, 0.02, 0.02}, 0.05, 0, 0, .5);
-  auto const floor_material = htracer::staging::make_solid<double>({1, 1, 1}, 0.15, 0, 200, .45);
-  auto const back_wall_material = htracer::staging::make_solid<double>({0.05, 0.05, 0.05}, 0.08, 0, 10, .02);
-  auto const side_wall_material = htracer::staging::make_solid<double>(
-      htracer::colors::hsl<double>{52, 0.9, 0.5}.to_srgb().to_linear(), .3, 0, 0.2, .2);
+  auto const center_ball_material = ht_f64::make_solid_material({0.02, 0.02, 0.02}, 0.05, 0, 0, .5);
+  auto const floor_material = ht_f64::make_solid_material({1, 1, 1}, 0.15, 0, 200, .45);
+  auto const back_wall_material = ht_f64::make_solid_material({0.05, 0.05, 0.05}, 0.08, 0, 10, .02);
+  auto const side_wall_material = ht_f64::make_solid_material(
+      ht_f64::hsl{52, 0.9, 0.5}.to_srgb().to_linear(), .3, 0, 0.2, .2);
 
   auto const make_sphere_material = [](double hue)
   {
     // Wrap hue to [0, 360].
     hue = std::fmod((std::fmod(hue, 360.0) + 360.0), 360.0);
 
-    auto const color = htracer::colors::hsl<double>{hue, 0.9, 0.5}.to_srgb().to_linear();
-    return htracer::staging::make_solid<double>(color, 0.3, 0.05, 200, .1);
+    auto const color = ht_f64::hsl{hue, 0.9, 0.5}.to_srgb().to_linear();
+    return ht_f64::make_solid_material(color, 0.3, 0.05, 200, .1);
   };
 
   unsigned constexpr num_inner_balls = 12;
@@ -75,19 +78,19 @@ main()
   scene.emplace_plane({{-20, 0, 0}, {1, 0, -.1}}, side_wall_material);
   scene.emplace_plane({{20, 0, 0}, {-1, 0, -.1}}, side_wall_material);
 
-  htracer::v3<double> const cam_pos(0, 0.2, 3.2);
-  htracer::v3<double> const cam_view(0, -0.75, -3.2);
-  htracer::v3<double> const cam_up(0, 1, 0);
+  ht_f64::v3 const cam_pos(0, 0.2, 3.2);
+  ht_f64::v3 const cam_view(0, -0.75, -3.2);
+  ht_f64::v3 const cam_up(0, 1, 0);
 
   double const fov_degrees = 40;
   double const fov_rads = fov_degrees * std::numbers::pi / 180;
 
-  htracer::rendering::camera const camera(cam_pos, cam_view, cam_up, 3000, 600, fov_rads);
+  ht_f64::camera const camera(cam_pos, cam_view, cam_up, 3000, 600, fov_rads);
 
   htracer::rendering::batchers::column_batcher batcher;
 
-  htracer::rendering::sensors::uniform_sensor<double> const sensor;
-  htracer::rendering::lenses::thin_lens<double> const lens(.05, 3.2);
+  ht_f64::uniform_sensor const sensor;
+  ht_f64::thin_lens const lens(.05, 3.2);
 
 
   auto const renderer = htracer::rendering::make_renderer(batcher, scene, camera, sensor, lens);
