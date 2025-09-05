@@ -15,8 +15,8 @@ build_test_scene()
 {
   ht_f64::scene scene;
 
-  scene.add_light({{-3., 6., 0.}, {1., 1., 1.}, 20});
-  scene.add_light({{3., 6., 0.}, {1., 1., 1.}, 10});
+  scene.add_light({.position = {-3., 6., 0.}, .color = {1., 1., 1.}, .intensity = 20});
+  scene.add_light({.position = {3., 6., 0.}, .color = {1., 1., 1.}, .intensity = 10});
 
   auto const floor_material = ht_f64::make_solid_material({0.2, 0.2, 0.2}, 0.125, 0, 200, .2);
   auto const mirror_material = ht_f64::make_mirror_material(0, 200, 0.92);
@@ -60,7 +60,7 @@ main(int argc, char const *argv[])
       camera_pos, camera_view, camera_up, 1024, 576, 45 * std::numbers::pi / 180);
 
   // ht_f64::point_sensor const point_sensor;
-  ht_f64::uniform_sensor sensor;
+  ht_f64::uniform_sensor sensor{};
 
   ht_f64::pinhole_lens const lens;
   // ht_f64::thin_lens lens(0.2, 3);
@@ -70,7 +70,7 @@ main(int argc, char const *argv[])
 
   auto const filename = args.size() > 0 ? args[0] : "out.ppm";
 
-  htracer::outputs::ppm const ppm;
+  htracer::outputs::ppm const ppm{};
   auto constexpr ppmbpv = htracer::outputs::ppm::bytes_per_value::BPV1;
   ppm.save<ppmbpv>(filename, image);
 }

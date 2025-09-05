@@ -89,14 +89,14 @@ main()
 
   htracer::rendering::batchers::column_batcher batcher;
 
-  ht_f64::uniform_sensor const sensor;
+  ht_f64::uniform_sensor const sensor{};
   ht_f64::thin_lens const lens(.05, 3.2);
 
 
   auto const renderer = htracer::rendering::make_renderer(batcher, scene, camera, sensor, lens);
   auto const image = renderer.render(htracer::rendering::par_unseq, 200);
 
-  htracer::outputs::ppm const ppm;
+  htracer::outputs::ppm const ppm{};
   auto constexpr ppmbpv = htracer::outputs::ppm::bytes_per_value::BPV2;
   ppm.save<ppmbpv>("disco_ring.ppm", image);
 }

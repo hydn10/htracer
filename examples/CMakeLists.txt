@@ -1,7 +1,9 @@
 function(add_example example_name)
     string(CONCAT target_name "${example_name}" "_example")
 
-    add_executable(${target_name} ${ARGN})
+    add_executable(${target_name})
+
+    target_sources(${target_name} PRIVATE ${ARGN})
     
     target_compile_features(${target_name} PRIVATE cxx_std_17)
 

@@ -2,7 +2,6 @@
 Checks:          'clang-diagnostic-*,clang-analyzer-*,clang-*,cppcoreguidelines-*,performance-*,cert-*,misc-*,modernize-*,-modernize-use-trailing-return-type,hicpp-*,-hicpp-braces-around-statements,-hicpp-uppercase-literal-suffix'
 WarningsAsErrors: ''
 HeaderFilterRegex: 'src/'
-AnalyzeTemporaryDtors: false
 FormatStyle:     file
 User:            hydn
 CheckOptions:

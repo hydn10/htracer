@@ -1,9 +1,8 @@
 set(target ray)
 
-add_executable(
-    ${target}
-    main.cpp
-)
+add_executable(${target})
+
+target_sources(${target} PRIVATE main.cpp)
 
 target_compile_features(${target} PRIVATE cxx_std_17)
 

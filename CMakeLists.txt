@@ -13,7 +13,7 @@ option(HTRACER_BUILD_RAY "Build the ray app" OFF)
 option(HTRACER_BUILD_EXAMPLES "Build the examples" OFF)
 
 if(HTRACER_BUILD_TESTS)
-	enable_testing()
+    enable_testing()
 endif()
 
 add_subdirectory(lib)
