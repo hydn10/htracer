@@ -23,6 +23,7 @@
             buildTests = true;
             buildRay = true;
             buildExamples = true;
+            enableClangTidy = true;
           };
         in
           drvWithTestsRayExamples.overrideAttrs (oldAttrs: {

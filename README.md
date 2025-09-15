@@ -66,20 +66,19 @@ Its primary objectives include:
 Below is a basic example to demonstrate Htracer in action:
 
 ```cpp
-#include <htracer/float_traits.hpp>
-#include <htracer/outputs/ppm.hpp>
+#include <htracer/htracer.hpp>
 
 #include <numbers>
 
 
-int
-main()
+auto
+main() -> int
 {
   using ht_f64 = htracer::float_traits<double>;
 
-  ht_f64::scene scene;
+  ht_f64::scene scene{};
 
-  scene.add_light({{-3., 6., 0.}, {1., 1., 1.}, 20});
+  scene.add_light({.position = {-3., 6., 0.}, .color = {1., 1., 1.}, .intensity = 20});
 
   auto const floor_material = ht_f64::make_solid_material({0.2, 0.2, 0.2}, 0.125, 0, 200, .2);
 
@@ -105,10 +104,10 @@ main()
   ht_f64::camera const camera(cam_pos, cam_view, cam_up, 640, 360, fov_rads);
 
   // The rendering jobs will be split by column.
-  htracer::rendering::batchers::column_batcher batcher;
+  htracer::rendering::batchers::column_batcher const batcher{};
 
   // The `constant` sensor is the simplest and does not simulate anti-aliasing.
-  ht_f64::point_sensor const sensor;
+  ht_f64::point_sensor const sensor{};
 
   // The `pinhole` lens models is the simplest and renders all the image in focus.
   ht_f64::pinhole_lens const lens;
@@ -122,7 +121,7 @@ main()
   auto const image = renderer.render(htracer::rendering::unseq);
 
   // Save the image in PPM format with 1 byte per value (3 bytes per pixel).
-  htracer::outputs::ppm const ppm;
+  htracer::outputs::ppm const ppm{};
   auto constexpr ppm_bpv = htracer::outputs::ppm::bytes_per_value::BPV1;
   ppm.save<ppm_bpv>("basic.ppm", image);
 }

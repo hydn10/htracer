@@ -1,4 +1,4 @@
-#include <htracer/float_traits.hpp>
+#include <htracer/htracer.hpp>
 
 #include <cmath>
 #include <numbers>
@@ -8,7 +8,7 @@
 using ht_f64 = htracer::float_traits<double>;
 
 
-double
+auto
 degs_to_rads(double degs)
 {
   return degs * std::numbers::pi / 180;
@@ -18,7 +18,7 @@ degs_to_rads(double degs)
 constexpr auto
 make_ring_positions_range(unsigned size, double radius, double azimuth_offset_degs, double tilt_degs, double spin_degs)
 {
-  return std::views::iota(0u, size) | std::views::transform([=](auto idx)
+  return std::views::iota(0U, size) | std::views::transform([=](auto idx)
   {
     using vec = typename ht_f64::v3;
     using std::sin;
@@ -33,18 +33,19 @@ make_ring_positions_range(unsigned size, double radius, double azimuth_offset_de
 
     auto const flat_pos = radius * vec{cos(azimuth), 0, sin(azimuth)};
     auto const tilted = vec{flat_pos[0], -flat_pos[2] * sin(tilt), flat_pos[2] * cos(tilt)};
+
     return vec{
         tilted[0] * cos(spin) + tilted[2] * sin(spin), tilted[1], tilted[0] * -sin(spin) + tilted[2] * cos(spin)};
   });
 }
 
 
-int
-main()
+auto
+main() -> int
 {
   ht_f64::scene scene;
 
-  scene.add_light({{0, 20, -1}, {1., 1., 1.}, 50});
+  scene.add_light({.position = {0, 20, -1}, .color = {1., 1., 1.}, .intensity = 50});
 
   auto const center_ball_material = ht_f64::make_solid_material({0.02, 0.02, 0.02}, 0.05, 0, 0, .5);
   auto const floor_material = ht_f64::make_solid_material({1, 1, 1}, 0.15, 0, 200, .45);
@@ -87,16 +88,16 @@ main()
 
   ht_f64::camera const camera(cam_pos, cam_view, cam_up, 3000, 600, fov_rads);
 
-  htracer::rendering::batchers::column_batcher batcher;
+  htracer::rendering::batchers::column_batcher const batcher{};
 
-  ht_f64::uniform_sensor const sensor{};
+  ht_f64::uniform_sensor const sensor;
   ht_f64::thin_lens const lens(.05, 3.2);
 
 
   auto const renderer = htracer::rendering::make_renderer(batcher, scene, camera, sensor, lens);
   auto const image = renderer.render(htracer::rendering::par_unseq, 200);
 
-  htracer::outputs::ppm const ppm{};
+  htracer::outputs::ppm const ppm;
   auto constexpr ppmbpv = htracer::outputs::ppm::bytes_per_value::BPV2;
   ppm.save<ppmbpv>("disco_ring.ppm", image);
 }

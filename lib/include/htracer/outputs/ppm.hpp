@@ -12,7 +12,6 @@
 namespace htracer::outputs
 {
 
-
 class ppm
 {
 public:

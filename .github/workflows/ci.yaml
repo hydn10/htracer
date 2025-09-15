@@ -1,4 +1,4 @@
-name: ci
+name: CI
 
 on:
   push:
@@ -42,10 +42,10 @@ jobs:
       - uses: cachix/install-nix-action@v30
 
       - name: Build
-        run: nix build
+        run: nix build -L
 
       - name: Check
-        run: nix flake check
+        run: nix flake check -L
 
   build-windows:
     runs-on: windows-latest

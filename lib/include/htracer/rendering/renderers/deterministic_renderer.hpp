@@ -5,6 +5,7 @@
 #include <htracer/colors/colors.hpp>
 #include <htracer/rendering/camera.hpp>
 #include <htracer/rendering/concepts.hpp>
+#include <htracer/rendering/image.hpp>
 #include <htracer/rendering/samplers/deterministic_sampler.hpp>
 #include <htracer/staging/scene.hpp>
 

@@ -1,5 +1,4 @@
-#include <htracer/float_traits.hpp>
-#include <htracer/outputs/ppm.hpp>
+#include <htracer/htracer.hpp>
 
 #include <cstdlib>
 #include <numbers>
@@ -23,8 +22,8 @@ build_test_scene()
 {
   ht_f64::scene scene;
 
-  scene.add_light({{-3., 6., 0.}, {1., 1., 1.}, 20});
-  scene.add_light({{3., 6., 0.}, {1., 1., 1.}, 10});
+  scene.add_light({.position = {-3., 6., 0.}, .color = {1., 1., 1.}, .intensity = 20});
+  scene.add_light({.position = {3., 6., 0.}, .color = {1., 1., 1.}, .intensity = 10});
 
   auto const floor_material = ht_f64::make_solid_material({0.2, 0.2, 0.2}, 0.125, 0, 200, .2);
   auto const mirror_material = ht_f64::make_mirror_material(0, 200, 0.92);
@@ -41,8 +40,8 @@ build_test_scene()
 }
 
 
-int
-main(int argc, char const *argv[])
+auto
+main(int argc, char const *argv[]) -> int
 {
   std::vector<std::string_view> const args(argv + 1, argv + argc);
 
@@ -59,7 +58,7 @@ main(int argc, char const *argv[])
   ht_f64::v3 const camera_view(0, -0.4, -1.);
   ht_f64::v3 const camera_up(0, 1, 0);
 
-  htracer::rendering::batchers::column_batcher batcher;
+  htracer::rendering::batchers::column_batcher const batcher{};
 
   ht_f64::camera const camera(
       camera_pos, camera_view, camera_up, 144, 81, 45 * std::numbers::pi / 180);

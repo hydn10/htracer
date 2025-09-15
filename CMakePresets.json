@@ -23,6 +23,13 @@
       }
     },
     {
+      "name": "enable-clang-tidy",
+      "hidden": true,
+      "cacheVariables": {
+        "HTRACER_ENABLE_CLANG_TIDY": "ON"
+      }
+    },
+    {
       "name": "windows-cl-base",
       "hidden": true,
       "generator": "Ninja",
@@ -102,7 +109,8 @@
         "debug",
         "build-ray",
         "build-tests",
-        "build-examples"
+        "build-examples",
+        "enable-clang-tidy"
       ]
     },
     {
@@ -195,6 +203,7 @@
         "x64",
         "linux-base",
         "release",
+        "enable-clang-tidy",
         "build-ray",
         "build-tests",
         "build-examples"
@@ -209,6 +218,7 @@
         "x64",
         "windows-cl-base",
         "release",
+        "enable-clang-tidy",
         "build-ray",
         "build-tests",
         "build-examples"

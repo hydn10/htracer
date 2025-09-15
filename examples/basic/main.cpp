@@ -1,15 +1,14 @@
-#include <htracer/float_traits.hpp>
-#include <htracer/outputs/ppm.hpp>
+#include <htracer/htracer.hpp>
 
 #include <numbers>
 
 
-int
-main()
+auto
+main() -> int
 {
   using ht_f64 = htracer::float_traits<double>;
 
-  ht_f64::scene scene;
+  ht_f64::scene scene{};
 
   scene.add_light({.position = {-3., 6., 0.}, .color = {1., 1., 1.}, .intensity = 20});
 
@@ -37,10 +36,10 @@ main()
   ht_f64::camera const camera(cam_pos, cam_view, cam_up, 640, 360, fov_rads);
 
   // The rendering jobs will be split by column.
-  htracer::rendering::batchers::column_batcher batcher;
+  htracer::rendering::batchers::column_batcher const batcher{};
 
   // The `constant` sensor is the simplest and does not simulate anti-aliasing.
-  ht_f64::point_sensor const sensor;
+  ht_f64::point_sensor const sensor{};
 
   // The `pinhole` lens models is the simplest and renders all the image in focus.
   ht_f64::pinhole_lens const lens;
