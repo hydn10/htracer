@@ -4,6 +4,7 @@
 
 #include <htracer/geometries/ray.hpp>
 #include <htracer/numerics.hpp>
+#include <htracer/rendering/camera.hpp>
 #include <htracer/rendering/intersector.hpp>
 #include <htracer/staging/scene.hpp>
 #include <htracer/vector.hpp>

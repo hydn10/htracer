@@ -1,17 +1,26 @@
-set(target ray)
+set(target_name "htracer.apps.ray")
 
-add_executable(${target})
+add_executable(${target_name})
 
-target_sources(${target} PRIVATE main.cpp)
+target_sources(${target_name} PRIVATE main.cpp)
 
-target_compile_features(${target} PRIVATE cxx_std_17)
+target_compile_features(${target_name} PRIVATE cxx_std_17)
 
 target_link_libraries(
-    ${target}
+    ${target_name}
     PRIVATE
-    htracer
+    htracer::htracer
 )
 
-install(TARGETS ${target})
+set_target_properties(
+    ${target_name}
+    PROPERTIES
+        EXPORT_NAME ray-app
+)
 
-message(STATUS "Added app: ${target}")
+install(
+    TARGETS ${target_name}
+    EXPORT htracer-targets
+)
+
+message(STATUS "Added app: ${target_name}")

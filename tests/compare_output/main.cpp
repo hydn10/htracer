@@ -9,7 +9,10 @@
 using ht_f64 = htracer::float_traits<double>;
 
 
-static constexpr auto
+namespace
+{
+
+constexpr auto
 get_sphere_material(ht_f64::float_type hue)
 {
   auto const color = ht_f64::hsl{hue, 0.7, 0.5}.to_srgb().to_linear();
@@ -17,7 +20,7 @@ get_sphere_material(ht_f64::float_type hue)
 }
 
 
-static auto
+auto
 build_test_scene()
 {
   ht_f64::scene scene;
@@ -38,6 +41,8 @@ build_test_scene()
 
   return scene;
 }
+
+} // namespace
 
 
 auto

@@ -2,6 +2,8 @@
 #define HTRACER_UTILS_VECTORTRANSFORM_HPP
 
 
+#include <htracer/utils/vector_crtp.hpp>
+
 #include <utility>
 
 

@@ -8,6 +8,9 @@
 using ht_f64 = htracer::float_traits<double>;
 
 
+namespace
+{
+
 auto
 degs_to_rads(double degs)
 {
@@ -38,6 +41,8 @@ make_ring_positions_range(unsigned size, double radius, double azimuth_offset_de
         tilted[0] * cos(spin) + tilted[2] * sin(spin), tilted[1], tilted[0] * -sin(spin) + tilted[2] * cos(spin)};
   });
 }
+
+} // namespace
 
 
 auto

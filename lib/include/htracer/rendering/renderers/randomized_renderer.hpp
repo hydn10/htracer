@@ -5,6 +5,7 @@
 #include <htracer/colors/colors.hpp>
 #include <htracer/rendering/camera.hpp>
 #include <htracer/rendering/concepts.hpp>
+#include <htracer/rendering/image.hpp>
 #include <htracer/rendering/samplers/repeat_sampler.hpp>
 #include <htracer/staging/scene.hpp>
 #include <htracer/utils/generator_providers/thread_local_provider.hpp>
@@ -101,7 +102,6 @@ randomized_renderer<Float, Batcher, Scene, Sensor, Lens>::render(ExPolicy &&poli
     return render(std::forward<ExPolicy>(policy), num_samples, std::move(random_engine_provider));
   }
 }
-
 
 } // namespace htracer::rendering::renderers
 

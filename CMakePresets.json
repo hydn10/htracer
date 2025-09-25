@@ -1,5 +1,5 @@
 ﻿{
-  "version": 3,
+  "version": 7,
   "configurePresets": [
     {
       "name": "build-tests",
@@ -20,13 +20,6 @@
       "hidden": true,
       "cacheVariables": {
         "HTRACER_BUILD_EXAMPLES": "ON"
-      }
-    },
-    {
-      "name": "enable-clang-tidy",
-      "hidden": true,
-      "cacheVariables": {
-        "HTRACER_ENABLE_CLANG_TIDY": "ON"
       }
     },
     {
@@ -72,6 +65,30 @@
       }
     },
     {
+      "name": "msvc-warnings",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_CXX_FLAGS_INIT": "/W4 /permissive-",
+        "CMAKE_COMPILE_WARNING_AS_ERROR": "ON"
+      }
+    },
+    {
+      "name": "gccclang-warnings",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_CXX_FLAGS_INIT": "-Wall -Wextra -pedantic",
+        "CMAKE_COMPILE_WARNING_AS_ERROR": "ON"
+      }
+    },
+    {
+      "name": "enable-clang-tidy",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_CXX_CLANG_TIDY": "clang-tidy;--warnings-as-errors=*",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
+    },
+    {
       "name": "x64",
       "hidden": true,
       "architecture": {
@@ -106,6 +123,7 @@
       "inherits": [
         "x64",
         "windows-cl-base",
+        "msvc-warnings",
         "debug",
         "build-ray",
         "build-tests",
@@ -119,6 +137,7 @@
       "inherits": [
         "x64",
         "windows-cl-base",
+        "msvc-warnings",
         "release",
         "build-ray",
         "build-tests",
@@ -131,6 +150,7 @@
       "inherits": [
         "x64",
         "windows-cl-base",
+        "msvc-warnings",
         "profile",
         "build-ray",
         "build-tests",
@@ -143,6 +163,7 @@
       "inherits": [
         "x64",
         "windows-clang-base",
+        "gccclang-warnings",
         "debug",
         "build-ray",
         "build-tests",
@@ -155,6 +176,7 @@
       "inherits": [
         "x64",
         "windows-clang-base",
+        "gccclang-warnings",
         "release",
         "build-ray",
         "build-tests",
@@ -167,6 +189,7 @@
       "inherits": [
         "x64",
         "linux-base",
+        "gccclang-warnings",
         "debug",
         "build-ray",
         "build-tests",
@@ -179,6 +202,7 @@
       "inherits": [
         "x64",
         "linux-base",
+        "gccclang-warnings",
         "release",
         "build-ray",
         "build-tests",
@@ -191,6 +215,7 @@
       "inherits": [
         "x64",
         "linux-base",
+        "gccclang-warnings",
         "profile",
         "build-ray",
         "build-tests",
@@ -202,6 +227,7 @@
       "inherits": [
         "x64",
         "linux-base",
+        "gccclang-warnings",
         "release",
         "enable-clang-tidy",
         "build-ray",
@@ -217,6 +243,7 @@
       "inherits": [
         "x64",
         "windows-cl-base",
+        "msvc-warnings",
         "release",
         "enable-clang-tidy",
         "build-ray",

@@ -1,5 +1,5 @@
 function(add_example example_name)
-    string(CONCAT target_name "${example_name}" "_example")
+    set(target_name "htracer.examples.${example_name}")
 
     add_executable(${target_name})
 
@@ -10,12 +10,22 @@ function(add_example example_name)
     target_link_libraries(
         ${target_name}
         PRIVATE
-        htracer
+        htracer::htracer
     )
 
     message(STATUS "Added example: ${target_name}")
 
-    install(TARGETS ${target_name})
+    set_target_properties(
+        ${target_name}
+        PROPERTIES
+            EXPORT_NAME "${example_name}-example"
+    )
+    
+    install(
+        TARGETS ${target_name}
+        EXPORT htracer-targets
+    )
+
 endfunction()
 
 add_subdirectory(basic)

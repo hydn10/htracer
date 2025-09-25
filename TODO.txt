@@ -1,3 +1,7 @@
+- Remove C++ standard setting from cmake. Set it in presets and put in documentation the version to use (C++23 I guess?).
+
+- Test unity build in CI.
+
 - Set up performance benchmarks.
 
 - thin_lens should take FOV parameter instead of radius, since the effect of radius depens on focal distance.

@@ -8,6 +8,8 @@
 #include <htracer/rendering/concepts.hpp>
 #include <htracer/staging/scene.hpp>
 
+#include <ranges>
+
 
 namespace htracer::rendering::samplers::detail_
 {

@@ -8,7 +8,10 @@
 using ht_f64 = htracer::float_traits<double>;
 
 
-static auto
+namespace
+{
+
+auto
 build_test_scene()
 {
   ht_f64::scene scene{};
@@ -35,6 +38,8 @@ build_test_scene()
 
   return scene;
 }
+
+} // namespace
 
 
 auto

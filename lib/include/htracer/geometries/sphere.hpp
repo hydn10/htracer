@@ -3,6 +3,7 @@
 
 
 #include <htracer/geometries/ray.hpp>
+#include <htracer/geometries/geometry.hpp>
 #include <htracer/vector.hpp>
 
 #include <optional>
