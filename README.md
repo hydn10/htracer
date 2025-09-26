@@ -2,7 +2,7 @@
 [![C++23](https://img.shields.io/badge/C%2B%2B-23-blue.svg)](https://en.cppreference.com/w/cpp/23)
 [![Build Status](https://github.com/hydn10/htracer/actions/workflows/ci.yaml/badge.svg)](https://github.com/hydn10/htracer/actions)
 
-# Htracer
+# htracer
 
 Htracer is a modern, stand-alone, header-only C++23 library for rendering ray-traced images on the CPU.  
 Designed with modularity and extensibility in mind, it serves as a foundation for learning and experimenting with API design and ray tracing techniques in modern C++.
@@ -20,7 +20,7 @@ Its primary objectives include:
 
 - **Modularity and Extensibility:** To design a flexible and adaptable framework, allowing users to build upon and extend its functionality with very little effort.
 - **Modern C++ Practices:** To leverage features from modern C++ to ensure clean, efficient, and maintainable code.
-- **Zero-Cost Abstractions:**  To offer high performance without unnecessary overhead—users pay only for the features they use.
+- **Zero-Cost Abstractions:** To offer high performance without unnecessary overhead, so users pay only for the features they use.
 - **No dependencies:** To write it from scratch, as an exercise, using only the standard library.
 
 
@@ -181,13 +181,13 @@ inputs = {
     cmake -S . -B out -DCMAKE_BUILD_TYPE=Release -DHTRACER_BUILD_TESTS=ON -DHTRACER_BUILD_EXAMPLES=ON
 
     # Build
-    cmake --build out
+    cmake --build out -j
 
     # Run tests
     cmake --build out --target test
 
     # Then install
-    cmake --build out --target install
+    cmake --install out
     ```
 
 
