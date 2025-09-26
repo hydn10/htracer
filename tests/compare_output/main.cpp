@@ -45,8 +45,8 @@ build_test_scene()
 } // namespace
 
 
-auto
-main(int argc, char const *argv[]) -> int
+int
+main(int argc, char const *argv[])
 {
   std::vector<std::string_view> const args(argv + 1, argv + argc);
 

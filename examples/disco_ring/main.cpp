@@ -45,8 +45,8 @@ make_ring_positions_range(unsigned size, double radius, double azimuth_offset_de
 } // namespace
 
 
-auto
-main() -> int
+int
+main()
 {
   ht_f64::scene scene;
 

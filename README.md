@@ -71,12 +71,12 @@ Below is a basic example to demonstrate Htracer in action:
 #include <numbers>
 
 
-auto
-main() -> int
+int
+main()
 {
   using ht_f64 = htracer::float_traits<double>;
 
-  ht_f64::scene scene{};
+  ht_f64::scene scene;
 
   scene.add_light({.position = {-3., 6., 0.}, .color = {1., 1., 1.}, .intensity = 20});
 
@@ -107,7 +107,7 @@ main() -> int
   htracer::rendering::batchers::column_batcher const batcher{};
 
   // The `constant` sensor is the simplest and does not simulate anti-aliasing.
-  ht_f64::point_sensor const sensor{};
+  ht_f64::point_sensor const sensor;
 
   // The `pinhole` lens models is the simplest and renders all the image in focus.
   ht_f64::pinhole_lens const lens;
@@ -121,7 +121,7 @@ main() -> int
   auto const image = renderer.render(htracer::rendering::unseq);
 
   // Save the image in PPM format with 1 byte per value (3 bytes per pixel).
-  htracer::outputs::ppm const ppm{};
+  htracer::outputs::ppm const ppm;
   auto constexpr ppm_bpv = htracer::outputs::ppm::bytes_per_value::BPV1;
   ppm.save<ppm_bpv>("basic.ppm", image);
 }

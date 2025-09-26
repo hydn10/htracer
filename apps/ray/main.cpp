@@ -14,7 +14,7 @@ namespace
 auto
 build_test_scene()
 {
-  ht_f64::scene scene{};
+  ht_f64::scene scene;
 
   scene.add_light({.position = {-3., 6., 0.}, .color = {1., 1., 1.}, .intensity = 20});
   scene.add_light({.position = {3., 6., 0.}, .color = {1., 1., 1.}, .intensity = 10});
@@ -42,8 +42,8 @@ build_test_scene()
 } // namespace
 
 
-auto
-main(int argc, char const *argv[]) -> int
+int
+main(int argc, char const *argv[])
 {
   std::vector<std::string_view> const args(argv + 1, argv + argc);
 
@@ -63,7 +63,7 @@ main(int argc, char const *argv[]) -> int
       camera_pos, camera_view, camera_up, 1024, 576, 45 * std::numbers::pi / 180);
 
   // ht_f64::point_sensor const point_sensor;
-  ht_f64::uniform_sensor const sensor{};
+  ht_f64::uniform_sensor const sensor;
 
   ht_f64::pinhole_lens const lens;
   // ht_f64::thin_lens lens(0.2, 3);
@@ -73,7 +73,7 @@ main(int argc, char const *argv[]) -> int
 
   auto const filename = !args.empty() ? args[0] : "out.ppm";
 
-  htracer::outputs::ppm const ppm{};
+  htracer::outputs::ppm const ppm;
   auto constexpr ppmbpv = htracer::outputs::ppm::bytes_per_value::BPV1;
   ppm.save<ppmbpv>(filename, image);
 }
