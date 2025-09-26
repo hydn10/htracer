@@ -23,10 +23,12 @@
             buildTests = true;
             buildRay = true;
             buildExamples = true;
-            enableClangTidy = true;
           };
         in
           drvWithTestsRayExamples.overrideAttrs (oldAttrs: {
+            cmakeFlags = oldAttrs.cmakeFlags ++ [
+              "-DCMAKE_CXX_CLANG_TIDY=${pkgs-lin64.clang-tools}/bin/clang-tidy;--warnings-as-errors=*"
+            ];
             doCheck = true;
           });
     };
