@@ -10,7 +10,7 @@ project(htracer LANGUAGES CXX VERSION ${VERSION_FROM_JSON})
 
 option(
     HTRACER_BUILD_TESTS
-    "Build the tests and enable testing. Default: ${PROJECT_IS_TOP_LEVEL}."
+    "Build the tests. Default: ${PROJECT_IS_TOP_LEVEL}."
     ${PROJECT_IS_TOP_LEVEL})
 
 option(

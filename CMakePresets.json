@@ -1,5 +1,5 @@
 ﻿{
-  "version": 7,
+  "version": 6,
   "configurePresets": [
     {
       "name": "build-tests",
@@ -119,7 +119,7 @@
     },
     {
       "name": "dev-x64-win-debug",
-      "displayName": "x64 Debug (cl)",
+      "displayName": "x64 Debug (msvc)",
       "inherits": [
         "x64",
         "windows-cl-base",
@@ -133,7 +133,7 @@
     },
     {
       "name": "dev-x64-win-release",
-      "displayName": "x64 Release (cl)",
+      "displayName": "x64 Release (msvc)",
       "inherits": [
         "x64",
         "windows-cl-base",
@@ -146,7 +146,7 @@
     },
     {
       "name": "dev-x64-win-profile",
-      "displayName": "x64 Profile (cl)",
+      "displayName": "x64 Profile (msvc)",
       "inherits": [
         "x64",
         "windows-cl-base",
@@ -159,7 +159,7 @@
     },
     {
       "name": "dev-x64-win-clang-debug",
-      "displayName": "x64 Debug (clang)",
+      "displayName": "x64 Debug (clang-cl)",
       "inherits": [
         "x64",
         "windows-clang-base",
@@ -172,7 +172,7 @@
     },
     {
       "name": "dev-x64-win-clang-release",
-      "displayName": "x64 Release (clang)",
+      "displayName": "x64 Release (clang-cl)",
       "inherits": [
         "x64",
         "windows-clang-base",

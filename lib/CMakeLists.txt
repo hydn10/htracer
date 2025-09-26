@@ -15,7 +15,7 @@ target_sources(
     INTERFACE
         FILE_SET HEADERS
         BASE_DIRS
-            include
+            ${CMAKE_CURRENT_SOURCE_DIR}/include
         FILES
             ${HTRACER_LIBRARY_SOURCE_FILES}
 )

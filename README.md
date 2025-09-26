@@ -4,7 +4,7 @@
 
 # htracer
 
-Htracer is a modern, stand-alone, header-only C++23 library for rendering ray-traced images on the CPU.  
+A modern, stand-alone, header-only C++23 library for rendering ray-traced images on the CPU.  
 Designed with modularity and extensibility in mind, it serves as a foundation for learning and experimenting with API design and ray tracing techniques in modern C++.
 
 <div align="center">
@@ -63,7 +63,7 @@ Its primary objectives include:
 
 ## Examples
 
-Below is a basic example to demonstrate Htracer in action:
+Below is a basic example to demonstrate htracer in action:
 
 ```cpp
 #include <htracer/htracer.hpp>
