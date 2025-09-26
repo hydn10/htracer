@@ -18,6 +18,7 @@ function(add_example example_name)
     set_target_properties(
         ${target_name}
         PROPERTIES
+            OUTPUT_NAME "htracer-${example_name}-example"
             EXPORT_NAME "${example_name}-example"
     )
     

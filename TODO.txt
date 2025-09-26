@@ -1,6 +1,6 @@
 - Remove C++ standard setting from cmake. Set it in presets and put in documentation the version to use (C++23 I guess?).
 
-- Test unity build in CI.
+- Test unity build in CI. Also run the verify-headers targets in CI.
 
 - Set up performance benchmarks.
 

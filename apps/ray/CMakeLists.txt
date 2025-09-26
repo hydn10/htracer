@@ -15,6 +15,7 @@ target_link_libraries(
 set_target_properties(
     ${target_name}
     PROPERTIES
+        OUTPUT_NAME htracer-ray
         EXPORT_NAME ray-app
 )
 
