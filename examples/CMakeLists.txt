@@ -13,8 +13,6 @@ function(add_example example_name)
         htracer::htracer
     )
 
-    message(STATUS "Added example: ${target_name}")
-
     set_target_properties(
         ${target_name}
         PROPERTIES
@@ -27,6 +25,7 @@ function(add_example example_name)
         EXPORT htracer-targets
     )
 
+    message(STATUS "Added example: ${target_name}")
 endfunction()
 
 add_subdirectory(basic)

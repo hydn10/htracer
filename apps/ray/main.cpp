@@ -1,8 +1,9 @@
 #include <htracer/htracer.hpp>
 
+#include <cstddef>
+#include <filesystem>
 #include <numbers>
-#include <string_view>
-#include <vector>
+#include <span>
 
 
 using ht_f64 = htracer::float_traits<double>;
@@ -43,9 +44,9 @@ build_test_scene()
 
 
 int
-main(int argc, char const *argv[])
+main(int argc, char **argv)
 {
-  std::vector<std::string_view> const args(argv + 1, argv + argc);
+  std::span<char const *const> const args{argv, static_cast<std::size_t>(argc)};
 
   auto const scene = build_test_scene();
 
@@ -70,9 +71,9 @@ main(int argc, char const *argv[])
   auto const renderer = htracer::rendering::make_renderer(batcher, scene, camera, sensor, lens);
   auto const image = renderer.render(htracer::rendering::par_unseq, 20);
 
-  auto const filename = !args.empty() ? args[0] : "out.ppm";
+  std::filesystem::path const filename = (args.size() > 1) ? args[1] : "out.ppm";
 
   htracer::outputs::ppm const ppm;
-  auto constexpr ppmbpv = htracer::outputs::ppm::bytes_per_value::BPV1;
+  constexpr auto ppmbpv = htracer::outputs::ppm::bytes_per_value::BPV1;
   ppm.save<ppmbpv>(filename, image);
 }

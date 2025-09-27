@@ -5,6 +5,7 @@
 #include <htracer/rendering/image.hpp>
 
 #include <bit>
+#include <filesystem>
 #include <fstream>
 #include <string>
 
@@ -23,7 +24,7 @@ public:
 
   template<bytes_per_value BPV, typename Float>
   void
-  save(std::string_view filename, rendering::image<Float> const &image) const;
+  save(std::filesystem::path const &filename, rendering::image<Float> const &image) const;
 };
 
 
@@ -62,7 +63,7 @@ struct bpv_traits<ppm::bytes_per_value::BPV2>
 
 template<ppm::bytes_per_value BPV, typename Float>
 void
-ppm::save(std::string_view filename, rendering::image<Float> const &image) const
+ppm::save(std::filesystem::path const &filename, rendering::image<Float> const &image) const
 {
   // http://netpbm.sourceforge.net/doc/ppm.html
 
@@ -100,7 +101,7 @@ ppm::save(std::string_view filename, rendering::image<Float> const &image) const
     stream.write(reinterpret_cast<char const *>(&value), sizeof value);
   };
 
-  std::ofstream out(filename.data(), std::ios::out | std::ios::binary);
+  std::ofstream out(filename, std::ios::out | std::ios::binary);
 
   out << "P6\n" << image.h_res() << " " << image.v_res() << '\n' << std::to_string(NUM_COLORS - 1) << '\n';
 
