@@ -59,8 +59,7 @@ main(int argc, char const *argv[])
   htracer::rendering::batchers::column_batcher const batcher{};
   // htracer::rendering::batchers::pixel_batcher batcher;
 
-  ht_f64::camera const camera(
-      camera_pos, camera_view, camera_up, 1024, 576, 45 * std::numbers::pi / 180);
+  ht_f64::camera const camera(camera_pos, camera_view, camera_up, 1024, 576, 45 * std::numbers::pi / 180);
 
   // ht_f64::point_sensor const point_sensor;
   ht_f64::uniform_sensor const sensor;

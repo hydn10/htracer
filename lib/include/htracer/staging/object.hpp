@@ -17,7 +17,7 @@ class object final : public object_base<Float>
 public:
   constexpr object(Geometry<Float> geometry, material<Float> material) noexcept;
 
-    constexpr Geometry<Float> &
+  constexpr Geometry<Float> &
   get_geometry() noexcept override;
   [[nodiscard]]
   constexpr Geometry<Float> const &

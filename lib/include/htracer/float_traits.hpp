@@ -4,19 +4,19 @@
 
 #include <htracer/rendering/batchers/column_batcher.hpp>
 #include <htracer/rendering/batchers/pixel_batcher.hpp>
+#include <htracer/rendering/camera.hpp>
+#include <htracer/rendering/concepts.hpp>
+#include <htracer/rendering/image.hpp>
 #include <htracer/rendering/lenses/pinhole_lens.hpp>
 #include <htracer/rendering/lenses/thin_lens.hpp>
+#include <htracer/rendering/policies.hpp>
 #include <htracer/rendering/renderers/deterministic_renderer.hpp>
 #include <htracer/rendering/renderers/randomized_renderer.hpp>
+#include <htracer/rendering/rendering.hpp>
 #include <htracer/rendering/samplers/deterministic_sampler.hpp>
 #include <htracer/rendering/samplers/repeat_sampler.hpp>
 #include <htracer/rendering/sensors/point_sensor.hpp>
 #include <htracer/rendering/sensors/uniform_sensor.hpp>
-#include <htracer/rendering/camera.hpp>
-#include <htracer/rendering/concepts.hpp>
-#include <htracer/rendering/image.hpp>
-#include <htracer/rendering/policies.hpp>
-#include <htracer/rendering/rendering.hpp>
 
 #include <htracer/staging/light.hpp>
 #include <htracer/staging/material.hpp>

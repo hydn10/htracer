@@ -31,18 +31,17 @@ intersect(geometries::ray<Float> const &ray, Scene const &scene, Float min_dist)
   Float closest_dist = MAX_DISTANCE;
   staging::object_base<Float> const *closest_obj = nullptr;
 
-  scene.for_each_object(
-      [min_dist, &ray, &closest_dist, &closest_obj](auto const &obj)
+  scene.for_each_object([min_dist, &ray, &closest_dist, &closest_obj](auto const &obj)
+  {
+    if (auto dist_o = obj.get_geometry().intersect(ray); dist_o)
+    {
+      if (auto dist = *dist_o; dist < closest_dist && dist > min_dist)
       {
-        if (auto dist_o = obj.get_geometry().intersect(ray); dist_o)
-        {
-          if (auto dist = *dist_o; dist < closest_dist && dist > min_dist)
-          {
-            closest_dist = dist;
-            closest_obj = &obj;
-          }
-        }
-      });
+        closest_dist = dist;
+        closest_obj = &obj;
+      }
+    }
+  });
 
   if (closest_dist < MAX_DISTANCE)
   {

@@ -55,8 +55,8 @@ main()
   auto const center_ball_material = ht_f64::make_solid_material({0.02, 0.02, 0.02}, 0.05, 0, 0, .5);
   auto const floor_material = ht_f64::make_solid_material({1, 1, 1}, 0.15, 0, 200, .45);
   auto const back_wall_material = ht_f64::make_solid_material({0.05, 0.05, 0.05}, 0.08, 0, 10, .02);
-  auto const side_wall_material = ht_f64::make_solid_material(
-      ht_f64::hsl{52, 0.9, 0.5}.to_srgb().to_linear(), .3, 0, 0.2, .2);
+  auto const side_wall_material =
+      ht_f64::make_solid_material(ht_f64::hsl{52, 0.9, 0.5}.to_srgb().to_linear(), .3, 0, 0.2, .2);
 
   auto const make_sphere_material = [](double hue)
   {

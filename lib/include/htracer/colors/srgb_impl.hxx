@@ -53,21 +53,21 @@ srgb<Float>::to_linear() const
   return utils::transform_into<srgb_linear<Float>>(
       *this,
       [](auto val)
-      {
-        // TODO: Assert 0 <= val <= 1;
-        constexpr Float SRGB_CUTOFF = 0.0404482362771082;
-        constexpr Float SLOPE = 12.92;
-        constexpr Float EXP_OFFSET = 0.055;
-        constexpr Float EXPONENT = 2.4;
+  {
+    // TODO: Assert 0 <= val <= 1;
+    constexpr Float SRGB_CUTOFF = 0.0404482362771082;
+    constexpr Float SLOPE = 12.92;
+    constexpr Float EXP_OFFSET = 0.055;
+    constexpr Float EXPONENT = 2.4;
 
-        if (val <= SRGB_CUTOFF)
-        {
-          return val / SLOPE;
-        }
+    if (val <= SRGB_CUTOFF)
+    {
+      return val / SLOPE;
+    }
 
-        auto const base = (val + EXP_OFFSET) / (1 + EXP_OFFSET);
-        return std::pow(base, EXPONENT);
-      });
+    auto const base = (val + EXP_OFFSET) / (1 + EXP_OFFSET);
+    return std::pow(base, EXPONENT);
+  });
 }
 
 } // namespace htracer::colors

@@ -2,8 +2,8 @@
 #define HTRACER_GEOMETRIES_SPHERE_HPP
 
 
-#include <htracer/geometries/ray.hpp>
 #include <htracer/geometries/geometry.hpp>
+#include <htracer/geometries/ray.hpp>
 #include <htracer/vector.hpp>
 
 #include <optional>

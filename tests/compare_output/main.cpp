@@ -65,8 +65,7 @@ main(int argc, char const *argv[])
 
   htracer::rendering::batchers::column_batcher const batcher{};
 
-  ht_f64::camera const camera(
-      camera_pos, camera_view, camera_up, 144, 81, 45 * std::numbers::pi / 180);
+  ht_f64::camera const camera(camera_pos, camera_view, camera_up, 144, 81, 45 * std::numbers::pi / 180);
 
   // Non-random lens and pixel sampler so output is deterministic.
   ht_f64::point_sensor const sensor;

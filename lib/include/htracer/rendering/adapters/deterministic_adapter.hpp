@@ -29,7 +29,8 @@ public:
 
 
 template<typename Float, deterministic_sensor<Float> Sensor, deterministic_lens<Float> Lens>
-constexpr deterministic_adapter<Float, Sensor, Lens>::deterministic_adapter(Sensor const &sensor, Lens const &lens) noexcept
+constexpr deterministic_adapter<Float, Sensor, Lens>::deterministic_adapter(
+    Sensor const &sensor, Lens const &lens) noexcept
     : sensor_{sensor}
     , lens_{lens}
 {
