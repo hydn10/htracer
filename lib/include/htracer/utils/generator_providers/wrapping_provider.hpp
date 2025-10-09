@@ -21,13 +21,13 @@ public:
 };
 
 
-wrapping_provider::wrapping_provider(std::default_random_engine &g) noexcept
+inline wrapping_provider::wrapping_provider(std::default_random_engine &g) noexcept
     : generator_{g}
 {
 }
 
 
-std::default_random_engine &
+inline std::default_random_engine &
 wrapping_provider::get_generator() const noexcept
 {
   return generator_;

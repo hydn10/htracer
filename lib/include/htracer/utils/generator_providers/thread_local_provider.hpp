@@ -18,7 +18,7 @@ public:
 };
 
 
-std::default_random_engine &
+inline std::default_random_engine &
 thread_local_provider::get_generator() const
 {
   thread_local std::default_random_engine generator(std::random_device{}());

@@ -163,7 +163,7 @@
       "inherits": [
         "x64",
         "windows-clang-base",
-        "gccclang-warnings",
+        "msvc-warnings",
         "debug",
         "build-ray",
         "build-tests",
@@ -176,7 +176,7 @@
       "inherits": [
         "x64",
         "windows-clang-base",
-        "gccclang-warnings",
+        "msvc-warnings",
         "release",
         "build-ray",
         "build-tests",
