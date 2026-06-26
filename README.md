@@ -113,12 +113,12 @@ main()
   ht_f64::pinhole_lens const lens;
 
   // `make_renderer` will return the appropriate renderer for the properties of our components.
-  // In this case the all our components are deterministic (they have no randomness)
+  // In this case all our components are deterministic (they have no randomness)
   // and so a deterministic_renderer will be returned.
-  auto const renderer = htracer::rendering::make_renderer(batcher, scene, camera, sensor, lens);
+  auto const renderer = htracer::rendering::make_renderer(camera, batcher, sensor, lens);
 
   // `unseq` means it will run on a single thread. Use `par_unseq` for multithreading.
-  auto const image = renderer.render(htracer::rendering::unseq);
+  auto const image = renderer.render(htracer::rendering::unseq, scene);
 
   // Save the image in PPM format with 1 byte per value (3 bytes per pixel).
   htracer::outputs::ppm const ppm;

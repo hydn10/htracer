@@ -5,11 +5,14 @@
 #include <htracer/colors/colors.hpp>
 #include <htracer/rendering/camera.hpp>
 #include <htracer/rendering/concepts.hpp>
+#include <htracer/rendering/detail/component_ref.hpp>
 #include <htracer/rendering/image.hpp>
+#include <htracer/rendering/samples_per_pixel.hpp>
 #include <htracer/rendering/samplers/deterministic_sampler.hpp>
-#include <htracer/staging/scene.hpp>
 
 #include <algorithm>
+#include <type_traits>
+#include <utility>
 #include <vector>
 
 
@@ -19,49 +22,44 @@ namespace htracer::rendering::renderers
 template<
     typename Float,
     typename Batcher,
-    typename Scene,
-    deterministic_sensor<Float> Sensor,
-    deterministic_lens<Float> Lens>
+    typename Sensor,
+    typename Lens>
+  requires deterministic_sensor<detail_::component_type<Sensor>, Float>
+        && deterministic_lens<detail_::component_type<Lens>, Float>
 class deterministic_renderer
 {
-  Batcher const &batcher_;
-  Scene const &scene_;
-  camera<Float> const &camera_;
-  Sensor const &sensor_;
-  Lens const &lens_;
+  camera<Float> camera_;
+  [[no_unique_address]] Batcher batcher_;
+  [[no_unique_address]] Sensor sensor_;
+  [[no_unique_address]] Lens lens_;
 
 public:
-  deterministic_renderer(
-      Batcher const &batcher,
-      Scene const &scene,
-      camera<Float> const &camera,
-      Sensor const &sensor,
-      Lens const &lens) noexcept;
+  constexpr deterministic_renderer(camera<Float> camera, Batcher batcher, Sensor sensor, Lens lens);
 
-  template<typename ExPolicy>
+  template<typename ExPolicy, typename Scene>
   [[nodiscard]]
   image<Float>
-  render(ExPolicy &&) const;
+  render(ExPolicy &&, Scene const &scene) const;
+
+  template<typename ExPolicy, typename Scene>
+  image<Float>
+  render(ExPolicy &&, Scene const &, samples_per_pixel) const = delete;
 };
 
 
 template<
     typename Float,
     typename Batcher,
-    typename Scene,
-    deterministic_sensor<Float> Sensor,
-    deterministic_lens<Float> Lens>
-deterministic_renderer<Float, Batcher, Scene, Sensor, Lens>::deterministic_renderer(
-    Batcher const &batcher,
-    Scene const &scene,
-    camera<Float> const &camera,
-    Sensor const &sensor,
-    Lens const &lens) noexcept
-    : batcher_{batcher}
-    , scene_{scene}
-    , camera_{camera}
-    , sensor_{sensor}
-    , lens_{lens}
+    typename Sensor,
+    typename Lens>
+  requires deterministic_sensor<detail_::component_type<Sensor>, Float>
+        && deterministic_lens<detail_::component_type<Lens>, Float>
+constexpr deterministic_renderer<Float, Batcher, Sensor, Lens>::deterministic_renderer(
+    camera<Float> camera, Batcher batcher, Sensor sensor, Lens lens)
+    : camera_{std::move(camera)}
+    , batcher_{std::move(batcher)}
+    , sensor_{std::move(sensor)}
+    , lens_{std::move(lens)}
 {
 }
 
@@ -69,18 +67,23 @@ deterministic_renderer<Float, Batcher, Scene, Sensor, Lens>::deterministic_rende
 template<
     typename Float,
     typename Batcher,
-    typename Scene,
-    deterministic_sensor<Float> Sensor,
-    deterministic_lens<Float> Lens>
-template<typename ExPolicy>
+    typename Sensor,
+    typename Lens>
+  requires deterministic_sensor<detail_::component_type<Sensor>, Float>
+        && deterministic_lens<detail_::component_type<Lens>, Float>
+template<typename ExPolicy, typename Scene>
 image<Float>
-deterministic_renderer<Float, Batcher, Scene, Sensor, Lens>::render(ExPolicy &&) const
+deterministic_renderer<Float, Batcher, Sensor, Lens>::render(ExPolicy &&, Scene const &scene) const
 {
   std::vector<colors::srgb_linear<Float>> pixels(camera_.v_res() * camera_.h_res());
   samplers::detail_::deterministic_sampler sampler;
 
-  auto range = batcher_.make_range(camera_);
-  auto accum = batcher_.make_accumulator(pixels, sampler, scene_, camera_, sensor_, lens_);
+  auto const &batcher = detail_::component_ref(batcher_);
+  auto const &sensor = detail_::component_ref(sensor_);
+  auto const &lens = detail_::component_ref(lens_);
+
+  auto range = batcher.make_range(camera_);
+  auto accum = batcher.make_accumulator(pixels, sampler, scene, camera_, sensor, lens);
 
   constexpr auto std_policy = std::remove_cvref_t<ExPolicy>::get_std_policy();
 

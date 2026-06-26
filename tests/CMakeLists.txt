@@ -1,2 +1,3 @@
 add_subdirectory(compare_output)
 add_subdirectory(headers_odr_guard)
+add_subdirectory(renderer_api)

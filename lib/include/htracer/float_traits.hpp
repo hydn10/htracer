@@ -13,6 +13,7 @@
 #include <htracer/rendering/renderers/deterministic_renderer.hpp>
 #include <htracer/rendering/renderers/randomized_renderer.hpp>
 #include <htracer/rendering/rendering.hpp>
+#include <htracer/rendering/samples_per_pixel.hpp>
 #include <htracer/rendering/samplers/deterministic_sampler.hpp>
 #include <htracer/rendering/samplers/repeat_sampler.hpp>
 #include <htracer/rendering/sensors/point_sensor.hpp>

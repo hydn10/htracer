@@ -99,8 +99,8 @@ main()
   ht_f64::thin_lens const lens(.05, 3.2);
 
 
-  auto const renderer = htracer::rendering::make_renderer(batcher, scene, camera, sensor, lens);
-  auto const image = renderer.render(htracer::rendering::par_unseq, 200);
+  auto const renderer = htracer::rendering::make_renderer(camera, batcher, sensor, lens);
+  auto const image = renderer.render(htracer::rendering::par_unseq, scene, htracer::rendering::samples_per_pixel{200});
 
   htracer::outputs::ppm const ppm;
   auto constexpr ppmbpv = htracer::outputs::ppm::bytes_per_value::BPV2;

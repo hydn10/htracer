@@ -68,8 +68,8 @@ main(int argc, char **argv)
   ht_f64::pinhole_lens const lens;
   // ht_f64::thin_lens lens(0.2, 3);
 
-  auto const renderer = htracer::rendering::make_renderer(batcher, scene, camera, sensor, lens);
-  auto const image = renderer.render(htracer::rendering::par_unseq, 20);
+  auto const renderer = htracer::rendering::make_renderer(camera, batcher, sensor, lens);
+  auto const image = renderer.render(htracer::rendering::par_unseq, scene, htracer::rendering::samples_per_pixel{20});
 
   std::filesystem::path const filename = (args.size() > 1) ? args[1] : "out.ppm";
 

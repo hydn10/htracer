@@ -14,7 +14,7 @@ namespace htracer::rendering
 {
 
 template<typename T, typename Float>
-concept deterministic_lens = requires(T a) {
+concept deterministic_lens = requires(T const a) {
   {
     a.get_ray(
         Float{},
@@ -28,7 +28,7 @@ concept deterministic_lens = requires(T a) {
 
 
 template<typename T, typename Float>
-concept nondeterministic_lens = requires(T a, std::default_random_engine &g) {
+concept nondeterministic_lens = requires(T const a, std::default_random_engine &g) {
   {
     a.get_ray(
         Float{},
@@ -43,13 +43,13 @@ concept nondeterministic_lens = requires(T a, std::default_random_engine &g) {
 
 
 template<typename T, typename Float>
-concept deterministic_sensor = requires(T a) {
+concept deterministic_sensor = requires(T const a) {
   { a.get_coords(uint32_t{}, uint32_t{}) } -> std::same_as<std::pair<Float, Float>>;
 };
 
 
 template<typename T, typename Float>
-concept nondeterministic_sensor = requires(T a, std::default_random_engine &g) {
+concept nondeterministic_sensor = requires(T const a, std::default_random_engine &g) {
   { a.get_coords(uint32_t{}, uint32_t{}, g) } -> std::same_as<std::pair<Float, Float>>;
 };
 

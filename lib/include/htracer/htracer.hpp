@@ -22,6 +22,7 @@
 #include <htracer/rendering/renderers/deterministic_renderer.hpp> // IWYU pragma: export
 #include <htracer/rendering/renderers/randomized_renderer.hpp>    // IWYU pragma: export
 #include <htracer/rendering/rendering.hpp>                        // IWYU pragma: export
+#include <htracer/rendering/samples_per_pixel.hpp>                // IWYU pragma: export
 #include <htracer/rendering/samplers/deterministic_sampler.hpp>   // IWYU pragma: export
 #include <htracer/rendering/samplers/repeat_sampler.hpp>          // IWYU pragma: export
 #include <htracer/rendering/sensors/point_sensor.hpp>             // IWYU pragma: export
