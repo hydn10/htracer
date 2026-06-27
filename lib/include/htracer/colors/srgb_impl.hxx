@@ -2,8 +2,8 @@
 #define HTRACER_COLORS_SRGBIMPL_HXX
 
 
-#include "srgb.hxx"
-#include "srgb_linear.hxx"
+#include "srgb.hxx"        // IWYU pragma: export
+#include "srgb_linear.hxx" // IWYU pragma: export
 
 #include <htracer/utils/vector_transform.hpp>
 
