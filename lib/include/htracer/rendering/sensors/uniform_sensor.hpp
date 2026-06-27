@@ -2,6 +2,7 @@
 #define HTRACER_RAYTRACING_PIXEL_SAMPLERS_UNIFORM_SENSOR_HPP
 
 
+#include <cstdint>
 #include <random>
 #include <utility>
 

@@ -8,6 +8,7 @@
 #include <htracer/rendering/concepts.hpp>
 #include <htracer/staging/scene.hpp>
 
+#include <cstdint>
 #include <ranges>
 
 

@@ -9,6 +9,8 @@
 #include <htracer/rendering/tracing.hpp>
 #include <htracer/staging/scene.hpp>
 
+#include <cstdint>
+
 
 namespace htracer::rendering::samplers::detail_
 {

@@ -2,6 +2,7 @@
 #define HTRACER_RENDERING_SENSORS_POINT_SENSOR_HPP
 
 
+#include <cstdint>
 #include <utility>
 
 

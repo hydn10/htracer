@@ -5,6 +5,7 @@
 #include <htracer/rendering/image.hpp>
 
 #include <bit>
+#include <cstdint>
 #include <filesystem>
 #include <fstream>
 #include <string>

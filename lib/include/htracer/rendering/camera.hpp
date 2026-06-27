@@ -5,6 +5,7 @@
 #include <htracer/vector.hpp>
 
 #include <concepts>
+#include <cstdint>
 
 
 namespace htracer::rendering

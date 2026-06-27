@@ -12,6 +12,7 @@
 #include <htracer/utils/generator_providers/wrapping_provider.hpp>
 
 #include <algorithm>
+#include <cstdint>
 #include <type_traits>
 #include <vector>
 

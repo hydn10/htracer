@@ -5,6 +5,8 @@
 #include <htracer/rendering/camera.hpp>
 #include <htracer/rendering/concepts.hpp>
 
+#include <cstdint>
+
 
 namespace htracer::rendering::adapters::detail_
 {

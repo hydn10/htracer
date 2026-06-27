@@ -89,6 +89,14 @@
       }
     },
     {
+      "name": "enable-asan-ubsan",
+      "hidden": true,
+      "environment": {
+        "CXXFLAGS": "$penv{CXXFLAGS} -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+        "LDFLAGS": "$penv{LDFLAGS} -fsanitize=address,undefined"
+      }
+    },
+    {
       "name": "x64",
       "hidden": true,
       "architecture": {
@@ -229,7 +237,6 @@
         "linux-base",
         "gccclang-warnings",
         "release",
-        "enable-clang-tidy",
         "build-ray",
         "build-tests",
         "build-examples"
@@ -239,17 +246,84 @@
       }
     },
     {
+      "name": "ghci-ubuntu-quality",
+      "inherits": [
+        "x64",
+        "linux-base",
+        "gccclang-warnings",
+        "enable-clang-tidy",
+        "enable-asan-ubsan",
+        "debug",
+        "build-ray",
+        "build-tests",
+        "build-examples"
+      ],
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "clang++"
+      }
+    },
+    {
       "name": "ghci-windows",
       "inherits": [
         "x64",
         "windows-cl-base",
         "msvc-warnings",
         "release",
-        "enable-clang-tidy",
         "build-ray",
         "build-tests",
         "build-examples"
       ]
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "ghci-ubuntu",
+      "configurePreset": "ghci-ubuntu"
+    },
+    {
+      "name": "ghci-ubuntu-quality",
+      "configurePreset": "ghci-ubuntu-quality"
+    },
+    {
+      "name": "ghci-windows",
+      "configurePreset": "ghci-windows"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "test-defaults",
+      "hidden": true,
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error"
+      }
+    },
+    {
+      "name": "sanitizer-runtime",
+      "hidden": true,
+      "environment": {
+        "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+      }
+    },
+    {
+      "name": "ghci-ubuntu",
+      "inherits": "test-defaults",
+      "configurePreset": "ghci-ubuntu"
+    },
+    {
+      "name": "ghci-ubuntu-quality",
+      "inherits": [
+        "test-defaults",
+        "sanitizer-runtime"
+      ],
+      "configurePreset": "ghci-ubuntu-quality"
+    },
+    {
+      "name": "ghci-windows",
+      "inherits": "test-defaults",
+      "configurePreset": "ghci-windows"
     }
   ]
 }

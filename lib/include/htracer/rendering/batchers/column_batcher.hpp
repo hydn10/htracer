@@ -8,6 +8,7 @@
 #include <htracer/staging/scene.hpp>
 
 #include <concepts>
+#include <cstdint>
 #include <ranges>
 #include <vector>
 

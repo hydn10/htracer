@@ -5,6 +5,12 @@
     let
       pkgs-lin64 = import nixpkgs { system = "x86_64-linux"; };
       htracerDrv-lin64 = pkgs-lin64.callPackage ./default.nix {};
+      htracerQualityCheck-lin64 = pkgs-lin64.callPackage ./nix/quality.nix {
+        htracer = htracerDrv-lin64;
+      };
+      htracerInstalledConsumerCheck-lin64 = pkgs-lin64.callPackage ./nix/installed-consumer.nix {
+        htracer = htracerDrv-lin64;
+      };
     in
     {
       overlays.default = final: prev: { htracer = self.packages.x86_64-linux.htracer; };
@@ -17,19 +23,7 @@
         pkg = htracerDrv-lin64;
       };
 
-      checks.x86_64-linux.default =
-        let
-          drvWithTestsRayExamples = htracerDrv-lin64.override {
-            buildTests = true;
-            buildRay = true;
-            buildExamples = true;
-          };
-        in
-          drvWithTestsRayExamples.overrideAttrs (oldAttrs: {
-            cmakeFlags = oldAttrs.cmakeFlags ++ [
-              "-DCMAKE_CXX_CLANG_TIDY=${pkgs-lin64.clang-tools}/bin/clang-tidy;--warnings-as-errors=*"
-            ];
-            doCheck = true;
-          });
+      checks.x86_64-linux.quality = htracerQualityCheck-lin64;
+      checks.x86_64-linux.installed-consumer = htracerInstalledConsumerCheck-lin64;
     };
 }

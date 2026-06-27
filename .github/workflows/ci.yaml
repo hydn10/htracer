@@ -6,71 +6,130 @@ on:
   pull_request:
     branches: [ "main" ]
 
+permissions:
+  contents: read
+
 jobs:
-  build-linux:
-    # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
-    # You can convert this to a matrix build if you need cross-platform coverage.
-    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
+  build-linux-gcc:
     runs-on: ubuntu-latest
 
     env:
       CONFIG_PRESET: ghci-ubuntu
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - name: Set up dev tools
+      - name: Set up GCC build tools
         run: |
           sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
           sudo apt-get update
-          sudo apt-get install build-essential g++-14 cmake 
+          sudo apt-get install build-essential g++-14 cmake
 
       - name: Configure CMake
-        run: cmake --preset ${{env.CONFIG_PRESET}}
+        run: cmake --preset ${{ env.CONFIG_PRESET }}
 
       - name: Build
-        run: cmake --build ${{github.workspace}}/out/build/${{env.CONFIG_PRESET}}
+        run: cmake --build --preset ${{ env.CONFIG_PRESET }}
 
       - name: Test
-        run: cmake --build ${{github.workspace}}/out/build/${{env.CONFIG_PRESET}} --target test
+        run: ctest --preset ${{ env.CONFIG_PRESET }}
+
+      - name: Install
+        run: cmake --install out/build/${{ env.CONFIG_PRESET }} --prefix out/install/${{ env.CONFIG_PRESET }}
+
+      - name: Configure installed-package consumer
+        run: cmake -S tests/installed_consumer -B out/consumer/${{ env.CONFIG_PRESET }} -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${{ github.workspace }}/out/install/${{ env.CONFIG_PRESET }}
+
+      - name: Build installed-package consumer
+        run: cmake --build out/consumer/${{ env.CONFIG_PRESET }}
+
+      - name: Test installed-package consumer
+        run: ctest --test-dir out/consumer/${{ env.CONFIG_PRESET }} --output-on-failure --no-tests=error
 
   build-linux-nix:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: cachix/install-nix-action@v30
+      - uses: actions/checkout@v7
+      - uses: cachix/install-nix-action@v31
 
-      - name: Build
+      - name: Build Nix package
         run: nix build -L
 
-      - name: Check
-        run: nix flake check -L
+      - name: Test installed package with a Nix consumer
+        run: nix build -L .#checks.x86_64-linux.installed-consumer
 
-  build-windows:
+  build-windows-msvc:
     runs-on: windows-latest
 
     env:
       CONFIG_PRESET: ghci-windows
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - name: Set up environment
+      - name: Set up MSVC environment
         run: |
           $info = vswhere -latest -format json | ConvertFrom-Json
           $module_name = 'Microsoft.VisualStudio.DevShell.dll'
           $module_path = Join-Path $info.installationPath 'Common7' 'Tools' $module_name
           Import-Module $module_path
           Enter-VsDevShell -VsInstanceId $info.instanceId -SkipAutomaticLocation -DevCmdArguments "-arch=x64 -no_logo"
-          # Update the current environment:
           Get-ChildItem 'env:' | %{ echo "$($_.Name)=$($_.Value)" >> $env:GITHUB_ENV }
 
       - name: Configure CMake
-        run: cmake --preset ${{env.CONFIG_PRESET}}
+        run: cmake --preset ${{ env.CONFIG_PRESET }}
 
       - name: Build
-        run: cmake --build ${{github.workspace}}/out/build/${{env.CONFIG_PRESET}}
+        run: cmake --build --preset ${{ env.CONFIG_PRESET }}
 
       - name: Test
-        run: cmake --build ${{github.workspace}}/out/build/${{env.CONFIG_PRESET}} --target test
+        run: ctest --preset ${{ env.CONFIG_PRESET }}
+
+      - name: Install
+        run: cmake --install out/build/${{ env.CONFIG_PRESET }} --prefix out/install/${{ env.CONFIG_PRESET }}
+
+      - name: Configure installed-package consumer
+        run: cmake -S tests/installed_consumer -B out/consumer/${{ env.CONFIG_PRESET }} -G Ninja -DCMAKE_BUILD_TYPE=Release "-DCMAKE_PREFIX_PATH=${{ github.workspace }}/out/install/${{ env.CONFIG_PRESET }}"
+
+      - name: Build installed-package consumer
+        run: cmake --build out/consumer/${{ env.CONFIG_PRESET }}
+
+      - name: Test installed-package consumer
+        run: ctest --test-dir out/consumer/${{ env.CONFIG_PRESET }} --output-on-failure --no-tests=error
+
+  quality-ubuntu:
+    runs-on: ubuntu-latest
+
+    env:
+      CONFIG_PRESET: ghci-ubuntu-quality
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Clang quality tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install clang clang-tidy cmake
+
+      - name: Configure CMake
+        run: cmake --preset ${{ env.CONFIG_PRESET }}
+
+      - name: Build with Clang, sanitizers, and clang-tidy
+        run: cmake --build --preset ${{ env.CONFIG_PRESET }}
+
+      - name: Verify every public header independently
+        run: cmake --build --preset ${{ env.CONFIG_PRESET }} --target all_verify_interface_header_sets
+
+      - name: Test with ASan and UBSan
+        run: ctest --preset ${{ env.CONFIG_PRESET }}
+
+  quality-nix:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+      - uses: cachix/install-nix-action@v31
+
+      - name: Run Nix-pinned Clang quality checks
+        run: nix build -L .#checks.x86_64-linux.quality

@@ -5,6 +5,7 @@
 #include <htracer/geometries/ray.hpp>
 
 #include <concepts>
+#include <cstdint>
 #include <random>
 #include <utility>
 
