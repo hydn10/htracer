@@ -56,8 +56,9 @@ repeat_sampler<GeneratorProvider>::render_pixel(
     Lens const &lens) const
 {
   colors::srgb_linear<Float> accumulated{0, 0, 0};
+  auto generator_state = rep_.make_state(v_idx, h_idx);
   adapters::detail_::randomized_adapter<Float, Sensor, Lens, typename GeneratorProvider::generator_type> adapter{
-      sensor, lens, rep_.get_generator()};
+      sensor, lens, generator_state.get()};
 
   for ([[maybe_unused]]
        auto const sample_idx : std::views::iota(uint32_t{0}, num_samples_))

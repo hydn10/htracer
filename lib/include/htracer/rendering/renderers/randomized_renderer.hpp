@@ -7,13 +7,17 @@
 #include <htracer/rendering/concepts.hpp>
 #include <htracer/rendering/detail/component_ref.hpp>
 #include <htracer/rendering/image.hpp>
+#include <htracer/rendering/random_engine.hpp>
+#include <htracer/rendering/random_seed.hpp>
 #include <htracer/rendering/samples_per_pixel.hpp>
 #include <htracer/rendering/samplers/repeat_sampler.hpp>
+#include <htracer/utils/generator_providers/seeded_provider.hpp>
 #include <htracer/utils/generator_providers/thread_local_provider.hpp>
 #include <htracer/utils/generator_providers/wrapping_provider.hpp>
 
 #include <algorithm>
 #include <cstdint>
+#include <random>
 #include <type_traits>
 #include <vector>
 
@@ -41,6 +45,11 @@ public:
   [[nodiscard]]
   image<Float>
   render(ExPolicy &&policy, Scene const &scene, samples_per_pixel samples) const;
+
+  template<typename ExPolicy, typename Scene>
+  [[nodiscard]]
+  image<Float>
+  render(ExPolicy &&policy, Scene const &scene, samples_per_pixel samples, random_seed seed) const;
 
   template<typename ExPolicy, typename Scene>
   image<Float>
@@ -95,16 +104,28 @@ randomized_renderer<Float, Batcher, Sensor, Lens>::render(
   // Use thread-safe engine only if needed.
   if constexpr (std::remove_cvref_t<ExPolicy>::is_parallel)
   {
-    utils::generator_providers::detail_::thread_local_provider random_engine_provider;
+    utils::generator_providers::detail_::thread_local_provider<random_engine> random_engine_provider;
     return render(std::forward<ExPolicy>(policy), scene, samples, std::move(random_engine_provider));
   }
   else
   {
-    std::default_random_engine gen;
-    utils::generator_providers::detail_::wrapping_provider random_engine_provider(gen);
+    random_engine gen(std::random_device{}());
+    utils::generator_providers::detail_::wrapping_provider<random_engine> random_engine_provider(gen);
 
     return render(std::forward<ExPolicy>(policy), scene, samples, std::move(random_engine_provider));
   }
+}
+
+
+template<typename Float, typename Batcher, typename Sensor, typename Lens>
+  requires sensor<detail_::component_type<Sensor>, Float> && lens<detail_::component_type<Lens>, Float>
+template<typename ExPolicy, typename Scene>
+image<Float>
+randomized_renderer<Float, Batcher, Sensor, Lens>::render(
+    ExPolicy &&policy, Scene const &scene, samples_per_pixel samples, random_seed seed) const
+{
+  utils::generator_providers::detail_::seeded_provider<random_engine> random_engine_provider(seed);
+  return render(std::forward<ExPolicy>(policy), scene, samples, std::move(random_engine_provider));
 }
 
 } // namespace htracer::rendering::renderers

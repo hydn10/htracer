@@ -49,8 +49,8 @@ main()
   // and so a deterministic_renderer will be returned.
   auto const renderer = htracer::rendering::make_renderer(camera, batcher, sensor, lens);
 
-  // `unseq` means it will run on a single thread. Use `par_unseq` for multithreading.
-  auto const image = renderer.render(htracer::rendering::unseq, scene);
+  // `seq` runs on a single thread. Use `par` to opt in to parallel rendering.
+  auto const image = renderer.render(htracer::rendering::seq, scene);
 
   // Save the image in PPM format with 1 byte per value (3 bytes per pixel).
   htracer::outputs::ppm const ppm;

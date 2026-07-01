@@ -19,6 +19,8 @@
 #include <htracer/rendering/lenses/pinhole_lens.hpp>              // IWYU pragma: export
 #include <htracer/rendering/lenses/thin_lens.hpp>                 // IWYU pragma: export
 #include <htracer/rendering/policies.hpp>                         // IWYU pragma: export
+#include <htracer/rendering/random_engine.hpp>                    // IWYU pragma: export
+#include <htracer/rendering/random_seed.hpp>                      // IWYU pragma: export
 #include <htracer/rendering/renderers/deterministic_renderer.hpp> // IWYU pragma: export
 #include <htracer/rendering/renderers/randomized_renderer.hpp>    // IWYU pragma: export
 #include <htracer/rendering/rendering.hpp>                        // IWYU pragma: export

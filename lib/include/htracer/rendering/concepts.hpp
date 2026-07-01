@@ -3,10 +3,10 @@
 
 
 #include <htracer/geometries/ray.hpp>
+#include <htracer/rendering/random_engine.hpp>
 
 #include <concepts>
 #include <cstdint>
-#include <random>
 #include <utility>
 
 
@@ -28,7 +28,7 @@ concept deterministic_lens = requires(T const a) {
 
 
 template<typename T, typename Float>
-concept nondeterministic_lens = requires(T const a, std::default_random_engine &g) {
+concept nondeterministic_lens = requires(T const a, random_engine &g) {
   {
     a.get_ray(
         Float{},
@@ -49,7 +49,7 @@ concept deterministic_sensor = requires(T const a) {
 
 
 template<typename T, typename Float>
-concept nondeterministic_sensor = requires(T const a, std::default_random_engine &g) {
+concept nondeterministic_sensor = requires(T const a, random_engine &g) {
   { a.get_coords(uint32_t{}, uint32_t{}, g) } -> std::same_as<std::pair<Float, Float>>;
 };
 

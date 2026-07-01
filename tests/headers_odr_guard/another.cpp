@@ -8,7 +8,7 @@
 namespace another
 {
 
-size_t
+std::size_t
 get_v3_size()
 {
   using ht_f64 = htracer::float_traits<double>;

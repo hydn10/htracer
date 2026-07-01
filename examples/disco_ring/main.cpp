@@ -100,7 +100,11 @@ main()
 
 
   auto const renderer = htracer::rendering::make_renderer(camera, batcher, sensor, lens);
-  auto const image = renderer.render(htracer::rendering::par_unseq, scene, htracer::rendering::samples_per_pixel{200});
+  auto const image = renderer.render(
+      htracer::rendering::par,
+      scene,
+      htracer::rendering::samples_per_pixel{200},
+      htracer::rendering::random_seed{1234});
 
   htracer::outputs::ppm const ppm;
   auto constexpr ppmbpv = htracer::outputs::ppm::bytes_per_value::BPV2;

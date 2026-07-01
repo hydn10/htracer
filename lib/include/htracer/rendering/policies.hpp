@@ -8,32 +8,32 @@
 namespace htracer::rendering
 {
 
-struct unsequenced_policy
+struct sequenced_policy
 {
   static inline constexpr bool is_parallel = false;
   [[nodiscard]]
   static inline constexpr auto
   get_std_policy() noexcept
   {
-    return std::execution::unseq;
+    return std::execution::seq;
   }
 };
 
 
-struct parallel_unsequenced_policy
+struct parallel_policy
 {
   static inline constexpr bool is_parallel = true;
   [[nodiscard]]
   static inline constexpr auto
   get_std_policy() noexcept
   {
-    return std::execution::par_unseq;
+    return std::execution::par;
   }
 };
 
 
-inline constexpr unsequenced_policy unseq;
-inline constexpr parallel_unsequenced_policy par_unseq;
+inline constexpr sequenced_policy seq;
+inline constexpr parallel_policy par;
 
 } // namespace htracer::rendering
 
