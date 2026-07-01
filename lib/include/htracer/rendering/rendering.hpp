@@ -5,6 +5,7 @@
 #include <htracer/rendering/camera.hpp>
 #include <htracer/rendering/concepts.hpp>
 #include <htracer/rendering/detail/component_ref.hpp>
+#include <htracer/rendering/policies.hpp>
 #include <htracer/rendering/renderers/deterministic_renderer.hpp>
 #include <htracer/rendering/renderers/randomized_renderer.hpp>
 #include <htracer/rendering/samples_per_pixel.hpp>
@@ -46,7 +47,14 @@ make_renderer(camera<Float> camera_arg, Batcher &&batcher_arg, Sensor &&sensor_a
 }
 
 
-template<typename ExPolicy, typename Scene, typename Float, typename Batcher, typename Sensor, typename Lens, typename... Args>
+template<
+    rendering_policy ExPolicy,
+    typename Scene,
+    typename Float,
+    typename Batcher,
+    typename Sensor,
+    typename Lens,
+    typename... Args>
 [[nodiscard]]
 constexpr auto
 render(

@@ -2,38 +2,25 @@
 #define HTRACER_RENDERING_POLICIES_HPP
 
 
+#include <concepts>
 #include <execution>
+#include <type_traits>
 
 
 namespace htracer::rendering
 {
 
-struct unsequenced_policy
-{
-  static inline constexpr bool is_parallel = false;
-  [[nodiscard]]
-  static inline constexpr auto
-  get_std_policy() noexcept
-  {
-    return std::execution::unseq;
-  }
-};
+using sequenced_policy = std::execution::sequenced_policy;
+using parallel_policy = std::execution::parallel_policy;
 
 
-struct parallel_unsequenced_policy
-{
-  static inline constexpr bool is_parallel = true;
-  [[nodiscard]]
-  static inline constexpr auto
-  get_std_policy() noexcept
-  {
-    return std::execution::par_unseq;
-  }
-};
+inline constexpr sequenced_policy seq = std::execution::seq;
+inline constexpr parallel_policy par = std::execution::par;
 
 
-inline constexpr unsequenced_policy unseq;
-inline constexpr parallel_unsequenced_policy par_unseq;
+template<typename T>
+concept rendering_policy =
+    std::same_as<std::remove_cvref_t<T>, sequenced_policy> || std::same_as<std::remove_cvref_t<T>, parallel_policy>;
 
 } // namespace htracer::rendering
 

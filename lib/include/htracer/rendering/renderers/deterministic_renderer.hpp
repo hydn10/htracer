@@ -7,11 +7,11 @@
 #include <htracer/rendering/concepts.hpp>
 #include <htracer/rendering/detail/component_ref.hpp>
 #include <htracer/rendering/image.hpp>
+#include <htracer/rendering/policies.hpp>
 #include <htracer/rendering/samples_per_pixel.hpp>
 #include <htracer/rendering/samplers/deterministic_sampler.hpp>
 
 #include <algorithm>
-#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -36,12 +36,12 @@ class deterministic_renderer
 public:
   constexpr deterministic_renderer(camera<Float> camera, Batcher batcher, Sensor sensor, Lens lens);
 
-  template<typename ExPolicy, typename Scene>
+  template<rendering_policy ExPolicy, typename Scene>
   [[nodiscard]]
   image<Float>
   render(ExPolicy &&, Scene const &scene) const;
 
-  template<typename ExPolicy, typename Scene>
+  template<rendering_policy ExPolicy, typename Scene>
   image<Float>
   render(ExPolicy &&, Scene const &, samples_per_pixel) const = delete;
 };
@@ -71,9 +71,9 @@ template<
     typename Lens>
   requires deterministic_sensor<detail_::component_type<Sensor>, Float>
         && deterministic_lens<detail_::component_type<Lens>, Float>
-template<typename ExPolicy, typename Scene>
+template<rendering_policy ExPolicy, typename Scene>
 image<Float>
-deterministic_renderer<Float, Batcher, Sensor, Lens>::render(ExPolicy &&, Scene const &scene) const
+deterministic_renderer<Float, Batcher, Sensor, Lens>::render(ExPolicy &&policy, Scene const &scene) const
 {
   std::vector<colors::srgb_linear<Float>> pixels(camera_.v_res() * camera_.h_res());
   samplers::detail_::deterministic_sampler sampler;
@@ -85,9 +85,7 @@ deterministic_renderer<Float, Batcher, Sensor, Lens>::render(ExPolicy &&, Scene 
   auto range = batcher.make_range(camera_);
   auto accum = batcher.make_accumulator(pixels, sampler, scene, camera_, sensor, lens);
 
-  constexpr auto std_policy = std::remove_cvref_t<ExPolicy>::get_std_policy();
-
-  std::for_each(std_policy, std::begin(range), std::end(range), std::move(accum));
+  std::for_each(std::forward<ExPolicy>(policy), std::begin(range), std::end(range), std::move(accum));
 
   return {camera_.h_res(), camera_.v_res(), std::move(pixels)};
 }

@@ -3,10 +3,10 @@
 
 
 #include <htracer/geometries/ray.hpp>
+#include <htracer/rendering/random_engine.hpp>
 
 #include <concepts>
 #include <cstdint>
-#include <random>
 #include <utility>
 
 
@@ -27,8 +27,8 @@ concept deterministic_lens = requires(T const a) {
 };
 
 
-template<typename T, typename Float>
-concept nondeterministic_lens = requires(T const a, std::default_random_engine &g) {
+template<typename T, typename Float, typename Generator = random_engine>
+concept nondeterministic_lens = requires(T const a, Generator &g) {
   {
     a.get_ray(
         Float{},
@@ -48,18 +48,18 @@ concept deterministic_sensor = requires(T const a) {
 };
 
 
-template<typename T, typename Float>
-concept nondeterministic_sensor = requires(T const a, std::default_random_engine &g) {
+template<typename T, typename Float, typename Generator = random_engine>
+concept nondeterministic_sensor = requires(T const a, Generator &g) {
   { a.get_coords(uint32_t{}, uint32_t{}, g) } -> std::same_as<std::pair<Float, Float>>;
 };
 
 
-template<typename T, typename Float>
-concept lens = deterministic_lens<T, Float> || nondeterministic_lens<T, Float>;
+template<typename T, typename Float, typename Generator = random_engine>
+concept lens = deterministic_lens<T, Float> || nondeterministic_lens<T, Float, Generator>;
 
 
-template<typename T, typename Float>
-concept sensor = deterministic_sensor<T, Float> || nondeterministic_sensor<T, Float>;
+template<typename T, typename Float, typename Generator = random_engine>
+concept sensor = deterministic_sensor<T, Float> || nondeterministic_sensor<T, Float, Generator>;
 
 } // namespace htracer::rendering
 

@@ -24,7 +24,11 @@ class repeat_sampler
 public:
   repeat_sampler(uint32_t num_samples, GeneratorProvider rep) noexcept;
 
-  template<typename Float, typename Scene, sensor<Float> Sensor, lens<Float> Lens>
+  template<
+      typename Float,
+      typename Scene,
+      sensor<Float, typename GeneratorProvider::generator_type> Sensor,
+      lens<Float, typename GeneratorProvider::generator_type> Lens>
   [[nodiscard]]
   colors::srgb_linear<Float>
   render_pixel(
@@ -44,8 +48,13 @@ repeat_sampler<GeneratorProvider>::repeat_sampler(uint32_t num_samples, Generato
 {
 }
 
+
 template<typename GeneratorProvider>
-template<typename Float, typename Scene, sensor<Float> Sensor, lens<Float> Lens>
+template<
+    typename Float,
+    typename Scene,
+    sensor<Float, typename GeneratorProvider::generator_type> Sensor,
+    lens<Float, typename GeneratorProvider::generator_type> Lens>
 colors::srgb_linear<Float>
 repeat_sampler<GeneratorProvider>::render_pixel(
     uint32_t v_idx,
@@ -56,8 +65,9 @@ repeat_sampler<GeneratorProvider>::render_pixel(
     Lens const &lens) const
 {
   colors::srgb_linear<Float> accumulated{0, 0, 0};
-  adapters::detail_::randomized_adapter<Float, Sensor, Lens, typename GeneratorProvider::generator_type> adapter{
-      sensor, lens, rep_.get_generator()};
+  auto generator_state = rep_.make_state(v_idx, h_idx);
+  adapters::detail_::randomized_adapter<Float, typename GeneratorProvider::generator_type, Sensor, Lens> adapter{
+      sensor, lens, generator_state.get()};
 
   for ([[maybe_unused]]
        auto const sample_idx : std::views::iota(uint32_t{0}, num_samples_))
@@ -68,7 +78,6 @@ repeat_sampler<GeneratorProvider>::render_pixel(
 
   return accumulated * (Float{1} / num_samples_);
 }
-
 
 } // namespace htracer::rendering::samplers::detail_
 

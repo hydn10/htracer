@@ -2,27 +2,33 @@
 #define HTRACER_UTILS_GENERATOR_PROVIDERS_THREAD_LOCAL_PROVIDER_HPP
 
 
+#include <htracer/utils/generator_providers/generator_state.hpp>
+
+#include <cstdint>
 #include <random>
 
 
 namespace htracer::utils::generator_providers::detail_
 {
 
+template<typename Generator>
 class thread_local_provider
 {
 public:
-  using generator_type = std::default_random_engine;
+  using generator_type = Generator;
 
-  inline std::default_random_engine &
-  get_generator() const;
+  [[nodiscard]]
+  borrowed_generator_state<Generator>
+  make_state(std::uint32_t, std::uint32_t) const;
 };
 
 
-inline std::default_random_engine &
-thread_local_provider::get_generator() const
+template<typename Generator>
+borrowed_generator_state<Generator>
+thread_local_provider<Generator>::make_state(std::uint32_t, std::uint32_t) const
 {
-  thread_local std::default_random_engine generator(std::random_device{}());
-  return generator;
+  thread_local Generator generator(std::random_device{}());
+  return borrowed_generator_state<Generator>{generator};
 }
 
 } // namespace htracer::utils::generator_providers::detail_

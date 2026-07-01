@@ -11,7 +11,11 @@
 namespace htracer::rendering::adapters::detail_
 {
 
-template<typename Float, sensor<Float> Sensor, lens<Float> Lens, std::uniform_random_bit_generator Generator>
+template<
+    typename Float,
+    std::uniform_random_bit_generator Generator,
+    sensor<Float, Generator> Sensor,
+    lens<Float, Generator> Lens>
 class randomized_adapter
 {
   Sensor const &sensor_;
@@ -31,8 +35,12 @@ public:
 };
 
 
-template<typename Float, sensor<Float> Sensor, lens<Float> Lens, std::uniform_random_bit_generator Generator>
-randomized_adapter<Float, Sensor, Lens, Generator>::randomized_adapter(
+template<
+    typename Float,
+    std::uniform_random_bit_generator Generator,
+    sensor<Float, Generator> Sensor,
+    lens<Float, Generator> Lens>
+randomized_adapter<Float, Generator, Sensor, Lens>::randomized_adapter(
     Sensor const &sensor, Lens const &lens, Generator &generator) noexcept
     : sensor_{sensor}
     , lens_{lens}
@@ -41,9 +49,13 @@ randomized_adapter<Float, Sensor, Lens, Generator>::randomized_adapter(
 }
 
 
-template<typename Float, sensor<Float> Sensor, lens<Float> Lens, std::uniform_random_bit_generator Generator>
+template<
+    typename Float,
+    std::uniform_random_bit_generator Generator,
+    sensor<Float, Generator> Sensor,
+    lens<Float, Generator> Lens>
 auto
-randomized_adapter<Float, Sensor, Lens, Generator>::get_coords(uint32_t v_idx, uint32_t h_idx) const
+randomized_adapter<Float, Generator, Sensor, Lens>::get_coords(uint32_t v_idx, uint32_t h_idx) const
 {
   if constexpr (deterministic_sensor<Sensor, Float>)
   {
@@ -56,9 +68,13 @@ randomized_adapter<Float, Sensor, Lens, Generator>::get_coords(uint32_t v_idx, u
 }
 
 
-template<typename Float, sensor<Float> Sensor, lens<Float> Lens, std::uniform_random_bit_generator Generator>
+template<
+    typename Float,
+    std::uniform_random_bit_generator Generator,
+    sensor<Float, Generator> Sensor,
+    lens<Float, Generator> Lens>
 auto
-randomized_adapter<Float, Sensor, Lens, Generator>::get_ray(Float dv, Float dh, camera<Float> const &camera) const
+randomized_adapter<Float, Generator, Sensor, Lens>::get_ray(Float dv, Float dh, camera<Float> const &camera) const
 {
   if constexpr (deterministic_lens<Lens, Float>)
   {

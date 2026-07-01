@@ -10,6 +10,8 @@
 #include <htracer/rendering/lenses/pinhole_lens.hpp>
 #include <htracer/rendering/lenses/thin_lens.hpp>
 #include <htracer/rendering/policies.hpp>
+#include <htracer/rendering/random_engine.hpp>
+#include <htracer/rendering/random_seed.hpp>
 #include <htracer/rendering/renderers/deterministic_renderer.hpp>
 #include <htracer/rendering/renderers/randomized_renderer.hpp>
 #include <htracer/rendering/rendering.hpp>

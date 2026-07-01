@@ -72,7 +72,7 @@ main(int argc, char const *argv[])
   ht_f64::pinhole_lens const lens;
 
   auto const renderer = htracer::rendering::make_renderer(camera, batcher, sensor, lens);
-  auto const image = renderer.render(htracer::rendering::unseq, scene);
+  auto const image = renderer.render(htracer::rendering::seq, scene);
 
   htracer::outputs::ppm const ppm;
   auto constexpr ppmbpv = htracer::outputs::ppm::bytes_per_value::BPV1;

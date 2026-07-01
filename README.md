@@ -51,12 +51,13 @@ Its primary objectives include:
   - `column_batcher`: Distributes tasks by column for improved cache efficiency.
   - `pixel_batcher`: Splits tasks at the pixel level for fine-grained control.
 - **Execution Policies**: Leverage different execution policies for performance:
-  - `unseq`: Sequential rendering on a single thread.
-  - `par_unseq`: Multithreaded rendering for faster performance.
+  - `seq`: Sequenced, single-threaded rendering using `std::execution::seq`.
+  - `par`: Opt-in parallel rendering using `std::execution::par`.
 
 ### Other Features
 - **Randomness and Multi-Sampling**: Only applied when required by the components, ensuring optimal performance.  
   - The `make_renderer` function automatically selects the most appropriate renderer at compile time based on component properties.
+  - Randomized rendering is intentionally non-reproducible by default. Pass a `random_seed` for reproducible debugging and tests.
 - **PPM Output**: Serialize rendered images in PPM format for visualization.
 
 
@@ -117,8 +118,8 @@ main()
   // and so a deterministic_renderer will be returned.
   auto const renderer = htracer::rendering::make_renderer(camera, batcher, sensor, lens);
 
-  // `unseq` means it will run on a single thread. Use `par_unseq` for multithreading.
-  auto const image = renderer.render(htracer::rendering::unseq, scene);
+  // `seq` runs on a single thread. Use `par` to opt in to parallel rendering.
+  auto const image = renderer.render(htracer::rendering::seq, scene);
 
   // Save the image in PPM format with 1 byte per value (3 bytes per pixel).
   htracer::outputs::ppm const ppm;
@@ -134,6 +135,33 @@ Running the code produces this image:
 </div>
 
 Explore more examples in the [examples](examples/) folder.
+
+### Randomized rendering and reproducibility
+
+Renderers using a randomized sensor or lens require a sample count. Without a seed, both sequential and parallel
+renders are safe, but their output is intentionally non-reproducible and may vary between runs, policies, and parallel
+schedules:
+
+```cpp
+auto image = renderer.render(
+    htracer::rendering::par,
+    scene,
+    htracer::rendering::samples_per_pixel{200});
+```
+
+For deterministic debugging or tests, provide an explicit seed. A temporary random stream is derived independently for
+each pixel, so seeded `seq` and `par` renders produce exactly the same result in the supported environment:
+
+```cpp
+auto image = renderer.render(
+    htracer::rendering::par,
+    scene,
+    htracer::rendering::samples_per_pixel{200},
+    htracer::rendering::random_seed{1234});
+```
+
+This reproducibility guarantee applies only to the same htracer version, standard-library implementation, platform,
+and build configuration. Seeded images are not portable cross-platform checksums.
     
 
 
