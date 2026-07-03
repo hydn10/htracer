@@ -1,0 +1,509 @@
+Htracer benchmark application architecture
+==========================================
+
+
+1. Purpose
+----------
+
+This document defines the intended architecture for the benchmark application.
+It is not merely a list of mechanical refactorings. It establishes the design
+standard that should guide implementation decisions when details are not
+spelled out here.
+
+The central objective is to produce code whose valid use follows naturally from
+its interface. A programmer using a benchmark type or function should not need
+to remember a separate list of legal combinations, required call order, or
+cleanup obligations. The structure of the API should guide the caller toward
+the correct operation, and the compiler should reject incorrect combinations
+whenever the required information is available statically.
+
+The implementation should therefore favor pieces that compose only in valid
+ways. Correctness should emerge from construction and composition rather than
+from discipline at every call site. Documentation and runtime checks remain
+useful at external boundaries, but they are not substitutes for an expressive
+domain model.
+
+The initial MVP implementation is revised with the following goals:
+
+* Make invalid benchmark configurations impossible, or at least difficult, to
+  represent after input parsing.
+* Encode intent and constraints in types instead of relying on documentation or
+  repeated runtime validation.
+* Keep parsing, domain modelling, execution, measurement, and presentation as
+  separate concerns.
+* Keep the application easy to modify while its final scope is still evolving.
+
+Command-line input and serialized output are untrusted and string-based by
+nature. Strings, optionals, and validation errors are appropriate at those
+boundaries. They should not leak into the validated domain model.
+
+
+Design philosophy and decision standard
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Make invalid states unrepresentable
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Whenever two fields constrain one another, first ask whether they should be two
+independent fields at all. Prefer a type with one alternative per valid shape
+over a struct containing a discriminator and conditionally meaningful members.
+For example, deterministic rendering has no samples or seed, whereas randomized
+rendering always has samples and may have a seed. These are different data
+shapes and should be different types.
+
+An optional member is appropriate when absence is meaningful independently of
+the rest of the object. It is not appropriate merely because another enum tells
+the caller whether the member should be present. Similarly, a boolean should
+not stand in for a meaningful domain distinction when distinct types or a
+variant would describe that distinction directly.
+
+Establish validity once
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Raw values enter through parsing and deserialization boundaries. Validate and
+convert them there into domain values. Once construction succeeds, downstream
+code should be able to rely on the resulting invariants without repeating
+defensive checks.
+
+Types with invariants should not be public aggregates. Use constructors or
+named factories that either produce a valid value or report why construction
+failed. Do not expose mutators that can break an invariant after construction.
+Prefer immutable values and read-only accessors where mutation is not essential
+to the model.
+
+Repeated checks for the same condition in several layers are a warning sign.
+They usually indicate that validation occurred without producing a type that
+records the fact that validation succeeded.
+
+Encode sequencing in interfaces
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Avoid APIs that require operations to be called in a precise undocumented
+order. If an operation requires validated configuration, accept a validated
+configuration type rather than a partially initialized object. If a result can
+exist only after measurement, make the measurement component its only producer.
+
+Resource ownership and lifetime should follow RAII. A value should own what it
+needs, borrow explicitly for the duration of a call, or use a standard ownership
+type that makes the lifetime relationship visible. No new design should depend
+on callers remembering manual cleanup or preserving an implicit sequence to
+avoid leaks, dangling references, or partially initialized state.
+
+Design from the call site
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Judge an API by representative uses and misuses. A correct call should be short,
+obvious, and discoverable. Arguments with the same primitive representation but
+different meanings should have distinct types so they cannot be accidentally
+swapped. Functions should request only the information they actually consume.
+
+Before accepting an interface, consider examples such as:
+
+* Can a deterministic benchmark be given a random seed?
+* Can a traversal scene exist without a geometry count?
+* Can a command claim to be help while carrying a render request?
+* Can a result summary disagree with its samples?
+* Can a canonical identity be paired with a different workload?
+* Can arguments of the same integer type be exchanged without a diagnostic?
+
+Where practical, these examples should fail to compile rather than throw during
+execution. If they must be decided at runtime, failure should happen during the
+single transition from unvalidated input to validated domain data, not later in
+the executor or reporter.
+
+Prefer precise, narrow dependencies
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+A function should receive the smallest domain type that completely describes
+its input. Passing a broad application configuration to a scene factory makes
+unrelated concepts appear coupled and permits the function to acquire hidden
+dependencies over time. Passing scene_spec states both what the function needs
+and what it cannot inspect.
+
+Dependencies should flow in one direction from boundaries toward the domain,
+execution, and presentation layers. Lower layers must not reach back into raw
+CLI state. Presentation must observe domain values but must not decide whether
+they are valid.
+
+Use the type system proportionately
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The goal is semantic precision, not maximal abstraction. Introduce a type when
+it removes an invalid state, prevents argument confusion, records successful
+validation, clarifies ownership, or makes dispatch exhaustive. Do not introduce
+wrappers that merely rename a primitive without establishing a useful
+invariant or distinction.
+
+Runtime-selected behavior still benefits from static structure. std::variant
+is the appropriate bridge when the CLI chooses among a closed set of typed
+alternatives. std::visit preserves exhaustive typed handling after the choice
+is made. A runtime application does not require falling back to a permissive
+bag of enums and optionals.
+
+Optimize for maintenance and extension
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Adding a new scene, rendering mode, or command should cause compiler errors at
+the places that must consciously support it. Silent fallback behavior and
+catch-all branches undermine this property. Prefer exhaustive visitors and
+switches without default branches for closed sets.
+
+Keep policy in one authoritative location. Canonical workload definitions,
+stable external names, validation rules, and derived component choices should
+not be duplicated across the CLI, executor, and reporter. A future maintainer
+should be able to identify where a rule lives and should not need to update
+several loosely synchronized representations.
+
+These principles take priority over preserving the current shapes of
+render_configuration, benchmark_case, benchmark_result, or invocation. Those
+types are implementation artifacts of the MVP, not compatibility contracts.
+
+
+2. Replace render_configuration with typed alternatives
+--------------------------------------------------------
+
+The current render_configuration is a permissive aggregate containing
+independent enums and optionals. It can represent combinations such as:
+
+* deterministic rendering with a random seed;
+* randomized rendering without samples per pixel;
+* traversal without a geometry count;
+* a non-traversal scene with a geometry count;
+* a sensor incompatible with the selected rendering mode.
+
+Represent conditional data with sum types instead:
+
+  struct mixed_scene {};
+  struct traversal_scene { geometry_count count; };
+  struct rng_probe_scene {};
+
+  using scene_spec = std::variant<
+      mixed_scene,
+      traversal_scene,
+      rng_probe_scene>;
+
+  struct deterministic_render {};
+
+  struct randomized_render
+  {
+    samples_per_pixel samples;
+    std::optional<random_seed> seed;
+  };
+
+  using render_mode = std::variant<
+      deterministic_render,
+      randomized_render>;
+
+Sensor selection is an implementation detail derived from render_mode. A point
+sensor belongs to deterministic rendering and a uniform sensor belongs to
+randomized rendering. It must not be independently configurable.
+
+Batcher and lens kinds should not be represented in the model while the
+application supports only one of each. The executor can select the column
+batcher and pinhole lens directly. New model alternatives should be introduced
+only when the application actually supports them.
+
+The rng-probe scene supports only randomized rendering. Enforce this cross-field
+constraint through controlled construction of a benchmark definition. A
+private constructor with named factories is preferred over a public aggregate.
+
+
+3. Represent commands as a variant
+-----------------------------------
+
+An operation enum accompanied by optional payloads admits commands whose
+operation and data disagree. Replace it with command-specific types:
+
+  struct help_command {};
+  struct list_command {};
+
+  struct quick_suite_command
+  {
+    std::optional<std::filesystem::path> output;
+  };
+
+  struct custom_render_command
+  {
+    benchmark_definition benchmark;
+    std::optional<std::filesystem::path> output;
+  };
+
+  using invocation = std::variant<
+      help_command,
+      list_command,
+      quick_suite_command,
+      custom_render_command>;
+
+The command-line parser returns this validated variant. main() dispatches it
+with std::visit. There is no optional command payload to dereference and every
+visitor receives exactly the data required for that operation.
+
+
+4. Introduce validated scalar domain types
+------------------------------------------
+
+Values with different meanings should not all be represented as uint32_t.
+Introduce focused types for at least:
+
+* image_extent;
+* geometry_count;
+* repetition_count;
+* warmup_count, if distinguishing it improves call-site clarity;
+* canonical_case;
+* image_checksum.
+
+Reuse htracer::rendering::samples_per_pixel and
+htracer::rendering::random_seed directly rather than copying their values into
+raw integers in the benchmark model.
+
+image_extent owns width and height together. Its construction validates that
+both dimensions are non-zero and that their pixel count and required storage do
+not overflow. geometry_count and repetition_count cannot contain zero.
+warmup_count intentionally permits zero.
+
+The CLI converts text to these domain types once. Code beyond that boundary
+must not repeat their basic validation.
+
+
+5. Make benchmark definitions controlled values
+------------------------------------------------
+
+benchmark_definition should not be a freely writable aggregate. Its public
+interface exposes read-only accessors and named construction functions for the
+supported workload families. Construction establishes all cross-type
+invariants, including the rng-probe restriction.
+
+A definition contains only effective execution parameters:
+
+* scene specification;
+* rendering mode;
+* numeric precision;
+* execution policy;
+* image extent;
+* measurement plan.
+
+It does not contain presentation-only fields, redundant sensor/batcher/lens
+enums, arbitrary identifiers, or nullable fields whose presence is dictated by
+another field.
+
+
+6. Make measurement results internally consistent
+--------------------------------------------------
+
+The result model must not allow callers to independently provide raw samples,
+a potentially contradictory summary, and a checksum.
+
+Represent an individual measured render with typed values:
+
+  struct measured_render
+  {
+    std::chrono::nanoseconds duration;
+    image_checksum checksum;
+  };
+
+The measurement component is the only producer of benchmark_result. Result
+construction rejects an empty measurement and derives minimum, median, maximum,
+and aggregate checksum information from its measured renders. Summary values
+may be stored behind a controlled constructor or calculated by accessors; they
+must never be caller-supplied independently of the samples.
+
+Warmup renders are consumed so they cannot be optimized away, but they are not
+measurement samples. Whether their checksums contribute to a separate run
+checksum should be explicit in the result model rather than implicit in one
+accumulator.
+
+
+7. Decouple scene construction from unrelated configuration
+------------------------------------------------------------
+
+Scene construction accepts only scene_spec:
+
+  make_scene<Float>(scene_spec const &);
+
+It must not depend on rendering mode, policy, precision enums, image extent, or
+measurement settings. The resulting scene setup contains the scene and the
+camera parameters needed by the executor.
+
+Traversal construction receives a validated geometry_count through its variant
+alternative. It does not inspect an optional value or perform configuration
+validation.
+
+
+8. Use exhaustive typed dispatch
+---------------------------------
+
+Execution dispatch must not treat an unrecognized value as an implicit fallback
+to randomized rendering or parallel execution.
+
+Use std::visit for scene and rendering variants. Use exhaustive switch
+statements for remaining enums such as precision and execution policy. Avoid
+default branches so compiler warnings expose newly added alternatives that have
+not been handled.
+
+The executor should have small typed paths whose signatures describe what they
+can execute. For example, the deterministic path does not receive samples or a
+seed, while the randomized path always receives samples and may receive a seed.
+
+
+9. Separate CLI syntax from domain construction
+-----------------------------------------------
+
+Keep an unvalidated raw_options representation inside the CLI implementation.
+It is an appropriate representation for incomplete and potentially invalid
+user input.
+
+Process input through distinct stages:
+
+  argv
+    -> raw options
+    -> typed command arguments
+    -> domain factories
+    -> invocation variant
+
+The CLI layer owns option spelling, duplicate detection, missing values, and
+user-facing usage errors. Domain types and factories own semantic invariants
+independently of the CLI. CLI errors translate domain construction failures into
+appropriate diagnostics.
+
+This separation ensures the quick-suite catalog, future programmatic callers,
+and CLI-created benchmarks all obey the same domain rules.
+
+
+10. Use a closed canonical-case identity
+----------------------------------------
+
+Canonical cases are a fixed code-defined set. They must not be identified in
+the domain model by arbitrary strings.
+
+Define one enumerator for every supported canonical case:
+
+  enum class canonical_case
+  {
+    mixed_deterministic_f32_seq,
+    mixed_deterministic_f32_par,
+    // Remaining quick.v1 cases.
+  };
+
+The canonical catalog is the single mapping from canonical_case to its complete
+benchmark_definition. Callers select a canonical case; they cannot supply both
+an identity and an unrelated definition. This makes disagreement between an ID
+and its effective configuration unrepresentable.
+
+Stable strings such as
+"quick.v1/mixed/deterministic/f32/seq" exist only at presentation and
+serialization boundaries. A total conversion function maps canonical_case to
+its stable external name.
+
+Custom benchmarks do not store an arbitrary ID. Console and JSON presentation
+may emit the fixed external label "custom/render" when an external identifier
+is required.
+
+
+11. Use std::print and isolate presentation
+-------------------------------------------
+
+Use C++23 std::print/std::println for normal console and FILE* output. The
+application does not require arbitrary std::ostream destinations.
+
+Use std::format or std::format_to when formatted text must be constructed before
+it is written. Prefer compile-time checked format strings. Formatting functions
+receive typed domain values and use std::visit where alternatives have different
+representations.
+
+JSON still requires a dedicated writer responsible for:
+
+* string escaping;
+* object and array structure;
+* separators;
+* null handling where null is part of the external schema;
+* locale-independent numeric output;
+* propagation of file write failures.
+
+std::format is a formatting facility, not a JSON serializer. Domain variants
+should remove most conditional-null logic from reporting: deterministic and
+randomized alternatives serialize their own applicable fields.
+
+Top-level exception handlers should continue to use a minimal non-throwing or
+effectively non-throwing diagnostic path, such as std::cerr with its default
+exception mask or std::fputs(stderr). std::print can report output failures by
+throwing and is therefore inappropriate while handling the exception that is
+about to terminate the application.
+
+
+12. Deferred decisions
+----------------------
+
+The following review findings are intentionally outside the current refactor.
+
+Build options
+~~~~~~~~~~~~~
+
+Keep the explicitly requested HTRACER_BUILD_APPS option and its current behavior
+of building both applications. Independent ray and benchmark options can be
+introduced later if the role of the ray application becomes clearer.
+
+Portability macro
+~~~~~~~~~~~~~~~~~
+
+Centralizing the duplicated HTRACER_NO_UNIQUE_ADDRESS compatibility macro is a
+separate library cleanup and will be handled independently.
+
+Tests
+~~~~~
+
+Do not add benchmark-application tests during this refactor. The application's
+scope and interfaces are still evolving, and rapid architectural iteration is
+currently more valuable. Continue to compile the supported configurations and
+manually exercise listing, custom execution, suite execution, failure paths,
+and JSON output.
+
+Focused parsing and serialization tests may be added after the architecture has
+stabilized. Performance assertions do not belong in ordinary CI tests.
+
+
+13. Intended dependency flow
+----------------------------
+
+The resulting application should follow this one-way dependency flow:
+
+  CLI parsing
+      |
+      v
+  typed commands and benchmark domain model
+      |
+      v
+  canonical catalog / scene factories
+      |
+      v
+  executor and measurement
+      |
+      v
+  typed results
+      |
+      v
+  console and JSON presentation
+
+Presentation must not define execution invariants. Execution must not inspect
+raw CLI options. Scene factories must not depend on measurement or reporting.
+The canonical catalog is the only authority that associates a canonical case
+with its definition and stable external name.
+
+
+14. Refactoring order
+---------------------
+
+Implement the redesign in this order:
+
+1. Add validated scalar types and scene/rendering variants.
+2. Introduce controlled benchmark_definition factories.
+3. Replace invocation with command-specific variant alternatives.
+4. Replace string canonical IDs with canonical_case and a central catalog.
+5. Adapt scene construction and executor dispatch to the typed model.
+6. Make measurement results controlled and internally consistent.
+7. Split CLI parsing from domain construction.
+8. Rewrite console presentation around std::print and adapt JSON serialization
+   to the typed alternatives.
+9. Compile supported configurations and manually exercise the application.
+
+The domain model should be completed before presentation cleanup. Otherwise the
+serializer and console code would be rewritten twice.

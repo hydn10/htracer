@@ -14,8 +14,8 @@ option(
     ${PROJECT_IS_TOP_LEVEL})
 
 option(
-    HTRACER_BUILD_RAY
-    "Build the ray app. Default: ${PROJECT_IS_TOP_LEVEL}."
+    HTRACER_BUILD_APPS
+    "Build the applications. Default: ${PROJECT_IS_TOP_LEVEL}."
     ${PROJECT_IS_TOP_LEVEL})
 
 option(
@@ -32,7 +32,7 @@ if(HTRACER_BUILD_TESTS)
     add_subdirectory(tests)
 endif()
 
-if(HTRACER_BUILD_RAY)
+if(HTRACER_BUILD_APPS)
     add_subdirectory(apps)
 endif()
 

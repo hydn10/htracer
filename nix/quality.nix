@@ -3,7 +3,7 @@
 (htracer.override {
   stdenv = llvmPackages.stdenv;
   buildTests = true;
-  buildRay = true;
+  buildApps = true;
   buildExamples = true;
 }).overrideAttrs (oldAttrs: {
   nativeBuildInputs = (oldAttrs.nativeBuildInputs or []) ++ [

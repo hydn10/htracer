@@ -93,18 +93,18 @@ sample(geometries::ray<Float> const &ray, Scene const &scene, unsigned depth)
   // TODO: Small optimization: do not call if depth > MAX_DEPTH so ray is never created.
   if (depth > MAX_DEPTH)
   {
-    return {0., 0., 0.};
+    return {Float{0}, Float{0}, Float{0}};
   }
 
   // TODO: This should be a parameter since it is scale-dependant. The value
   // must be > 0 or else reflections/refractions wont work.
-  constexpr Float MIN_DISTANCE = .002;
+  constexpr Float MIN_DISTANCE = static_cast<Float>(.002);
 
   auto const intersection = intersect(ray, scene, MIN_DISTANCE);
 
   if (!intersection)
   {
-    return {0., 0., 0.};
+    return {Float{0}, Float{0}, Float{0}};
   }
 
   auto const &[obj_dist, obj] = *intersection;

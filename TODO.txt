@@ -1,5 +1,3 @@
-- Set up performance benchmarks.
-
 - Test unity build in CI. Also run the verify-headers targets in CI.
 
 - Profile based optimization.

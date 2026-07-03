@@ -23,7 +23,7 @@ template<typename Float>
 constexpr std::pair<Float, Float>
 point_sensor<Float>::get_coords(uint32_t v_idx, uint32_t h_idx) const noexcept
 {
-  return {v_idx, h_idx};
+  return {static_cast<Float>(v_idx), static_cast<Float>(h_idx)};
 }
 
 } // namespace htracer::rendering::sensors

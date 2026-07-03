@@ -1,4 +1,4 @@
-{ lib, stdenv, cmake, buildTests ? false, buildRay ? false, buildExamples ? false }:
+{ lib, stdenv, cmake, buildTests ? false, buildApps ? false, buildExamples ? false }:
 
 let
   pname = "htracer";
@@ -8,7 +8,7 @@ let
 
   mkCMakeFlag = opt: if opt then "ON" else "OFF";
 
-  buildRayFlag = mkCMakeFlag buildRay;
+  buildAppsFlag = mkCMakeFlag buildApps;
   buildTestsFlag = mkCMakeFlag buildTests;
   buildExamplesFlag = mkCMakeFlag buildExamples;
 
@@ -25,7 +25,7 @@ in
     nativeBuildInputs = [ cmake ];
 
     cmakeFlags = [
-      "-DHTRACER_BUILD_RAY=${buildRayFlag}"
+      "-DHTRACER_BUILD_APPS=${buildAppsFlag}"
       "-DHTRACER_BUILD_TESTS=${buildTestsFlag}"
       "-DHTRACER_BUILD_EXAMPLES=${buildExamplesFlag}"
     ];

@@ -355,9 +355,11 @@ Initial groups:
    * Low and moderate sample counts.
    * Double initially; the extended RNG suite covers both precisions.
 
-Candidate starting resolutions are 640x360 for deterministic cases and 320x180
-for multisampled cases. These are not final until calibrated on Windows and
-Linux. Once accepted, the values become fixed parts of the case definitions.
+The calibrated quick.v1 workloads use 640x360 for mixed deterministic cases,
+320x180 with 8 samples per pixel for mixed randomized cases, and 640x360 with
+1 or 16 samples per pixel for RNG-probe cases. Every case uses one warmup and
+five measured repetitions. These values are fixed parts of quick.v1; a material
+future change requires a new workload version.
 
 8.2 Future workload development
 

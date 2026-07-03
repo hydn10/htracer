@@ -45,7 +45,7 @@ make_mirror(Float specular, Float shininess, Float reflectivity)
   // TODO: Careful! Even if ambient and diffuse are 0, specular color is still
   //       relevant. It should be added to inputs once I handle it correctly on
   //       sample().
-  return {{0., 0., 0.}, {0., 0., 0.}, specular, shininess, reflectivity};
+  return {{Float{0}, Float{0}, Float{0}}, {Float{0}, Float{0}, Float{0}}, specular, shininess, reflectivity};
 }
 
 } // namespace htracer::staging

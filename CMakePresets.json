@@ -9,10 +9,10 @@
       }
     },
     {
-      "name": "build-ray",
+      "name": "build-apps",
       "hidden": true,
       "cacheVariables": {
-        "HTRACER_BUILD_RAY": "ON"
+        "HTRACER_BUILD_APPS": "ON"
       }
     },
     {
@@ -89,6 +89,14 @@
       }
     },
     {
+      "name": "enable-clang-tidy-msvc",
+      "hidden": true,
+      "inherits": "enable-clang-tidy",
+      "cacheVariables": {
+        "CMAKE_CXX_CLANG_TIDY": "clang-tidy;--warnings-as-errors=*;--extra-arg=/EHsc"
+      }
+    },
+    {
       "name": "enable-asan-ubsan",
       "hidden": true,
       "environment": {
@@ -133,10 +141,10 @@
         "windows-cl-base",
         "msvc-warnings",
         "debug",
-        "build-ray",
+        "build-apps",
         "build-tests",
         "build-examples",
-        "enable-clang-tidy"
+        "enable-clang-tidy-msvc"
       ]
     },
     {
@@ -147,7 +155,7 @@
         "windows-cl-base",
         "msvc-warnings",
         "release",
-        "build-ray",
+        "build-apps",
         "build-tests",
         "build-examples"
       ]
@@ -160,7 +168,7 @@
         "windows-cl-base",
         "msvc-warnings",
         "profile",
-        "build-ray",
+        "build-apps",
         "build-tests",
         "build-examples"
       ]
@@ -173,7 +181,7 @@
         "windows-clang-base",
         "msvc-warnings",
         "debug",
-        "build-ray",
+        "build-apps",
         "build-tests",
         "build-examples"
       ]
@@ -186,7 +194,7 @@
         "windows-clang-base",
         "msvc-warnings",
         "release",
-        "build-ray",
+        "build-apps",
         "build-tests",
         "build-examples"
       ]
@@ -199,7 +207,7 @@
         "linux-base",
         "gccclang-warnings",
         "debug",
-        "build-ray",
+        "build-apps",
         "build-tests",
         "build-examples"
       ]
@@ -212,7 +220,7 @@
         "linux-base",
         "gccclang-warnings",
         "release",
-        "build-ray",
+        "build-apps",
         "build-tests",
         "build-examples"
       ]
@@ -225,7 +233,7 @@
         "linux-base",
         "gccclang-warnings",
         "profile",
-        "build-ray",
+        "build-apps",
         "build-tests",
         "build-examples"
       ]
@@ -237,7 +245,7 @@
         "linux-base",
         "gccclang-warnings",
         "release",
-        "build-ray",
+        "build-apps",
         "build-tests",
         "build-examples"
       ],
@@ -254,7 +262,7 @@
         "enable-clang-tidy",
         "enable-asan-ubsan",
         "debug",
-        "build-ray",
+        "build-apps",
         "build-tests",
         "build-examples"
       ],
@@ -269,7 +277,7 @@
         "windows-cl-base",
         "msvc-warnings",
         "release",
-        "build-ray",
+        "build-apps",
         "build-tests",
         "build-examples"
       ]

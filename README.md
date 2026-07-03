@@ -162,6 +162,55 @@ auto image = renderer.render(
 
 This reproducibility guarantee applies only to the same htracer version, standard-library implementation, platform,
 and build configuration. Seeded images are not portable cross-platform checksums.
+
+
+## Benchmarks
+
+Htracer includes a dependency-free benchmark application for measuring whole-image rendering throughput. Always build
+and run benchmarks in a Release configuration, outside a debugger:
+
+```bash
+cmake -S . -B out/benchmark -DCMAKE_BUILD_TYPE=Release -DHTRACER_BUILD_APPS=ON -DHTRACER_BUILD_TESTS=OFF -DHTRACER_BUILD_EXAMPLES=OFF
+cmake --build out/benchmark -j
+cmake --install out/benchmark --prefix out/benchmark-install
+```
+
+The commands below assume `out/benchmark-install/bin` is on `PATH` (use `htracer-benchmarks.exe` directly on Windows if
+needed).
+
+The quick suite provides a standardized canary covering deterministic and randomized rendering, `float` and `double`,
+sequential and parallel execution, and seeded and unseeded randomness:
+
+```bash
+htracer-benchmarks --list
+htracer-benchmarks --suite quick
+htracer-benchmarks --suite quick --output results.json
+```
+
+The application can also measure one explicitly configured experiment. External scripts can invoke this form repeatedly
+to perform parameter sweeps:
+
+```bash
+htracer-benchmarks --benchmark render \
+    --scene traversal \
+    --geometry-count 64 \
+    --width 640 \
+    --height 360 \
+    --rendering randomized \
+    --samples 16 \
+    --precision double \
+    --policy par \
+    --seed 1234 \
+    --output traversal-64.json
+```
+
+Use `htracer-benchmarks --help` for the complete MVP interface. Rendering is the only timed operation; scene setup,
+validation, checksumming, reporting, and file I/O are excluded. JSON results retain every raw duration and the effective
+configuration.
+
+Only compare results produced on the same machine with the same compiler, build flags, power configuration, and benchmark
+workload version. Small differences within normal run-to-run variation are inconclusive. GitHub-hosted CI only verifies
+that the benchmark application builds and lists its cases; it does not enforce performance thresholds.
     
 
 
@@ -206,7 +255,7 @@ inputs = {
     cmake --list-presets
     
     # Or set options manually
-    cmake -S . -B out -DCMAKE_BUILD_TYPE=Release -DHTRACER_BUILD_TESTS=ON -DHTRACER_BUILD_EXAMPLES=ON
+    cmake -S . -B out -DCMAKE_BUILD_TYPE=Release -DHTRACER_BUILD_APPS=ON -DHTRACER_BUILD_TESTS=ON -DHTRACER_BUILD_EXAMPLES=ON
 
     # Build
     cmake --build out -j

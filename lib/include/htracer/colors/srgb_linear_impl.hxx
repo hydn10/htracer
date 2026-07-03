@@ -31,18 +31,18 @@ srgb_linear<Float>::to_srgb() const
       [](auto val)
   {
     // TODO: Assert 0 <= val <= 1;
-    constexpr Float LINEAR_CUTOFF = 0.00313066844250063;
-    constexpr Float SLOPE = 12.92;
-    constexpr Float EXP_OFFSET = 0.055;
-    constexpr Float EXPONENT = 2.4;
+    constexpr Float LINEAR_CUTOFF = static_cast<Float>(0.00313066844250063);
+    constexpr Float SLOPE = static_cast<Float>(12.92);
+    constexpr Float EXP_OFFSET = static_cast<Float>(0.055);
+    constexpr Float EXPONENT = static_cast<Float>(2.4);
 
     if (val <= LINEAR_CUTOFF)
     {
       return val * SLOPE;
     }
 
-    auto const raised = std::pow(val, 1 / EXPONENT);
-    return (1 + EXP_OFFSET) * raised - EXP_OFFSET;
+    auto const raised = std::pow(val, Float{1} / EXPONENT);
+    return (Float{1} + EXP_OFFSET) * raised - EXP_OFFSET;
   });
 }
 

@@ -394,12 +394,15 @@ Initial case groups:
 
 Total initial cases: 16.
 
-The tentative resolutions (640x360 deterministic and 320x180 randomized) and
-moderate sample count are calibration inputs, not interface contracts. Adjust
-them after measurements on both supported development environments, then
-freeze them as quick.v1. Keep quick-suite measurement settings at one warmup
-and five repetitions unless calibration shows that the runtime budget requires
-a justified change.
+The calibrated quick.v1 values are:
+
+* Mixed deterministic: 640x360.
+* Mixed randomized: 320x180, 8 samples per pixel.
+* RNG probe: 640x360, with 1 and 16 sample cases.
+* Every case: one warmup and five measured repetitions.
+
+These parameters are part of quick.v1. A material future change requires a new
+workload version rather than silently changing the existing case IDs.
 
 --list prints suite name, stable case ID, and a concise effective
 configuration. It performs no scene construction or rendering.
@@ -531,8 +534,9 @@ Each result contains:
 * Raw samples_ns as integers in execution order.
 * minimum_ns, median_ns, and maximum_ns.
 * pixels_per_second and primary_samples_per_second.
-* Checksum as a hexadecimal string to avoid JSON-number precision loss in
-  downstream JavaScript tools.
+* Seed as a decimal string when present, and checksum as a hexadecimal string,
+  to avoid JSON-number precision loss for 64-bit values in downstream
+  JavaScript tools.
 
 Serialize absent seed, sample count, or geometry count as JSON null rather than
 omitting fields. This keeps the initial schema regular and easy for future
@@ -843,17 +847,16 @@ The implementation is ready when:
   code, or unrelated library optimization is introduced.
 
 
-19. Decisions intentionally left to calibration
------------------------------------------------
+19. Calibration outcome
+-----------------------
 
-The following should be finalized from measured behavior during implementation,
-not guessed in advance:
+The accepted quick.v1 parameters are recorded in section 8 and in the canonical
+case registry. The RNG probe uses one ambient sphere offset across the camera
+view so randomized pixel jitter changes observable silhouette hits. On the
+initial Windows/MSVC calibration machine, the complete quick suite takes about
+55 seconds. In the clean Linux/GCC 14 container verification it takes about
+13 seconds. Both leave substantial room under the agreed few-minute budget.
 
-* Exact quick-suite resolutions.
-* The moderate randomized sample count.
-* Exact rng-probe geometry/camera placement.
-* Whether five quick repetitions remain within the runtime budget on both
-  development machines.
-* Console column widths and units that remain readable with real values.
-
-These decisions do not affect the public CLI structure or JSON data model.
+The JSON report records every effective parameter, so later measurements on
+slower development hardware can identify whether a quick.v2 workload is
+warranted without making quick.v1 results ambiguous.

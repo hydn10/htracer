@@ -16,6 +16,13 @@
 #include <vector>
 
 
+#if defined(_MSC_VER)
+#define HTRACER_NO_UNIQUE_ADDRESS [[msvc::no_unique_address]]
+#else
+#define HTRACER_NO_UNIQUE_ADDRESS [[no_unique_address]]
+#endif
+
+
 namespace htracer::rendering::renderers
 {
 
@@ -29,9 +36,9 @@ template<
 class deterministic_renderer
 {
   camera<Float> camera_;
-  [[no_unique_address]] Batcher batcher_;
-  [[no_unique_address]] Sensor sensor_;
-  [[no_unique_address]] Lens lens_;
+  HTRACER_NO_UNIQUE_ADDRESS Batcher batcher_;
+  HTRACER_NO_UNIQUE_ADDRESS Sensor sensor_;
+  HTRACER_NO_UNIQUE_ADDRESS Lens lens_;
 
 public:
   constexpr deterministic_renderer(camera<Float> camera, Batcher batcher, Sensor sensor, Lens lens);
@@ -91,5 +98,7 @@ deterministic_renderer<Float, Batcher, Sensor, Lens>::render(ExPolicy &&policy, 
 }
 
 } // namespace htracer::rendering::renderers
+
+#undef HTRACER_NO_UNIQUE_ADDRESS
 
 #endif
