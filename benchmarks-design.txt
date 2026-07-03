@@ -1,0 +1,200 @@
+Htracer benchmark design
+========================
+
+
+Purpose
+-------
+
+The benchmark application exists to answer a practical question:
+
+  On the same machine and under the same build and runtime conditions, is one
+  Htracer revision faster or slower than another, and by how much?
+
+Its primary concern is whole-image rendering performance through Htracer's
+public interface. Focused diagnostic workloads are justified only when they
+help explain changes in that representative work.
+
+The runner is deliberately self-contained. It should remain understandable,
+portable across the project's supported toolchains, and free of dependencies
+whose complexity is not warranted by the measurements being performed.
+
+This document records the goals and design standards of the feature. The code
+is the source of truth for its current commands, workloads, data structures,
+and output format.
+
+
+Feature goals
+-------------
+
+The benchmark feature should:
+
+* provide repeatable workloads for comparing revisions under controlled
+  conditions;
+* measure behavior visible through the public rendering API rather than private
+  implementation functions;
+* make the boundary between measured work and supporting work deliberate and
+  consistent;
+* retain enough raw evidence and environment context to support honest result
+  interpretation;
+* consume and validate rendered output so measured work remains observable and
+  obvious failures are detected;
+* support both stable canonical workloads and intentionally configured
+  experiments without maintaining separate execution machinery;
+* produce results suitable for humans and external analysis tools without
+  absorbing comparison, graphing, or orchestration responsibilities; and
+* compile and receive functional smoke coverage in CI without treating
+  uncontrolled hosted hardware as a performance authority.
+
+
+Measurement integrity
+---------------------
+
+A benchmark is useful only when its result has a clear meaning. Measurement
+boundaries must therefore be chosen from the question being asked and remain
+stable for comparable workloads. Setup, validation, hashing, formatting, and
+filesystem activity must not accidentally become part of a rendering metric.
+
+Every measured result must be retained and observably consumed. Summary values
+must be derived from the measurements they describe and must not be capable of
+contradicting them. Warmup work and measured work have distinct roles and
+should remain distinguishable in the result model.
+
+The runner should report observations rather than manufacture confidence. It
+must preserve raw measurements, avoid silently discarding inconvenient data,
+and avoid universal noise or regression thresholds that are unsupported by the
+execution environment.
+
+Correctness checks and hashes are diagnostic safeguards, not portable golden
+values. A hash can reveal unexpected variation within a run, but it does not
+establish identical behavior across platforms, compilers, standard libraries,
+build configurations, or Htracer versions.
+
+
+Architecture philosophy
+-----------------------
+
+Make invalid states unrepresentable
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The domain model should contain valid benchmark concepts rather than partially
+interpreted input. When fields constrain one another, prefer distinct types or
+closed alternatives representing the valid shapes instead of independent
+discriminators, booleans, and conditionally meaningful optionals.
+
+An optional value is appropriate when absence is independently meaningful. It
+is not a substitute for modelling two different kinds of object.
+
+Establish validity once
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Text, primitive values, and incomplete combinations are appropriate at input
+boundaries. Validate them there and convert them into domain values that record
+successful validation. Downstream execution and presentation should rely on
+those invariants rather than repeat the same defensive checks.
+
+Types with invariants should control their construction, expose read-only state
+where practical, and prevent mutation from producing invalid values. A
+successful construction path must establish the complete invariant; restricting
+construction to a privileged helper is not a substitute for validation.
+
+Encode sequencing and ownership
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Interfaces should not require callers to remember an undocumented order of
+operations. A function that requires validated state should accept a validated
+type, and a result that can exist only after measurement should be constructible
+only from a complete, consistent measurement.
+
+Ownership and lifetime should follow RAII. Values should own their resources or
+make borrowing explicit. Correct use must not depend on manual cleanup,
+partially initialized objects, or hidden lifetime assumptions.
+
+Design from the call site
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Correct calls should be concise, discoverable, and difficult to assemble
+incorrectly. Values with the same primitive representation but different
+meanings should have distinct types when that distinction prevents confusion.
+Functions should request only the information they consume.
+
+Review an interface by considering misuse as well as intended use. If an
+invalid combination is knowable statically, prefer a compilation failure. If
+it depends on runtime input, reject it during the single transition into the
+validated domain rather than later during execution or reporting.
+
+Keep dependencies narrow and directional
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Parsing, domain modelling, workload construction, execution, measurement, and
+presentation are separate responsibilities. Dependencies should flow from
+external boundaries toward validated domain values, execution, and finally
+presentation. Lower layers must not inspect raw input, and presentation must
+not decide whether an execution request is valid.
+
+A function should accept the smallest domain concept that completely describes
+its needs. Broad configuration objects create accidental coupling and invite
+unrelated dependencies over time.
+
+Use closed sets exhaustively
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Adding a new command, workload kind, rendering mode, or scene should identify
+every place that must consciously support it. Prefer exhaustive typed dispatch
+and avoid silent fallback behavior for closed alternatives.
+
+Canonical workloads must have one authoritative definition. Identity,
+configuration, suite membership, and presentation must not be maintained as
+loosely synchronized representations that can disagree.
+
+Use the type system proportionately
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Introduce a type when it removes an invalid state, prevents argument confusion,
+records validation, clarifies ownership, or enables exhaustive handling. Do not
+add wrappers or abstractions that merely rename implementation details without
+providing a semantic guarantee.
+
+Runtime-selected behavior does not require a permissive model. A closed runtime
+choice can still be represented by typed alternatives and handled exhaustively
+after selection.
+
+
+Evolution principles
+--------------------
+
+The feature should grow from demonstrated measurement needs rather than from a
+speculative framework. New scenes, parameters, metrics, metadata, and suites
+should be added when they answer a concrete question. An implementation choice
+should become a configurable domain alternative only when more than one real
+choice is supported.
+
+Policy should live in one authoritative location. Workload definitions,
+validation rules, derived choices, and external representations should not be
+duplicated across parsing, execution, and reporting.
+
+Comparison across revisions, parameter sweeps, graph generation, and historical
+result management belong in external tools that consume benchmark output. They
+should not complicate the runner's measurement responsibilities.
+
+A dedicated benchmarking framework should be reconsidered if the project gains
+many short microbenchmarks requiring facilities such as automatic calibration,
+compiler barriers, fixtures, or hardware counters. Dependency avoidance is a
+means of keeping the current design proportionate, not an unconditional rule.
+
+
+Interpretation boundaries
+-------------------------
+
+Performance results are comparable only when the physical machine, power and
+thermal conditions, compiler and standard library, build configuration,
+workload definition, and relevant background load are sufficiently equivalent.
+Results from different environments describe those complete environments; they
+must not be presented as isolated measurements of one changed factor.
+
+Parallel execution, random sampling, scheduling, cache state, CPU frequency,
+and system activity introduce real variation. Suspicious differences should be
+repeated and investigated rather than converted directly into conclusions.
+
+Ordinary CI should verify that the runner builds, starts, and exposes its
+workloads. Performance regression gates require persistent, controlled hardware
+and must not be inferred from timing variation on shared hosted runners.
