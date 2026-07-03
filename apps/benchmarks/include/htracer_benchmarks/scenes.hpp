@@ -6,10 +6,9 @@
 #include <htracer_benchmarks/model.hpp>
 
 #include <concepts>
-#include <cstdint>
 #include <numbers>
-#include <stdexcept>
 #include <utility>
+#include <variant>
 
 
 namespace htracer::benchmarks
@@ -75,7 +74,7 @@ make_mixed_scene()
 template<std::floating_point Float>
 [[nodiscard]]
 scene_setup<Float>
-make_traversal_scene(std::uint32_t geometry_count)
+make_traversal_scene(geometry_count count)
 {
   using traits = htracer::float_traits<Float>;
 
@@ -87,7 +86,7 @@ make_traversal_scene(std::uint32_t geometry_count)
 
   scene.emplace_sphere({{Float{0}, Float{0}, Float{-3}}, Float{1}}, visible_material);
 
-  for (std::uint32_t index = 1; index < geometry_count; ++index)
+  for (std::uint32_t index = 1; index < count.value(); ++index)
   {
     auto const column = index % std::uint32_t{1024};
     auto const row = index / std::uint32_t{1024};
@@ -133,23 +132,26 @@ make_rng_probe_scene()
 template<std::floating_point Float>
 [[nodiscard]]
 scene_setup<Float>
-make_scene(render_configuration const &configuration)
+make_scene(scene_spec const &specification)
 {
-  switch (configuration.scene)
+  return std::visit(
+      []<typename Scene>(Scene const &scene) -> scene_setup<Float>
   {
-  case scene_kind::mixed:
-    return detail_::make_mixed_scene<Float>();
-  case scene_kind::traversal:
-    if (!configuration.geometry_count || *configuration.geometry_count == 0)
+    if constexpr (std::same_as<Scene, mixed_scene>)
     {
-      throw std::invalid_argument("traversal scene requires at least one geometry");
+      return detail_::make_mixed_scene<Float>();
     }
-    return detail_::make_traversal_scene<Float>(*configuration.geometry_count);
-  case scene_kind::rng_probe:
-    return detail_::make_rng_probe_scene<Float>();
-  }
-
-  throw std::invalid_argument("unsupported benchmark scene");
+    else if constexpr (std::same_as<Scene, traversal_scene>)
+    {
+      return detail_::make_traversal_scene<Float>(scene.count);
+    }
+    else
+    {
+      static_assert(std::same_as<Scene, rng_probe_scene>);
+      return detail_::make_rng_probe_scene<Float>();
+    }
+  },
+      specification);
 }
 
 } // namespace htracer::benchmarks

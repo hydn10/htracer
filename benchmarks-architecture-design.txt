@@ -184,10 +184,19 @@ Represent conditional data with sum types instead:
 
   struct deterministic_render {};
 
-  struct randomized_render
+  class randomized_render
   {
-    samples_per_pixel samples;
-    std::optional<random_seed> seed;
+  public:
+    static randomized_render make(
+        samples_per_pixel samples,
+        std::optional<random_seed> seed);
+
+    samples_per_pixel samples() const noexcept;
+    std::optional<random_seed> seed() const noexcept;
+
+  private:
+    samples_per_pixel samples_;
+    std::optional<random_seed> seed_;
   };
 
   using render_mode = std::variant<
@@ -249,7 +258,6 @@ Introduce focused types for at least:
 * geometry_count;
 * repetition_count;
 * warmup_count, if distinguishing it improves call-site clarity;
-* canonical_case;
 * image_checksum.
 
 Reuse htracer::rendering::samples_per_pixel and
@@ -286,6 +294,12 @@ It does not contain presentation-only fields, redundant sensor/batcher/lens
 enums, arbitrary identifiers, or nullable fields whose presence is dictated by
 another field.
 
+A benchmark_case is a resolved value containing provenance (canonical or
+custom) and the exact benchmark_definition that will be executed. Canonical
+provenance can be created only by the suite catalog; custom construction is a
+public operation. Execution and reporting consume this same resolved value and
+never look up or reconstruct its definition independently.
+
 
 6. Make measurement results internally consistent
 --------------------------------------------------
@@ -301,11 +315,18 @@ Represent an individual measured render with typed values:
     image_checksum checksum;
   };
 
-The measurement component is the only producer of benchmark_result. Result
-construction rejects an empty measurement and derives minimum, median, maximum,
-and aggregate checksum information from its measured renders. Summary values
-may be stored behind a controlled constructor or calculated by accessors; they
-must never be caller-supplied independently of the samples.
+benchmark_result provides a validated factory and keeps its unchecked
+constructor private. The factory verifies that the number of measured renders
+exactly matches the resolved benchmark's repetition count, every duration is
+positive, and warmup-checksum presence agrees with the warmup count. It derives
+minimum, median, maximum, and aggregate checksum information from the measured
+renders. Summary values must never be caller-supplied independently of the
+samples.
+
+The safety property comes from complete validation on every successful
+construction path, not from granting one helper class privileged access to an
+unchecked constructor. There is no benchmark_measurement passkey or friendship
+whose callers must trust to preserve result invariants.
 
 Warmup renders are consumed so they cannot be optimized away, but they are not
 measurement samples. Whether their checksums contribute to a separate run
@@ -356,7 +377,7 @@ Process input through distinct stages:
 
   argv
     -> raw options
-    -> typed command arguments
+    -> validated scalar and variant values
     -> domain factories
     -> invocation variant
 
@@ -369,34 +390,31 @@ This separation ensures the quick-suite catalog, future programmatic callers,
 and CLI-created benchmarks all obey the same domain rules.
 
 
-10. Use a closed canonical-case identity
-----------------------------------------
+10. Make the canonical catalog the single source of truth
+---------------------------------------------------------
 
-Canonical cases are a fixed code-defined set. They must not be identified in
-the domain model by arbitrary strings.
+Canonical cases are a fixed code-defined set, but they do not need a separate
+identity enum. The application lists and executes complete cases; it never
+needs to carry an enum independently of a definition. Splitting identity from
+definition would require synchronized enum declarations, case lists, definition
+switches, and naming switches.
 
-Define one enumerator for every supported canonical case:
+quick_suite_catalog owns the only collection of canonical benchmark_case
+values. Each value already contains its effective benchmark_definition and
+canonical provenance. The catalog constructs the fixed collection directly and
+returns a read-only span. std::array is an appropriate storage detail for this
+small frozen suite: class-template argument deduction determines its size, and
+there is no separately maintained count or count enumerator.
 
-  enum class canonical_case
-  {
-    mixed_deterministic_f32_seq,
-    mixed_deterministic_f32_par,
-    // Remaining quick.v1 cases.
-  };
+Stable strings such as "quick.v1/mixed/deterministic/f32/seq" exist only at
+presentation and serialization boundaries. They are derived from the validated
+definition and workload version rather than stored as arbitrary data beside the
+definition. A name therefore cannot silently describe different effective
+parameters.
 
-The canonical catalog is the single mapping from canonical_case to its complete
-benchmark_definition. Callers select a canonical case; they cannot supply both
-an identity and an unrelated definition. This makes disagreement between an ID
-and its effective configuration unrepresentable.
-
-Stable strings such as
-"quick.v1/mixed/deterministic/f32/seq" exist only at presentation and
-serialization boundaries. A total conversion function maps canonical_case to
-its stable external name.
-
-Custom benchmarks do not store an arbitrary ID. Console and JSON presentation
-may emit the fixed external label "custom/render" when an external identifier
-is required.
+Custom benchmarks use the same resolved benchmark_case type with custom
+provenance. Console and JSON presentation emit the fixed external label
+"custom/render" when an external identifier is required.
 
 
 11. Use std::print and isolate presentation
@@ -485,8 +503,9 @@ The resulting application should follow this one-way dependency flow:
 
 Presentation must not define execution invariants. Execution must not inspect
 raw CLI options. Scene factories must not depend on measurement or reporting.
-The canonical catalog is the only authority that associates a canonical case
-with its definition and stable external name.
+The canonical catalog is the only authority that creates canonical cases.
+Stable external names are presentation projections of their resolved
+definitions.
 
 
 14. Refactoring order
@@ -497,7 +516,8 @@ Implement the redesign in this order:
 1. Add validated scalar types and scene/rendering variants.
 2. Introduce controlled benchmark_definition factories.
 3. Replace invocation with command-specific variant alternatives.
-4. Replace string canonical IDs with canonical_case and a central catalog.
+4. Replace separate canonical identities with resolved benchmark_case values
+   created only by the quick-suite catalog.
 5. Adapt scene construction and executor dispatch to the typed model.
 6. Make measurement results controlled and internally consistent.
 7. Split CLI parsing from domain construction.

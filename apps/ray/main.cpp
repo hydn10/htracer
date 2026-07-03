@@ -1,6 +1,8 @@
 #include <htracer/htracer.hpp>
 
 #include <cstddef>
+#include <cstdio>
+#include <exception>
 #include <filesystem>
 #include <numbers>
 #include <span>
@@ -40,14 +42,9 @@ build_test_scene()
   return scene;
 }
 
-} // namespace
-
-
 int
-main(int argc, char **argv)
+run(std::span<char const *const> args)
 {
-  std::span<char const *const> const args{argv, static_cast<std::size_t>(argc)};
-
   auto const scene = build_test_scene();
 
   ht_f64::v3 const camera_pos(0, 2.7, 3.1);
@@ -76,4 +73,30 @@ main(int argc, char **argv)
   htracer::outputs::ppm const ppm;
   constexpr auto ppmbpv = htracer::outputs::ppm::bytes_per_value::BPV1;
   ppm.save<ppmbpv>(filename, image);
+
+  return 0;
+}
+
+} // namespace
+
+
+int
+main(int argc, char **argv)
+{
+  try
+  {
+    return run({argv, static_cast<std::size_t>(argc)});
+  }
+  catch (std::exception const &error)
+  {
+    (void)std::fputs("error: ", stderr);
+    (void)std::fputs(error.what(), stderr);
+    (void)std::fputc('\n', stderr);
+    return 1;
+  }
+  catch (...)
+  {
+    (void)std::fputs("error: ray failed with an unknown exception\n", stderr);
+    return 1;
+  }
 }

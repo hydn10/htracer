@@ -1,7 +1,7 @@
 #include <htracer/htracer.hpp>
 
-#include <cstdlib>
 #include <cstdint>
+#include <cstdlib>
 #include <execution>
 #include <functional>
 #include <numbers>
@@ -148,10 +148,10 @@ concept renders_without_samples_with_policy =
     requires(Renderer const &renderer, ht_f64::scene const &scene, Policy policy) { renderer.render(policy, scene); };
 
 template<typename Renderer, typename Policy>
-concept renders_with_samples_with_policy = requires(
-    Renderer const &renderer, ht_f64::scene const &scene, Policy policy) {
-  renderer.render(policy, scene, htracer::rendering::samples_per_pixel{1});
-};
+concept renders_with_samples_with_policy =
+    requires(Renderer const &renderer, ht_f64::scene const &scene, Policy policy) {
+      renderer.render(policy, scene, htracer::rendering::samples_per_pixel{1});
+    };
 
 template<typename Renderer>
 concept renders_without_samples = requires(Renderer const &renderer, ht_f64::scene const &scene) {
@@ -168,15 +168,9 @@ concept renders_with_samples = requires(Renderer const &renderer, ht_f64::scene 
 template<typename Renderer>
 concept renders_with_seed = requires(Renderer const &renderer, ht_f64::scene const &scene) {
   renderer.render(
-      htracer::rendering::seq,
-      scene,
-      htracer::rendering::samples_per_pixel{1},
-      htracer::rendering::random_seed{1});
+      htracer::rendering::seq, scene, htracer::rendering::samples_per_pixel{1}, htracer::rendering::random_seed{1});
   renderer.render(
-      htracer::rendering::par,
-      scene,
-      htracer::rendering::samples_per_pixel{1},
-      htracer::rendering::random_seed{1});
+      htracer::rendering::par, scene, htracer::rendering::samples_per_pixel{1}, htracer::rendering::random_seed{1});
 };
 
 template<typename Sensor>
@@ -257,7 +251,7 @@ static_assert(one_shot_renders_with_seed<ht_f64::uniform_sensor>);
 
 
 int
-main()
+main() // NOLINT(bugprone-exception-escape)
 {
   auto const scene = make_scene();
 
@@ -269,20 +263,14 @@ main()
   auto const lvalue_image = lvalue_renderer.render(htracer::rendering::seq, scene);
 
   auto const temporary_renderer = htracer::rendering::make_renderer(
-      make_camera(),
-      htracer::rendering::batchers::column_batcher{},
-      ht_f64::point_sensor{},
-      ht_f64::pinhole_lens{});
+      make_camera(), htracer::rendering::batchers::column_batcher{}, ht_f64::point_sensor{}, ht_f64::pinhole_lens{});
   auto const temporary_image = temporary_renderer.render(htracer::rendering::seq, scene);
 
   int const marker = 1;
   borrowed_sensor<double> const borrowed{marker};
 
   auto const borrowed_renderer = htracer::rendering::make_renderer(
-      make_camera(),
-      htracer::rendering::batchers::column_batcher{},
-      std::cref(borrowed),
-      ht_f64::pinhole_lens{});
+      make_camera(), htracer::rendering::batchers::column_batcher{}, std::cref(borrowed), ht_f64::pinhole_lens{});
   auto const borrowed_image = borrowed_renderer.render(htracer::rendering::seq, scene);
 
   auto const one_shot_image = htracer::rendering::render(
@@ -293,8 +281,8 @@ main()
       ht_f64::point_sensor{},
       ht_f64::pinhole_lens{});
 
-  if (lvalue_image.pixels().size() != 4 || temporary_image.pixels().size() != 4 || borrowed_image.pixels().size() != 4
-      || one_shot_image.pixels().size() != 4)
+  if (lvalue_image.pixels().size() != 4 || temporary_image.pixels().size() != 4 ||
+      borrowed_image.pixels().size() != 4 || one_shot_image.pixels().size() != 4)
   {
     return EXIT_FAILURE;
   }

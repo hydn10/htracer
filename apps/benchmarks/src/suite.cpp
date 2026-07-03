@@ -1,11 +1,12 @@
-#include <htracer_benchmarks/model.hpp>
 #include <htracer_benchmarks/suite.hpp>
 
-#include <cstdint>
+#include <htracer/rendering/random_seed.hpp>
+#include <htracer/rendering/samples_per_pixel.hpp>
+#include <htracer_benchmarks/model.hpp>
+
+#include <array>
 #include <optional>
-#include <string>
-#include <string_view>
-#include <vector>
+#include <span>
 
 
 namespace htracer::benchmarks
@@ -14,129 +15,82 @@ namespace htracer::benchmarks
 namespace
 {
 
-constexpr std::uint64_t canonical_seed{0x0123456789abcdefULL};
-constexpr measurement_configuration quick_measurement{.warmup_count = 1, .repetition_count = 5};
+constexpr htracer::rendering::random_seed canonical_seed{0x0123456789abcdefULL};
 
 
 [[nodiscard]]
-std::string
-precision_id(precision_kind precision)
+measurement_plan
+quick_measurement()
 {
-  return precision == precision_kind::f32 ? "f32" : "f64";
+  return {.warmups = warmup_count{1}, .repetitions = repetition_count::make(5)};
 }
 
 
 [[nodiscard]]
-std::string
-policy_id(policy_kind policy)
+benchmark_definition
+mixed_deterministic(precision_kind precision, policy_kind policy)
 {
-  return policy == policy_kind::seq ? "seq" : "par";
+  return benchmark_definition::deterministic(
+      mixed_scene{}, precision, policy, image_extent::make(640, 360), quick_measurement());
 }
 
 
 [[nodiscard]]
-benchmark_case
-make_mixed_deterministic(precision_kind precision, policy_kind policy)
+benchmark_definition
+mixed_randomized(precision_kind precision, policy_kind policy)
 {
-  return {
-      .id = "quick.v1/mixed/deterministic/" + precision_id(precision) + "/" + policy_id(policy),
-      .canonical = true,
-      .render =
-          {.scene = scene_kind::mixed,
-           .rendering = rendering_kind::deterministic,
-           .precision = precision,
-           .policy = policy,
-           .batcher = batcher_kind::column,
-           .sensor = sensor_kind::point,
-           .lens = lens_kind::pinhole,
-           .width = 640,
-           .height = 360,
-           .geometry_count = std::nullopt,
-           .samples_per_pixel = std::nullopt,
-           .seed = std::nullopt},
-      .measurement = quick_measurement};
+  return benchmark_definition::randomized(
+      mixed_scene{},
+      randomized_render::make(htracer::rendering::samples_per_pixel{8}, canonical_seed),
+      precision,
+      policy,
+      image_extent::make(320, 180),
+      quick_measurement());
 }
 
 
 [[nodiscard]]
-benchmark_case
-make_mixed_randomized(precision_kind precision, policy_kind policy)
+benchmark_definition
+rng_probe(
+    std::optional<htracer::rendering::random_seed> seed,
+    policy_kind policy,
+    htracer::rendering::samples_per_pixel samples)
 {
-  return {
-      .id = "quick.v1/mixed/randomized-seeded/" + precision_id(precision) + "/" + policy_id(policy),
-      .canonical = true,
-      .render =
-          {.scene = scene_kind::mixed,
-           .rendering = rendering_kind::randomized,
-           .precision = precision,
-           .policy = policy,
-           .batcher = batcher_kind::column,
-           .sensor = sensor_kind::uniform,
-           .lens = lens_kind::pinhole,
-           .width = 320,
-           .height = 180,
-           .geometry_count = std::nullopt,
-           .samples_per_pixel = 8,
-           .seed = canonical_seed},
-      .measurement = quick_measurement};
-}
-
-
-[[nodiscard]]
-benchmark_case
-make_rng_probe(bool seeded, policy_kind policy, std::uint32_t samples)
-{
-  std::string_view const seed_id = seeded ? "seeded" : "unseeded";
-  return {
-      .id =
-          "quick.v1/rng-probe/" + std::string{seed_id} + "/spp" + std::to_string(samples) + "/f64/" + policy_id(policy),
-      .canonical = true,
-      .render =
-          {.scene = scene_kind::rng_probe,
-           .rendering = rendering_kind::randomized,
-           .precision = precision_kind::f64,
-           .policy = policy,
-           .batcher = batcher_kind::column,
-           .sensor = sensor_kind::uniform,
-           .lens = lens_kind::pinhole,
-           .width = 640,
-           .height = 360,
-           .geometry_count = std::nullopt,
-           .samples_per_pixel = samples,
-           .seed = seeded ? std::optional<std::uint64_t>{canonical_seed} : std::nullopt},
-      .measurement = quick_measurement};
+  return benchmark_definition::randomized(
+      rng_probe_scene{},
+      randomized_render::make(samples, seed),
+      precision_kind::f64,
+      policy,
+      image_extent::make(640, 360),
+      quick_measurement());
 }
 
 } // namespace
 
 
-std::vector<benchmark_case>
-make_quick_suite()
+std::span<benchmark_case const>
+quick_suite_catalog::cases()
 {
-  std::vector<benchmark_case> cases;
-  cases.reserve(16);
+  static std::array const benchmarks{
+      benchmark_case::canonical(mixed_deterministic(precision_kind::f32, policy_kind::seq)),
+      benchmark_case::canonical(mixed_randomized(precision_kind::f32, policy_kind::seq)),
+      benchmark_case::canonical(mixed_deterministic(precision_kind::f32, policy_kind::par)),
+      benchmark_case::canonical(mixed_randomized(precision_kind::f32, policy_kind::par)),
+      benchmark_case::canonical(mixed_deterministic(precision_kind::f64, policy_kind::seq)),
+      benchmark_case::canonical(mixed_randomized(precision_kind::f64, policy_kind::seq)),
+      benchmark_case::canonical(mixed_deterministic(precision_kind::f64, policy_kind::par)),
+      benchmark_case::canonical(mixed_randomized(precision_kind::f64, policy_kind::par)),
+      benchmark_case::canonical(rng_probe(std::nullopt, policy_kind::seq, htracer::rendering::samples_per_pixel{1})),
+      benchmark_case::canonical(rng_probe(std::nullopt, policy_kind::par, htracer::rendering::samples_per_pixel{1})),
+      benchmark_case::canonical(rng_probe(std::nullopt, policy_kind::seq, htracer::rendering::samples_per_pixel{16})),
+      benchmark_case::canonical(rng_probe(std::nullopt, policy_kind::par, htracer::rendering::samples_per_pixel{16})),
+      benchmark_case::canonical(rng_probe(canonical_seed, policy_kind::seq, htracer::rendering::samples_per_pixel{1})),
+      benchmark_case::canonical(rng_probe(canonical_seed, policy_kind::par, htracer::rendering::samples_per_pixel{1})),
+      benchmark_case::canonical(rng_probe(canonical_seed, policy_kind::seq, htracer::rendering::samples_per_pixel{16})),
+      benchmark_case::canonical(
+          rng_probe(canonical_seed, policy_kind::par, htracer::rendering::samples_per_pixel{16}))};
 
-  for (auto const precision : {precision_kind::f32, precision_kind::f64})
-  {
-    for (auto const policy : {policy_kind::seq, policy_kind::par})
-    {
-      cases.push_back(make_mixed_deterministic(precision, policy));
-      cases.push_back(make_mixed_randomized(precision, policy));
-    }
-  }
-
-  for (auto const seeded : {false, true})
-  {
-    for (auto const samples : {std::uint32_t{1}, std::uint32_t{16}})
-    {
-      for (auto const policy : {policy_kind::seq, policy_kind::par})
-      {
-        cases.push_back(make_rng_probe(seeded, policy, samples));
-      }
-    }
-  }
-
-  return cases;
+  return benchmarks;
 }
 
 } // namespace htracer::benchmarks

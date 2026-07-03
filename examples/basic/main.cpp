@@ -4,7 +4,7 @@
 
 
 int
-main()
+main() // NOLINT(bugprone-exception-escape)
 {
   using ht_f64 = htracer::float_traits<double>;
 

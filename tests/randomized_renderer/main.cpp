@@ -95,7 +95,7 @@ exactly_equal(ht_f64::image const &lhs, ht_f64::image const &rhs)
 
 
 int
-main()
+main() // NOLINT(bugprone-exception-escape)
 {
   auto const scene = make_scene();
   ht_f64::camera const camera{{0, 0, 0}, {0, 0, -1}, {0, 1, 0}, 8, 6, 45 * std::numbers::pi / 180};

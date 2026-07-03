@@ -197,6 +197,12 @@ Canonical cases must have stable identifiers. If their scene or workload is
 materially changed, the case identifier or workload schema version must change
 so old and new results are not silently treated as equivalent.
 
+Canonical identifiers are presentation values derived from the versioned,
+validated benchmark definition. The domain model does not maintain a separate
+string or enum identity that could disagree with the definition. A single
+quick-suite catalog owns the resolved canonical cases and is the only code that
+can give a benchmark canonical provenance.
+
 6.2 One parameterized experiment
 
 One invocation describes one experiment point. The executable does not parse
@@ -252,10 +258,11 @@ Initial rendering parameters:
 * --policy seq|par
 * --seed none|INTEGER
 
-The selected scene or canonical case initially determines batcher, sensor,
-lens, lights, and materials. The internal configuration should represent these
-choices so they can later become CLI parameters without changing the harness or
-result format.
+The selected scene and rendering mode determine batcher, sensor, lens, lights,
+and materials. Choices with only one supported value are executor details, not
+single-value configuration fields. Reporting still records their effective
+values. Promote a choice into a typed domain alternative only when the
+application actually supports more than one value.
 
 The CLI must validate combinations instead of silently ignoring arguments. For
 example:
@@ -488,7 +495,8 @@ Per-result data:
 * Individual durations, preferably stored as integer nanoseconds.
 * Summary statistics.
 * Derived throughput values.
-* Combined image checksum.
+* Combined measured-image checksum and, when warmups are present, a separate
+  warmup checksum.
 
 JSON is preferred over CSV because it can retain nested metadata and raw sample
 arrays without awkward encoding. A future comparison or graphing tool can read

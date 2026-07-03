@@ -4,7 +4,6 @@
 
 #include <htracer_benchmarks/model.hpp>
 
-#include <ostream>
 #include <span>
 #include <stdexcept>
 
@@ -25,7 +24,7 @@ parse_cli(std::span<char const *const> arguments);
 
 
 void
-print_help(std::ostream &output);
+print_help();
 
 } // namespace htracer::benchmarks
 

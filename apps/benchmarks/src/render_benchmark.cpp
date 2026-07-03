@@ -4,7 +4,6 @@
 #include <htracer_benchmarks/model.hpp>
 #include <htracer_benchmarks/scenes.hpp>
 
-#include <algorithm>
 #include <chrono>
 #include <cmath>
 #include <concepts>
@@ -14,6 +13,7 @@
 #include <span>
 #include <stdexcept>
 #include <utility>
+#include <variant>
 #include <vector>
 
 
@@ -48,24 +48,23 @@ hash_value(std::uint64_t &hash, T const &value) noexcept
 
 template<std::floating_point Float>
 [[nodiscard]]
-std::uint64_t
-validate_and_hash_image(
-    typename htracer::float_traits<Float>::image const &image, render_configuration const &configuration)
+image_checksum
+validate_and_hash_image(typename htracer::float_traits<Float>::image const &image, image_extent extent)
 {
-  if (image.h_res() != configuration.width || image.v_res() != configuration.height)
+  if (image.h_res() != extent.width() || image.v_res() != extent.height())
   {
     throw std::runtime_error("render returned unexpected image dimensions");
   }
-
-  auto const expected_pixels = static_cast<std::size_t>(configuration.width) * configuration.height;
-  if (image.pixels().size() != expected_pixels)
+  if (image.pixels().size() != extent.pixel_count())
   {
     throw std::runtime_error("render returned unexpected pixel count");
   }
 
   std::uint64_t hash = fnv_offset_basis;
-  hash_value(hash, configuration.width);
-  hash_value(hash, configuration.height);
+  auto const width = extent.width();
+  auto const height = extent.height();
+  hash_value(hash, width);
+  hash_value(hash, height);
 
   for (auto const &pixel : image.pixels())
   {
@@ -79,181 +78,205 @@ validate_and_hash_image(
       hash_value(hash, value);
     }
   }
-
-  return hash;
+  return image_checksum{hash};
 }
 
 
 void
-combine_hash(std::uint64_t &run_hash, std::uint64_t image_hash) noexcept
+combine_hash(std::uint64_t &aggregate, image_checksum checksum) noexcept
 {
-  hash_value(run_hash, image_hash);
+  auto const value = checksum.value();
+  hash_value(aggregate, value);
 }
 
 
-[[nodiscard]]
-duration_summary
-summarize(std::vector<std::uint64_t> const &samples)
+} // namespace
+
+
+namespace
 {
-  if (samples.empty())
-  {
-    throw std::runtime_error("cannot summarize an empty measurement");
-  }
-
-  auto sorted = samples;
-  std::ranges::sort(sorted);
-
-  auto const middle = sorted.size() / 2;
-  auto median = sorted[middle];
-  if (sorted.size() % 2 == 0)
-  {
-    auto const lower = sorted[middle - 1];
-    auto const upper = sorted[middle];
-    median = lower + (upper - lower) / 2;
-  }
-
-  if (median == 0)
-  {
-    throw std::runtime_error("measured median duration is zero; use a larger workload");
-  }
-
-  return {.minimum_ns = sorted.front(), .median_ns = median, .maximum_ns = sorted.back()};
-}
-
 
 template<std::floating_point Float, typename RenderOnce>
 [[nodiscard]]
 benchmark_result
-measure(benchmark_case const &benchmark, RenderOnce const &render_once)
+measure(
+    benchmark_case const &benchmark,
+    image_extent extent,
+    measurement_plan plan,
+    bool reproducible,
+    RenderOnce const &render_once)
 {
-  std::uint64_t run_hash = fnv_offset_basis;
-
-  for (std::uint32_t warmup = 0; warmup < benchmark.measurement.warmup_count; ++warmup)
+  std::uint64_t warmup_hash = fnv_offset_basis;
+  for (std::uint32_t warmup = 0; warmup < plan.warmups.value(); ++warmup)
   {
-    auto const image = render_once();
-    combine_hash(run_hash, validate_and_hash_image<Float>(image, benchmark.render));
+    combine_hash(warmup_hash, validate_and_hash_image<Float>(render_once(), extent));
   }
+  auto const warmup_checksum = plan.warmups.value() == 0 ? std::nullopt : std::optional{image_checksum{warmup_hash}};
 
-  std::vector<std::uint64_t> samples;
-  samples.reserve(benchmark.measurement.repetition_count);
-  std::optional<std::uint64_t> expected_image_hash;
-  auto const reproducible = benchmark.render.rendering == rendering_kind::deterministic || benchmark.render.seed;
+  std::vector<measured_render> renders;
+  renders.reserve(plan.repetitions.value());
+  std::optional<image_checksum> expected_image_checksum;
 
-  for (std::uint32_t repetition = 0; repetition < benchmark.measurement.repetition_count; ++repetition)
+  for (std::uint32_t repetition = 0; repetition < plan.repetitions.value(); ++repetition)
   {
     auto const started_at = std::chrono::steady_clock::now();
     auto const image = render_once();
     auto const stopped_at = std::chrono::steady_clock::now();
-
-    auto const elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(stopped_at - started_at).count();
-    if (elapsed < 0)
+    auto const duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stopped_at - started_at);
+    if (duration.count() <= 0)
     {
-      throw std::runtime_error("steady clock produced a negative duration");
+      throw std::runtime_error("measured duration is zero; use a larger workload");
     }
-    samples.push_back(static_cast<std::uint64_t>(elapsed));
 
-    auto const image_hash = validate_and_hash_image<Float>(image, benchmark.render);
-    combine_hash(run_hash, image_hash);
-
+    auto const checksum = validate_and_hash_image<Float>(image, extent);
     if (reproducible)
     {
-      if (expected_image_hash && *expected_image_hash != image_hash)
+      if (expected_image_checksum && *expected_image_checksum != checksum)
       {
         throw std::runtime_error("deterministic or seeded render changed across repetitions");
       }
-      expected_image_hash = image_hash;
+      expected_image_checksum = checksum;
     }
+    renders.push_back({.duration = duration, .checksum = checksum});
   }
 
-  auto const summary = summarize(samples);
-  return {.benchmark = benchmark, .samples_ns = std::move(samples), .summary = summary, .checksum = run_hash};
+  return benchmark_result::make(benchmark, std::move(renders), warmup_checksum);
 }
 
 
 template<std::floating_point Float, typename Renderer, typename Scene, htracer::rendering::rendering_policy Policy>
 [[nodiscard]]
 benchmark_result
-measure_deterministic(benchmark_case const &benchmark, Renderer const &renderer, Scene const &scene, Policy policy)
+measure_deterministic(
+    benchmark_case const &benchmark,
+    image_extent extent,
+    measurement_plan plan,
+    Renderer const &renderer,
+    Scene const &scene,
+    Policy policy)
 {
-  return measure<Float>(benchmark, [&renderer, &scene, policy]() { return renderer.render(policy, scene); });
+  return measure<Float>(
+      benchmark, extent, plan, true, [&renderer, &scene, policy]() { return renderer.render(policy, scene); });
 }
 
 
 template<std::floating_point Float, typename Renderer, typename Scene, htracer::rendering::rendering_policy Policy>
 [[nodiscard]]
 benchmark_result
-measure_randomized(benchmark_case const &benchmark, Renderer const &renderer, Scene const &scene, Policy policy)
+measure_randomized(
+    benchmark_case const &benchmark,
+    image_extent extent,
+    measurement_plan plan,
+    randomized_render rendering,
+    Renderer const &renderer,
+    Scene const &scene,
+    Policy policy)
 {
-  if (!benchmark.render.samples_per_pixel)
+  if (rendering.seed())
   {
-    throw std::invalid_argument("randomized benchmark is missing samples per pixel");
-  }
-
-  auto const samples = htracer::rendering::samples_per_pixel{*benchmark.render.samples_per_pixel};
-  if (benchmark.render.seed)
-  {
-    auto const seed = htracer::rendering::random_seed{*benchmark.render.seed};
     return measure<Float>(
         benchmark,
-        [&renderer, &scene, policy, samples, seed]() { return renderer.render(policy, scene, samples, seed); });
+        extent,
+        plan,
+        true,
+        [&renderer, &scene, policy, rendering]()
+    { return renderer.render(policy, scene, rendering.samples(), *rendering.seed()); });
   }
-
   return measure<Float>(
-      benchmark, [&renderer, &scene, policy, samples]() { return renderer.render(policy, scene, samples); });
+      benchmark,
+      extent,
+      plan,
+      false,
+      [&renderer, &scene, policy, rendering]() { return renderer.render(policy, scene, rendering.samples()); });
+}
+
+
+template<std::floating_point Float, typename Renderer, typename Scene, typename Mode>
+[[nodiscard]]
+benchmark_result
+dispatch_policy(
+    benchmark_case const &benchmark,
+    policy_kind execution_policy,
+    image_extent extent,
+    measurement_plan plan,
+    Mode mode,
+    Renderer const &renderer,
+    Scene const &scene)
+{
+  switch (execution_policy)
+  {
+  case policy_kind::seq:
+    if constexpr (std::same_as<Mode, deterministic_render>)
+    {
+      return measure_deterministic<Float>(benchmark, extent, plan, renderer, scene, htracer::rendering::seq);
+    }
+    else
+    {
+      return measure_randomized<Float>(benchmark, extent, plan, mode, renderer, scene, htracer::rendering::seq);
+    }
+  case policy_kind::par:
+    if constexpr (std::same_as<Mode, deterministic_render>)
+    {
+      return measure_deterministic<Float>(benchmark, extent, plan, renderer, scene, htracer::rendering::par);
+    }
+    else
+    {
+      return measure_randomized<Float>(benchmark, extent, plan, mode, renderer, scene, htracer::rendering::par);
+    }
+  }
+  std::unreachable();
 }
 
 
 template<std::floating_point Float>
 [[nodiscard]]
 benchmark_result
-run_typed(benchmark_case const &benchmark)
+run_typed(benchmark_case const &benchmark, benchmark_definition const &definition)
 {
   using traits = htracer::float_traits<Float>;
 
-  if (benchmark.render.batcher != batcher_kind::column || benchmark.render.lens != lens_kind::pinhole)
-  {
-    throw std::invalid_argument("unsupported MVP renderer components");
-  }
-
-  auto setup = make_scene<Float>(benchmark.render);
+  auto setup = make_scene<Float>(definition.scene());
+  auto const extent = definition.extent();
   typename traits::camera const camera{
-      setup.camera_position,
-      setup.camera_view,
-      setup.camera_up,
-      benchmark.render.width,
-      benchmark.render.height,
-      setup.fov};
+      setup.camera_position, setup.camera_view, setup.camera_up, extent.width(), extent.height(), setup.fov};
   htracer::rendering::batchers::column_batcher const batcher;
   typename traits::pinhole_lens const lens;
 
-  if (benchmark.render.rendering == rendering_kind::deterministic)
+  return std::visit(
+      [&]<typename Mode>(Mode mode) -> benchmark_result
   {
-    if (benchmark.render.sensor != sensor_kind::point)
+    if constexpr (std::same_as<Mode, deterministic_render>)
     {
-      throw std::invalid_argument("deterministic MVP benchmark requires point sensor");
+      typename traits::point_sensor const sensor;
+      auto const renderer = htracer::rendering::make_renderer(camera, batcher, sensor, lens);
+      return dispatch_policy<Float>(
+          benchmark, definition.policy(), definition.extent(), definition.measurement(), mode, renderer, setup.scene);
     }
-
-    typename traits::point_sensor const sensor;
-    auto const renderer = htracer::rendering::make_renderer(camera, batcher, sensor, lens);
-    if (benchmark.render.policy == policy_kind::seq)
+    else
     {
-      return measure_deterministic<Float>(benchmark, renderer, setup.scene, htracer::rendering::seq);
+      static_assert(std::same_as<Mode, randomized_render>);
+      typename traits::uniform_sensor const sensor;
+      auto const renderer = htracer::rendering::make_renderer(camera, batcher, sensor, lens);
+      return dispatch_policy<Float>(
+          benchmark, definition.policy(), definition.extent(), definition.measurement(), mode, renderer, setup.scene);
     }
-    return measure_deterministic<Float>(benchmark, renderer, setup.scene, htracer::rendering::par);
-  }
+  },
+      definition.rendering());
+}
 
-  if (benchmark.render.sensor != sensor_kind::uniform)
-  {
-    throw std::invalid_argument("randomized MVP benchmark requires uniform sensor");
-  }
 
-  typename traits::uniform_sensor const sensor;
-  auto const renderer = htracer::rendering::make_renderer(camera, batcher, sensor, lens);
-  if (benchmark.render.policy == policy_kind::seq)
+[[nodiscard]]
+benchmark_result
+run_definition(benchmark_case const &benchmark, benchmark_definition const &definition)
+{
+  switch (definition.precision())
   {
-    return measure_randomized<Float>(benchmark, renderer, setup.scene, htracer::rendering::seq);
+  case precision_kind::f32:
+    return run_typed<float>(benchmark, definition);
+  case precision_kind::f64:
+    return run_typed<double>(benchmark, definition);
   }
-  return measure_randomized<Float>(benchmark, renderer, setup.scene, htracer::rendering::par);
+  std::unreachable();
 }
 
 } // namespace
@@ -262,15 +285,7 @@ run_typed(benchmark_case const &benchmark)
 benchmark_result
 run_benchmark(benchmark_case const &benchmark)
 {
-  switch (benchmark.render.precision)
-  {
-  case precision_kind::f32:
-    return run_typed<float>(benchmark);
-  case precision_kind::f64:
-    return run_typed<double>(benchmark);
-  }
-
-  throw std::invalid_argument("unsupported benchmark precision");
+  return run_definition(benchmark, benchmark.definition());
 }
 
 } // namespace htracer::benchmarks

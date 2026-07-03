@@ -90,8 +90,9 @@ main.cpp
   optionally write JSON, and map failures to process exit codes.
 
 model.hpp
-  Own enums and plain configuration/result structures shared by the runner,
-  CLI, suites, and reports. It should not depend on htracer headers.
+  Own validated scalar types, scene/render variants, resolved benchmark cases,
+  and self-validating result types shared by the runner, CLI, suites, and
+  reports. Reuse htracer's samples_per_pixel and random_seed domain types.
 
 cli.hpp / cli.cpp
   Parse arguments into a raw invocation and validate/resolve them into concrete
@@ -108,8 +109,8 @@ render_benchmark.hpp / render_benchmark.cpp
   the source file where practical.
 
 suite.hpp / suite.cpp
-  Return the explicit list of canonical quick-suite cases. Canonical case IDs
-  and parameters live in one place.
+  Own and return the explicit resolved canonical quick-suite cases. Stable
+  external names are derived from their definitions during presentation.
 
 report.hpp / report.cpp
   Compute presentation values, print the console table, gather basic build
@@ -123,86 +124,68 @@ more navigation than clarity.
 4. Core data model
 ------------------
 
-Use enums rather than strings after parsing:
+Strings and conditionally meaningful optionals are confined to raw CLI input.
+Validated configuration uses types whose alternatives correspond to valid data
+shapes:
 
-  enum class scene_kind { mixed, traversal, rng_probe };
-  enum class rendering_kind { deterministic, randomized };
-  enum class precision_kind { f32, f64 };
-  enum class policy_kind { seq, par };
-  enum class batcher_kind { column };
-  enum class sensor_kind { point, uniform };
-  enum class lens_kind { pinhole };
+  struct mixed_scene {};
+  struct traversal_scene { geometry_count count; };
+  struct rng_probe_scene {};
+  using scene_spec = std::variant<mixed_scene, traversal_scene, rng_probe_scene>;
 
-The single-value component enums are intentional but modest. They record the
-effective configuration in results and provide a direct extension point when
-pixel batching or thin lenses are added. They do not require generic component
-registration or runtime polymorphism.
+  struct deterministic_render {};
 
-Suggested configuration structures:
-
-  struct render_configuration
+  class randomized_render
   {
-    scene_kind scene;
-    rendering_kind rendering;
-    precision_kind precision;
-    policy_kind policy;
-
-    batcher_kind batcher;
-    sensor_kind sensor;
-    lens_kind lens;
-
-    std::uint32_t width;
-    std::uint32_t height;
-    std::optional<std::uint32_t> geometry_count;
-    std::optional<std::uint32_t> samples_per_pixel;
-    std::optional<std::uint64_t> seed;
+  public:
+    static randomized_render make(
+        samples_per_pixel samples,
+        std::optional<random_seed> seed);
+    // Read-only accessors; construction rejects zero samples.
   };
 
-  struct measurement_configuration
+  using render_mode = std::variant<deterministic_render, randomized_render>;
+
+precision_kind and policy_kind remain closed enums. image_extent,
+geometry_count, repetition_count, and warmup_count are distinct scalar domain
+types. The first three validate their non-zero or overflow invariants during
+construction; warmup_count intentionally permits zero.
+
+benchmark_definition has a private constructor and named deterministic and
+randomized factories. It contains scene_spec, render_mode, precision, policy,
+image extent, and measurement plan. Its factories enforce cross-type rules such
+as prohibiting a deterministic RNG probe. Sensor choice is derived from
+render_mode; the sole batcher and lens are executor implementation details and
+are not represented by single-value enums.
+
+benchmark_case is a resolved value containing canonical/custom provenance and
+the exact benchmark_definition to execute. Public construction creates custom
+cases. Only quick_suite_catalog can create canonical cases. There is no
+separate canonical enum, arbitrary string ID, or later identity-to-definition
+lookup.
+
+Measured values use semantic types:
+
+  struct measured_render
   {
-    std::uint32_t warmup_count;
-    std::uint32_t repetition_count;
+    std::chrono::nanoseconds duration;
+    image_checksum checksum;
   };
 
-  struct benchmark_case
-  {
-    std::string id;
-    bool canonical;
-    render_configuration render;
-    measurement_configuration measurement;
-  };
-
-The rendering kind disambiguates an absent seed:
-
-* Deterministic: samples and seed are absent.
-* Randomized unseeded: samples are present and seed is absent.
-* Randomized seeded: samples and seed are present.
-
-Suggested result structures:
-
-  struct duration_summary
-  {
-    std::uint64_t minimum_ns;
-    std::uint64_t median_ns;
-    std::uint64_t maximum_ns;
-  };
-
-  struct benchmark_result
-  {
-    benchmark_case benchmark;
-    std::vector<std::uint64_t> samples_ns;
-    duration_summary summary;
-    std::uint64_t checksum;
-  };
+benchmark_result has a private unchecked constructor and a public validated
+factory. The factory requires the measured-render count to equal the resolved
+definition's repetition count, verifies positive durations and consistent
+warmup-checksum presence, and derives summary and aggregate checksum values.
+Callers cannot independently supply a summary that contradicts the samples.
 
 Environment metadata and a vector of benchmark_result objects form one
 run_report. Derived floating-point throughput values can be calculated during
 reporting from integer parameters and median_ns; they do not need to be stored
 as mutable runner state.
 
-All effective component selections must be serialized, even when they are not
-yet exposed as custom CLI options. This makes old results interpretable after
-new options are introduced.
+All effective component selections are serialized. Derived choices such as
+point versus uniform sensor, column batcher, and pinhole lens are emitted by
+presentation without becoming independently configurable domain fields.
 
 
 5. CLI parsing and validation
@@ -269,10 +252,10 @@ produce a clear runtime error rather than an uncaught exception.
 
 5.4 Validation architecture
 
-Keep raw parsed options separate from render_configuration. Raw fields may be
-optional; a render_configuration exists only after all defaults and
-cross-option rules have been resolved. Rendering and reporting code should not
-need to revalidate CLI semantics.
+Keep raw parsed options separate from the domain model. Raw fields may be
+optional; a benchmark_definition exists only after all defaults, scalar
+invariants, and cross-option rules have been resolved. Execution and reporting
+code should not need to revalidate CLI semantics.
 
 
 6. Runtime-to-template dispatch
@@ -471,13 +454,12 @@ Use one documented 64-bit byte-hash algorithm, such as FNV-1a, over:
 * Every floating-point channel's object representation, obtained with
   std::bit_cast or an equivalent defined byte view.
 
-Hash every warmup and measured result outside timed regions. Combine all image
-hashes into one reported run checksum. Printing/serializing the checksum makes
-both warmup and measured results observable to the optimizer. The checksum may
-therefore change if the configured warmup or repetition count changes, which is
-acceptable because it is diagnostic rather than an image identity.
-Use an ordered hash-combine operation rather than plain XOR so repeated
-identical images do not cancel each other.
+Hash every warmup and measured result outside timed regions. Combine measured
+image hashes into the reported run checksum and warmup hashes into a separate
+optional warmup checksum. Printing/serializing both values makes every render
+observable to the optimizer while keeping measurement and warmup identity
+explicit. Use an ordered hash-combine operation rather than plain XOR so
+repeated identical images do not cancel each other.
 
 For deterministic and explicitly seeded cases, require all measured hashes in
 that case to match. Do not require unseeded hashes to differ; equality is
@@ -506,10 +488,10 @@ results in memory for final JSON output; the expected result count is small.
 
 11.2 JSON
 
-Write a project-specific serializer with std::ostream. Do not implement a
-general JSON DOM or parser. Provide one string-escaping helper, use the classic
-locale for numeric output, check stream failures, and return an error if the
-output file cannot be completed.
+Write a project-specific serializer around an RAII-owned FILE and C++23
+std::print. Do not implement a general JSON DOM or parser. Provide one
+string-escaping helper, keep numeric output locale-independent, check write and
+close failures, and return an error if the output file cannot be completed.
 
 Proposed top-level shape:
 
@@ -736,8 +718,8 @@ verification step, not a project requirement.
 Future work should extend existing seams:
 
 New scene
-  Add a scene_kind value, parser spelling, typed scene factory, validation
-  rules, and serialized value.
+  Add a scene_spec variant alternative, parser spelling, typed scene factory,
+  any cross-type construction rule, and serialized value.
 
 New component choice
   Add an enum value and one explicit dispatch branch. Promote the corresponding
@@ -748,12 +730,12 @@ New numeric scene parameter
   external script varies it by invoking one configuration at a time.
 
 New canonical suite
-  Add an explicit function returning benchmark_case values. Do not create a
-  generalized matrix language.
+  Add a catalog that owns and returns resolved canonical benchmark_case values.
+  Do not create a generalized matrix language or separate identity registry.
 
 New statistic
-  Derive it from samples_ns in reporting. Raw samples preserve the required
-  input.
+  Derive it from measured_render durations in reporting. Raw measured renders
+  preserve the required input.
 
 New metadata
   Append a field under environment. Increment schema_version only for a
@@ -778,13 +760,13 @@ Step 1: Build skeleton
 * Replace BUILD_RAY with BUILD_APPS across CMake, presets, Nix, and docs.
 * Add apps/benchmarks with src and include/htracer_benchmarks, the installed and
   exported target, private header file set, and --help/--list skeleton.
-* Add model enums/structures and quick-case registration without rendering.
+* Add validated model types and quick-suite catalog without rendering.
 * Add benchmarks.list CTest.
 
 Step 2: CLI and validated configuration
 
 * Implement strict numeric/enum parsing and mode selection.
-* Resolve custom options into a complete render_configuration.
+* Resolve custom options into a complete benchmark_definition.
 * Add clear validation diagnostics and exit codes.
 
 Step 3: Render path and scenes

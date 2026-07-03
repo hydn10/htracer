@@ -4,69 +4,86 @@
 #include <htracer_benchmarks/report.hpp>
 #include <htracer_benchmarks/suite.hpp>
 
+#include <array>
+#include <concepts>
 #include <cstddef>
+#include <cstdio>
 #include <exception>
-#include <iostream>
+#include <filesystem>
 #include <new>
+#include <optional>
+#include <print>
 #include <span>
 #include <utility>
-#include <vector>
+#include <variant>
 
 
 namespace
 {
+
+void
+run_cases(
+    std::span<htracer::benchmarks::benchmark_case const> cases, std::optional<std::filesystem::path> const &output)
+{
+  using namespace htracer::benchmarks;
+
+  run_report report{.environment = get_environment_info(), .results = {}};
+  report.results.reserve(cases.size());
+  print_environment(report.environment);
+
+  for (auto const &benchmark : cases)
+  {
+    std::println("Running {}...", benchmark_name(benchmark));
+    (void)std::fflush(stdout);
+    auto result = run_benchmark(benchmark);
+    print_result(result);
+    report.results.push_back(std::move(result));
+  }
+
+  if (output)
+  {
+    write_json(*output, report);
+    std::println("Wrote {}", output->string());
+  }
+}
+
 
 int
 run(std::span<char const *const> arguments)
 {
   using namespace htracer::benchmarks;
 
-  auto const invocation = parse_cli(arguments);
-  if (invocation.operation == operation_kind::help)
+  return std::visit(
+      []<typename Command>(Command const &command)
   {
-    print_help(std::cout);
+    if constexpr (std::same_as<Command, help_command>)
+    {
+      print_help();
+    }
+    else if constexpr (std::same_as<Command, list_command>)
+    {
+      print_case_list(quick_suite_catalog::cases());
+    }
+    else if constexpr (std::same_as<Command, quick_suite_command>)
+    {
+      run_cases(quick_suite_catalog::cases(), command.output);
+    }
+    else
+    {
+      static_assert(std::same_as<Command, custom_render_command>);
+      std::array benchmarks{benchmark_case::custom(command.benchmark)};
+      run_cases(benchmarks, command.output);
+    }
     return 0;
-  }
-
-  auto cases = make_quick_suite();
-  if (invocation.operation == operation_kind::list)
-  {
-    print_case_list(std::cout, cases);
-    return 0;
-  }
-
-  if (invocation.operation == operation_kind::custom_render)
-  {
-    cases.clear();
-    cases.push_back(*invocation.custom_case);
-  }
-
-  run_report report{.environment = get_environment_info(), .results = {}};
-  report.results.reserve(cases.size());
-  print_environment(std::cout, report.environment);
-
-  for (auto const &benchmark : cases)
-  {
-    std::cout << "Running " << benchmark.id << "...\n" << std::flush;
-    auto result = run_benchmark(benchmark);
-    print_result(std::cout, result);
-    report.results.push_back(std::move(result));
-  }
-
-  if (invocation.output_path)
-  {
-    write_json(*invocation.output_path, report);
-    std::cout << "Wrote " << invocation.output_path->string() << '\n';
-  }
-
-  return 0;
+  },
+      parse_cli(arguments));
 }
 
 } // namespace
 
 
 int
-main(int argc, char const *argv[]) // NOLINT(bugprone-exception-escape)
+main(int argc, char const *argv[])
 {
   try
   {
@@ -75,17 +92,26 @@ main(int argc, char const *argv[]) // NOLINT(bugprone-exception-escape)
   }
   catch (htracer::benchmarks::usage_error const &error)
   {
-    std::cerr << "error: " << error.what() << "\nTry --help for usage.\n";
+    (void)std::fputs("error: ", stderr);
+    (void)std::fputs(error.what(), stderr);
+    (void)std::fputs("\nTry --help for usage.\n", stderr);
     return 2;
   }
   catch (std::bad_alloc const &)
   {
-    std::cerr << "error: benchmark allocation failed\n";
+    (void)std::fputs("error: benchmark allocation failed\n", stderr);
     return 1;
   }
   catch (std::exception const &error)
   {
-    std::cerr << "error: " << error.what() << '\n';
+    (void)std::fputs("error: ", stderr);
+    (void)std::fputs(error.what(), stderr);
+    (void)std::fputc('\n', stderr);
+    return 1;
+  }
+  catch (...)
+  {
+    (void)std::fputs("error: benchmark failed with an unknown exception\n", stderr);
     return 1;
   }
 }

@@ -3,23 +3,22 @@
 #include <htracer_benchmarks/model.hpp>
 #include <htracer_benchmarks/suite.hpp>
 
-#include <cstddef>
+#include <cerrno>
+#include <concepts>
 #include <cstdint>
+#include <cstdio>
 #include <filesystem>
-#include <fstream>
-#include <iomanip>
-#include <ios>
-#include <limits>
-#include <locale>
+#include <format>
 #include <optional>
-#include <ostream>
+#include <print>
 #include <span>
-#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <system_error>
 #include <thread>
 #include <utility>
+#include <variant>
 
 
 namespace htracer::benchmarks
@@ -28,292 +27,444 @@ namespace htracer::benchmarks
 namespace
 {
 
-template<typename Enum>
 [[nodiscard]]
 std::string_view
-unknown_enum([[maybe_unused]] Enum value) noexcept
+scene_name(scene_spec const &scene)
 {
-  return "unknown";
-}
-
-
-[[nodiscard]]
-std::uint32_t
-effective_samples(render_configuration const &configuration) noexcept
-{
-  return configuration.samples_per_pixel.value_or(1);
-}
-
-
-[[nodiscard]]
-long double
-pixels_per_second(benchmark_result const &result)
-{
-  auto const pixels = static_cast<long double>(result.benchmark.render.width) * result.benchmark.render.height;
-  auto const seconds = static_cast<long double>(result.summary.median_ns) / 1'000'000'000.0L;
-  return pixels / seconds;
-}
-
-
-[[nodiscard]]
-long double
-primary_samples_per_second(benchmark_result const &result)
-{
-  return pixels_per_second(result) * effective_samples(result.benchmark.render);
-}
-
-
-[[nodiscard]]
-std::string
-hex_checksum(std::uint64_t checksum)
-{
-  std::ostringstream output;
-  output << "0x" << std::hex << std::setw(16) << std::setfill('0') << checksum;
-  return output.str();
-}
-
-
-void
-write_json_string(std::ostream &output, std::string_view value)
-{
-  output << '"';
-  for (unsigned char const character : value)
+  return std::visit(
+      []<typename Scene>(Scene const &) -> std::string_view
   {
-    switch (character)
+    if constexpr (std::same_as<Scene, mixed_scene>)
     {
-    case '"':
-      output << "\\\"";
-      break;
-    case '\\':
-      output << "\\\\";
-      break;
-    case '\b':
-      output << "\\b";
-      break;
-    case '\f':
-      output << "\\f";
-      break;
-    case '\n':
-      output << "\\n";
-      break;
-    case '\r':
-      output << "\\r";
-      break;
-    case '\t':
-      output << "\\t";
-      break;
-    default:
-      if (character < 0x20)
-      {
-        output << "\\u" << std::hex << std::setw(4) << std::setfill('0') << static_cast<unsigned>(character) << std::dec
-               << std::setfill(' ');
-      }
-      else
-      {
-        output << static_cast<char>(character);
-      }
+      return "mixed";
     }
-  }
-  output << '"';
-}
-
-
-template<typename T>
-void
-write_optional_integer(std::ostream &output, std::optional<T> value)
-{
-  if (value)
-  {
-    output << *value;
-  }
-  else
-  {
-    output << "null";
-  }
-}
-
-
-void
-write_optional_seed(std::ostream &output, std::optional<std::uint64_t> seed)
-{
-  if (seed)
-  {
-    write_json_string(output, std::to_string(*seed));
-  }
-  else
-  {
-    output << "null";
-  }
-}
-
-
-void
-write_environment_json(std::ostream &output, environment_info const &environment)
-{
-  output << "    \"os\": ";
-  write_json_string(output, environment.os);
-  output << ",\n    \"architecture\": ";
-  write_json_string(output, environment.architecture);
-  output << ",\n    \"compiler\": ";
-  write_json_string(output, environment.compiler);
-  output << ",\n    \"compiler_version\": ";
-  write_json_string(output, environment.compiler_version);
-  output << ",\n    \"build_type\": ";
-  write_json_string(output, environment.build_type);
-  output << ",\n    \"logical_processors\": " << environment.logical_processors << '\n';
-}
-
-
-void
-write_result_json(std::ostream &output, benchmark_result const &result)
-{
-  auto const &benchmark = result.benchmark;
-  auto const &render = benchmark.render;
-
-  output << "    {\n      \"id\": ";
-  write_json_string(output, benchmark.id);
-  output << ",\n      \"canonical\": " << (benchmark.canonical ? "true" : "false")
-         << ",\n      \"benchmark\": \"render\""
-         << ",\n      \"scene\": ";
-  write_json_string(output, to_string(render.scene));
-  output << ",\n      \"rendering\": ";
-  write_json_string(output, to_string(render.rendering));
-  output << ",\n      \"precision\": ";
-  write_json_string(output, to_string(render.precision));
-  output << ",\n      \"policy\": ";
-  write_json_string(output, to_string(render.policy));
-  output << ",\n      \"batcher\": ";
-  write_json_string(output, to_string(render.batcher));
-  output << ",\n      \"sensor\": ";
-  write_json_string(output, to_string(render.sensor));
-  output << ",\n      \"lens\": ";
-  write_json_string(output, to_string(render.lens));
-  output << ",\n      \"width\": " << render.width << ",\n      \"height\": " << render.height
-         << ",\n      \"geometry_count\": ";
-  write_optional_integer(output, render.geometry_count);
-  output << ",\n      \"samples_per_pixel\": ";
-  write_optional_integer(output, render.samples_per_pixel);
-  output << ",\n      \"seed\": ";
-  write_optional_seed(output, render.seed);
-  output << ",\n      \"warmup_count\": " << benchmark.measurement.warmup_count
-         << ",\n      \"repetition_count\": " << benchmark.measurement.repetition_count << ",\n      \"samples_ns\": [";
-
-  for (std::size_t index = 0; index < result.samples_ns.size(); ++index)
-  {
-    if (index != 0)
+    else if constexpr (std::same_as<Scene, traversal_scene>)
     {
-      output << ", ";
+      return "traversal";
     }
-    output << result.samples_ns[index];
-  }
-
-  output << "]"
-         << ",\n      \"minimum_ns\": " << result.summary.minimum_ns
-         << ",\n      \"median_ns\": " << result.summary.median_ns
-         << ",\n      \"maximum_ns\": " << result.summary.maximum_ns
-         << ",\n      \"pixels_per_second\": " << pixels_per_second(result)
-         << ",\n      \"primary_samples_per_second\": " << primary_samples_per_second(result)
-         << ",\n      \"checksum\": ";
-  write_json_string(output, hex_checksum(result.checksum));
-  output << "\n    }";
+    else
+    {
+      static_assert(std::same_as<Scene, rng_probe_scene>);
+      return "rng-probe";
+    }
+  },
+      scene);
 }
 
-} // namespace
 
-
+[[nodiscard]]
 std::string_view
-to_string(scene_kind value) noexcept
+rendering_name(render_mode const &rendering)
 {
-  switch (value)
+  return std::visit(
+      []<typename Mode>(Mode const &) -> std::string_view
   {
-  case scene_kind::mixed:
-    return "mixed";
-  case scene_kind::traversal:
-    return "traversal";
-  case scene_kind::rng_probe:
-    return "rng-probe";
-  }
-  return unknown_enum(value);
+    if constexpr (std::same_as<Mode, deterministic_render>)
+    {
+      return "deterministic";
+    }
+    else
+    {
+      static_assert(std::same_as<Mode, randomized_render>);
+      return "randomized";
+    }
+  },
+      rendering);
 }
 
 
+[[nodiscard]]
 std::string_view
-to_string(rendering_kind value) noexcept
+precision_name(precision_kind precision) noexcept
 {
-  switch (value)
-  {
-  case rendering_kind::deterministic:
-    return "deterministic";
-  case rendering_kind::randomized:
-    return "randomized";
-  }
-  return unknown_enum(value);
-}
-
-
-std::string_view
-to_string(precision_kind value) noexcept
-{
-  switch (value)
+  switch (precision)
   {
   case precision_kind::f32:
     return "float";
   case precision_kind::f64:
     return "double";
   }
-  return unknown_enum(value);
+  std::unreachable();
 }
 
 
+[[nodiscard]]
 std::string_view
-to_string(policy_kind value) noexcept
+policy_name(policy_kind policy) noexcept
 {
-  switch (value)
+  switch (policy)
   {
   case policy_kind::seq:
     return "seq";
   case policy_kind::par:
     return "par";
   }
-  return unknown_enum(value);
+  std::unreachable();
 }
 
 
-std::string_view
-to_string(batcher_kind value) noexcept
+[[nodiscard]]
+std::uint32_t
+effective_samples(render_mode const &rendering)
 {
-  switch (value)
+  return std::visit(
+      []<typename Mode>(Mode const &mode)
   {
-  case batcher_kind::column:
-    return "column";
-  }
-  return unknown_enum(value);
+    if constexpr (std::same_as<Mode, deterministic_render>)
+    {
+      return std::uint32_t{1};
+    }
+    else
+    {
+      static_assert(std::same_as<Mode, randomized_render>);
+      return mode.samples().value;
+    }
+  },
+      rendering);
 }
 
 
-std::string_view
-to_string(sensor_kind value) noexcept
+[[nodiscard]]
+long double
+pixels_per_second(benchmark_result const &result, benchmark_definition const &definition)
 {
-  switch (value)
-  {
-  case sensor_kind::point:
-    return "point";
-  case sensor_kind::uniform:
-    return "uniform";
-  }
-  return unknown_enum(value);
+  auto const pixels = static_cast<long double>(definition.extent().pixel_count());
+  auto const seconds = static_cast<long double>(result.summary().median.count()) / 1'000'000'000.0L;
+  return pixels / seconds;
 }
 
 
-std::string_view
-to_string(lens_kind value) noexcept
+[[nodiscard]]
+std::string
+hex_checksum(image_checksum checksum)
 {
-  switch (value)
+  return std::format("0x{:016x}", checksum.value());
+}
+
+
+[[nodiscard]]
+std::string_view
+precision_id(precision_kind precision) noexcept
+{
+  switch (precision)
   {
-  case lens_kind::pinhole:
-    return "pinhole";
+  case precision_kind::f32:
+    return "f32";
+  case precision_kind::f64:
+    return "f64";
   }
-  return unknown_enum(value);
+  std::unreachable();
+}
+
+
+[[nodiscard]]
+std::string_view
+seed_id(randomized_render const &rendering) noexcept
+{
+  return rendering.seed() ? "seeded" : "unseeded";
+}
+
+
+[[nodiscard]]
+std::string
+canonical_benchmark_name(benchmark_definition const &definition)
+{
+  auto const precision = precision_id(definition.precision());
+  auto const policy = policy_name(definition.policy());
+
+  return std::visit(
+      [&]<typename Scene>(Scene const &scene) -> std::string
+  {
+    return std::visit(
+        [&]<typename Mode>(Mode const &mode) -> std::string
+    {
+      if constexpr (std::same_as<Scene, mixed_scene>)
+      {
+        if constexpr (std::same_as<Mode, deterministic_render>)
+        {
+          return std::format("quick.v1/mixed/deterministic/{}/{}", precision, policy);
+        }
+        else
+        {
+          static_assert(std::same_as<Mode, randomized_render>);
+          return std::format("quick.v1/mixed/randomized-{}/{}/{}", seed_id(mode), precision, policy);
+        }
+      }
+      else if constexpr (std::same_as<Scene, traversal_scene>)
+      {
+        if constexpr (std::same_as<Mode, deterministic_render>)
+        {
+          return std::format("quick.v1/traversal/g{}/deterministic/{}/{}", scene.count.value(), precision, policy);
+        }
+        else
+        {
+          static_assert(std::same_as<Mode, randomized_render>);
+          return std::format(
+              "quick.v1/traversal/g{}/randomized-{}/spp{}/{}/{}",
+              scene.count.value(),
+              seed_id(mode),
+              mode.samples().value,
+              precision,
+              policy);
+        }
+      }
+      else
+      {
+        static_assert(std::same_as<Scene, rng_probe_scene>);
+        if constexpr (std::same_as<Mode, deterministic_render>)
+        {
+          throw std::logic_error("canonical RNG probe cannot use deterministic rendering");
+        }
+        else
+        {
+          static_assert(std::same_as<Mode, randomized_render>);
+          return std::format(
+              "quick.v1/rng-probe/{}/spp{}/{}/{}", seed_id(mode), mode.samples().value, precision, policy);
+        }
+      }
+    },
+        definition.rendering());
+  },
+      definition.scene());
+}
+
+
+class json_writer
+{
+public:
+  explicit json_writer(std::filesystem::path const &path)
+  {
+#if defined(_WIN32)
+    if (_wfopen_s(&file_, path.c_str(), L"wb") != 0) // NOLINT(misc-include-cleaner)
+    {
+      file_ = nullptr;
+    }
+#else
+    file_ = std::fopen(path.c_str(), "wb");
+#endif
+    if (file_ == nullptr)
+    {
+      throw std::system_error(errno, std::generic_category(), "failed to open JSON output");
+    }
+  }
+
+  json_writer(json_writer const &) = delete;
+  json_writer &
+  operator=(json_writer const &) = delete;
+  json_writer(json_writer &&) = delete;
+  json_writer &
+  operator=(json_writer &&) = delete;
+
+  ~json_writer()
+  {
+    if (file_ != nullptr)
+    {
+      (void)std::fclose(file_); // NOLINT(cppcoreguidelines-owning-memory)
+    }
+  }
+
+  template<typename... Args>
+  void
+  write(std::format_string<Args...> format, Args &&...args)
+  {
+    std::print(file_, format, std::forward<Args>(args)...);
+  }
+
+  void
+  string(std::string_view value)
+  {
+    write("\"");
+    for (unsigned char const character : value)
+    {
+      switch (character)
+      {
+      case '"':
+        write("\\\"");
+        break;
+      case '\\':
+        write("\\\\");
+        break;
+      case '\b':
+        write("\\b");
+        break;
+      case '\f':
+        write("\\f");
+        break;
+      case '\n':
+        write("\\n");
+        break;
+      case '\r':
+        write("\\r");
+        break;
+      case '\t':
+        write("\\t");
+        break;
+      default:
+        if (character < 0x20)
+        {
+          write("\\u{:04x}", static_cast<unsigned>(character));
+        }
+        else if (std::fputc(character, file_) == EOF)
+        {
+          throw std::system_error(errno, std::generic_category(), "failed to write JSON output");
+        }
+      }
+    }
+    write("\"");
+  }
+
+  void
+  close()
+  {
+    auto *const file = std::exchange(file_, nullptr);
+    if (std::fclose(file) != 0) // NOLINT(cppcoreguidelines-owning-memory)
+    {
+      throw std::system_error(errno, std::generic_category(), "failed to close JSON output");
+    }
+  }
+
+private:
+  std::FILE *file_{};
+};
+
+
+void
+write_environment_json(json_writer &output, environment_info const &environment)
+{
+  output.write("    \"os\": ");
+  output.string(environment.os);
+  output.write(",\n    \"architecture\": ");
+  output.string(environment.architecture);
+  output.write(",\n    \"compiler\": ");
+  output.string(environment.compiler);
+  output.write(",\n    \"compiler_version\": ");
+  output.string(environment.compiler_version);
+  output.write(",\n    \"build_type\": ");
+  output.string(environment.build_type);
+  output.write(",\n    \"logical_processors\": {}\n", environment.logical_processors);
+}
+
+
+void
+write_scene_json(json_writer &output, scene_spec const &scene)
+{
+  output.string(scene_name(scene));
+  output.write(",\n      \"geometry_count\": ");
+  std::visit(
+      [&output]<typename Scene>(Scene const &value)
+  {
+    if constexpr (std::same_as<Scene, traversal_scene>)
+    {
+      output.write("{}", value.count.value());
+    }
+    else
+    {
+      output.write("null");
+    }
+  },
+      scene);
+}
+
+
+void
+write_rendering_json(json_writer &output, render_mode const &rendering)
+{
+  output.string(rendering_name(rendering));
+  std::visit(
+      [&output]<typename Mode>(Mode const &mode)
+  {
+    if constexpr (std::same_as<Mode, deterministic_render>)
+    {
+      output.write(",\n      \"sensor\": \"point\"");
+      output.write(",\n      \"samples_per_pixel\": null");
+      output.write(",\n      \"seed\": null");
+    }
+    else
+    {
+      static_assert(std::same_as<Mode, randomized_render>);
+      output.write(",\n      \"sensor\": \"uniform\"");
+      output.write(",\n      \"samples_per_pixel\": {}", mode.samples().value);
+      output.write(",\n      \"seed\": ");
+      if (mode.seed())
+      {
+        output.string(std::to_string(mode.seed()->value));
+      }
+      else
+      {
+        output.write("null");
+      }
+    }
+  },
+      rendering);
+}
+
+
+void
+write_result_json(json_writer &output, benchmark_result const &result)
+{
+  auto const &definition = result.benchmark().definition();
+  auto const canonical = result.benchmark().is_canonical();
+  auto const summary = result.summary();
+
+  output.write("    {{\n      \"id\": ");
+  output.string(benchmark_name(result.benchmark()));
+  output.write(",\n      \"canonical\": {}", canonical);
+  output.write(",\n      \"benchmark\": \"render\"");
+  output.write(",\n      \"scene\": ");
+  write_scene_json(output, definition.scene());
+  output.write(",\n      \"rendering\": ");
+  write_rendering_json(output, definition.rendering());
+  output.write(",\n      \"precision\": ");
+  output.string(precision_name(definition.precision()));
+  output.write(",\n      \"policy\": ");
+  output.string(policy_name(definition.policy()));
+  output.write(",\n      \"batcher\": \"column\"");
+  output.write(",\n      \"lens\": \"pinhole\"");
+  output.write(",\n      \"width\": {}", definition.extent().width());
+  output.write(",\n      \"height\": {}", definition.extent().height());
+  output.write(",\n      \"warmup_count\": {}", definition.measurement().warmups.value());
+  output.write(",\n      \"repetition_count\": {}", definition.measurement().repetitions.value());
+  output.write(",\n      \"samples_ns\": [");
+  for (std::size_t index = 0; index < result.renders().size(); ++index)
+  {
+    if (index != 0)
+    {
+      output.write(", ");
+    }
+    output.write("{}", result.renders()[index].duration.count());
+  }
+  output.write("]");
+  output.write(",\n      \"minimum_ns\": {}", summary.minimum.count());
+  output.write(",\n      \"median_ns\": {}", summary.median.count());
+  output.write(",\n      \"maximum_ns\": {}", summary.maximum.count());
+  auto const pixels = pixels_per_second(result, definition);
+  output.write(",\n      \"pixels_per_second\": {}", pixels);
+  output.write(",\n      \"primary_samples_per_second\": {}", pixels * effective_samples(definition.rendering()));
+  output.write(",\n      \"checksum\": ");
+  output.string(hex_checksum(result.checksum()));
+  output.write(",\n      \"warmup_checksum\": ");
+  if (result.warmup_checksum())
+  {
+    output.string(hex_checksum(*result.warmup_checksum()));
+  }
+  else
+  {
+    output.write("null");
+  }
+  output.write("\n    }}");
+}
+
+} // namespace
+
+
+std::string
+benchmark_name(benchmark_case const &benchmark)
+{
+  if (!benchmark.is_canonical())
+  {
+    return "custom/render";
+  }
+  return canonical_benchmark_name(benchmark.definition());
 }
 
 
@@ -363,83 +514,98 @@ get_environment_info()
 
 
 void
-print_case_list(std::ostream &output, std::span<benchmark_case const> benchmarks)
+print_case_list(std::span<benchmark_case const> benchmarks)
 {
-  output << "quick suite (" << benchmarks.size() << " cases):\n";
+  std::println("quick suite ({} cases):", benchmarks.size());
   for (auto const &benchmark : benchmarks)
   {
-    auto const &render = benchmark.render;
-    output << "  " << benchmark.id << " [" << render.width << 'x' << render.height << ", " << to_string(render.scene)
-           << ", " << to_string(render.rendering) << ", " << to_string(render.precision) << ", "
-           << to_string(render.policy);
-    if (render.samples_per_pixel)
+    auto const &definition = benchmark.definition();
+    std::print(
+        "  {} [{}x{}, {}, {}, {}, {}",
+        benchmark_name(benchmark),
+        definition.extent().width(),
+        definition.extent().height(),
+        scene_name(definition.scene()),
+        rendering_name(definition.rendering()),
+        precision_name(definition.precision()),
+        policy_name(definition.policy()));
+    std::visit(
+        []<typename Mode>(Mode const &mode)
     {
-      output << ", spp=" << *render.samples_per_pixel;
-    }
-    output << "]\n";
+      if constexpr (std::same_as<Mode, randomized_render>)
+      {
+        std::print(", spp={}", mode.samples().value);
+      }
+    },
+        definition.rendering());
+    std::println("]");
   }
 }
 
 
 void
-print_environment(std::ostream &output, environment_info const &environment)
+print_environment(environment_info const &environment)
 {
-  output << "htracer benchmarks\n"
-         << "  OS: " << environment.os << ' ' << environment.architecture << '\n'
-         << "  Compiler: " << environment.compiler << ' ' << environment.compiler_version << '\n'
-         << "  Build: " << environment.build_type << '\n'
-         << "  Logical processors: " << environment.logical_processors << "\n\n";
+  std::println(
+      "htracer benchmarks\n"
+      "  OS: {} {}\n"
+      "  Compiler: {} {}\n"
+      "  Build: {}\n"
+      "  Logical processors: {}\n",
+      environment.os,
+      environment.architecture,
+      environment.compiler,
+      environment.compiler_version,
+      environment.build_type,
+      environment.logical_processors);
 }
 
 
 void
-print_result(std::ostream &output, benchmark_result const &result)
+print_result(benchmark_result const &result)
 {
-  auto const ns_to_ms = [](std::uint64_t nanoseconds)
+  auto const &definition = result.benchmark().definition();
+  auto const summary = result.summary();
+  auto const ns_to_ms = [](std::chrono::nanoseconds duration)
   {
-    return static_cast<long double>(nanoseconds) / 1'000'000.0L;
+    return static_cast<long double>(duration.count()) / 1'000'000.0L;
   };
-
-  output << result.benchmark.id << '\n'
-         << std::fixed << std::setprecision(3) << "  median/min/max: " << ns_to_ms(result.summary.median_ns) << " / "
-         << ns_to_ms(result.summary.minimum_ns) << " / " << ns_to_ms(result.summary.maximum_ns) << " ms\n"
-         << "  throughput: " << pixels_per_second(result) / 1'000'000.0L << " Mpixel/s, "
-         << primary_samples_per_second(result) / 1'000'000.0L << " Mprimary-sample/s\n"
-         << "  checksum: " << hex_checksum(result.checksum) << "\n\n";
+  auto const pixels = pixels_per_second(result, definition);
+  std::println(
+      "{}\n"
+      "  median/min/max: {:.3f} / {:.3f} / {:.3f} ms\n"
+      "  throughput: {:.3f} Mpixel/s, {:.3f} Mprimary-sample/s\n"
+      "  checksum: {}\n",
+      benchmark_name(result.benchmark()),
+      ns_to_ms(summary.median),
+      ns_to_ms(summary.minimum),
+      ns_to_ms(summary.maximum),
+      pixels / 1'000'000.0L,
+      pixels * effective_samples(definition.rendering()) / 1'000'000.0L,
+      hex_checksum(result.checksum()));
 }
 
 
 void
 write_json(std::filesystem::path const &path, run_report const &report)
 {
-  std::ofstream output{path};
-  if (!output)
-  {
-    throw std::runtime_error("failed to open JSON output: " + path.string());
-  }
-
-  output.imbue(std::locale::classic());
-  output << std::setprecision(std::numeric_limits<long double>::max_digits10)
-         << "{\n  \"schema_version\": " << output_schema_version
-         << ",\n  \"workload_version\": " << workload_schema_version << ",\n  \"environment\": {\n";
+  json_writer output{path};
+  output.write(
+      "{{\n  \"schema_version\": {},\n  \"workload_version\": {},\n  \"environment\": {{\n",
+      output_schema_version,
+      workload_schema_version);
   write_environment_json(output, report.environment);
-  output << "  },\n  \"results\": [\n";
-
+  output.write("  }},\n  \"results\": [\n");
   for (std::size_t index = 0; index < report.results.size(); ++index)
   {
     if (index != 0)
     {
-      output << ",\n";
+      output.write(",\n");
     }
     write_result_json(output, report.results[index]);
   }
-
-  output << "\n  ]\n}\n";
+  output.write("\n  ]\n}}\n");
   output.close();
-  if (!output)
-  {
-    throw std::runtime_error("failed to write JSON output: " + path.string());
-  }
 }
 
 } // namespace htracer::benchmarks

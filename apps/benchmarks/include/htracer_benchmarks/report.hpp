@@ -5,8 +5,8 @@
 #include <htracer_benchmarks/model.hpp>
 
 #include <filesystem>
-#include <ostream>
 #include <span>
+#include <string>
 #include <string_view>
 
 
@@ -14,32 +14,8 @@ namespace htracer::benchmarks
 {
 
 [[nodiscard]]
-std::string_view
-to_string(scene_kind value) noexcept;
-
-[[nodiscard]]
-std::string_view
-to_string(rendering_kind value) noexcept;
-
-[[nodiscard]]
-std::string_view
-to_string(precision_kind value) noexcept;
-
-[[nodiscard]]
-std::string_view
-to_string(policy_kind value) noexcept;
-
-[[nodiscard]]
-std::string_view
-to_string(batcher_kind value) noexcept;
-
-[[nodiscard]]
-std::string_view
-to_string(sensor_kind value) noexcept;
-
-[[nodiscard]]
-std::string_view
-to_string(lens_kind value) noexcept;
+std::string
+benchmark_name(benchmark_case const &benchmark);
 
 
 [[nodiscard]]
@@ -48,15 +24,15 @@ get_environment_info();
 
 
 void
-print_case_list(std::ostream &output, std::span<benchmark_case const> benchmarks);
+print_case_list(std::span<benchmark_case const> benchmarks);
 
 
 void
-print_environment(std::ostream &output, environment_info const &environment);
+print_environment(environment_info const &environment);
 
 
 void
-print_result(std::ostream &output, benchmark_result const &result);
+print_result(benchmark_result const &result);
 
 
 void

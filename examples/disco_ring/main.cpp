@@ -46,7 +46,7 @@ make_ring_positions_range(unsigned size, double radius, double azimuth_offset_de
 
 
 int
-main()
+main() // NOLINT(bugprone-exception-escape)
 {
   ht_f64::scene scene;
 

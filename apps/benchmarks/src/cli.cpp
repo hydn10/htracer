@@ -1,19 +1,23 @@
 #include <htracer_benchmarks/cli.hpp>
+
+#include <htracer/rendering/random_seed.hpp>
+#include <htracer/rendering/samples_per_pixel.hpp>
 #include <htracer_benchmarks/model.hpp>
 
 #include <charconv>
+#include <concepts>
 #include <cstddef>
 #include <cstdint>
 #include <filesystem>
-#include <limits>
 #include <optional>
-#include <ostream>
+#include <print>
 #include <span>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <system_error>
-#include <type_traits>
 #include <utility>
+#include <variant>
 
 
 namespace htracer::benchmarks
@@ -74,7 +78,6 @@ take_value(std::size_t &index, std::span<char const *const> arguments, std::stri
   {
     throw usage_error("missing value for option: " + std::string{option});
   }
-
   std::string value{arguments[++index]};
   if (value.starts_with("--"))
   {
@@ -89,11 +92,9 @@ raw_options
 parse_raw_options(std::span<char const *const> arguments)
 {
   raw_options options;
-
   for (std::size_t index = 0; index < arguments.size(); ++index)
   {
     std::string_view const option{arguments[index]};
-
     if (option == "--help")
     {
       set_flag_once(options.help, option);
@@ -163,7 +164,6 @@ parse_raw_options(std::span<char const *const> arguments)
       throw usage_error("unknown option: " + std::string{option});
     }
   }
-
   return options;
 }
 
@@ -186,39 +186,13 @@ parse_unsigned(std::string const &text, std::string_view option)
 }
 
 
-[[nodiscard]]
-scene_kind
-parse_scene(std::string const &value)
+void
+require(bool condition, std::string const &message)
 {
-  if (value == "mixed")
+  if (!condition)
   {
-    return scene_kind::mixed;
+    throw usage_error(message);
   }
-  if (value == "traversal")
-  {
-    return scene_kind::traversal;
-  }
-  if (value == "rng-probe")
-  {
-    return scene_kind::rng_probe;
-  }
-  throw usage_error("invalid --scene value: " + value);
-}
-
-
-[[nodiscard]]
-rendering_kind
-parse_rendering(std::string const &value)
-{
-  if (value == "deterministic")
-  {
-    return rendering_kind::deterministic;
-  }
-  if (value == "randomized")
-  {
-    return rendering_kind::randomized;
-  }
-  throw usage_error("invalid --rendering value: " + value);
 }
 
 
@@ -254,19 +228,75 @@ parse_policy(std::string const &value)
 }
 
 
-void
-require(bool condition, std::string const &message)
+template<typename Factory>
+[[nodiscard]]
+auto
+domain_value(Factory &&factory)
 {
-  if (!condition)
+  try
   {
-    throw usage_error(message);
+    return std::forward<Factory>(factory)();
+  }
+  catch (std::invalid_argument const &error)
+  {
+    throw usage_error(error.what());
   }
 }
 
 
 [[nodiscard]]
-benchmark_case
-make_custom_case(raw_options const &options)
+scene_spec
+parse_scene(raw_options const &options)
+{
+  if (*options.scene == "mixed")
+  {
+    require(!options.geometry_count, "--geometry-count is only valid for the traversal scene");
+    return mixed_scene{};
+  }
+  if (*options.scene == "rng-probe")
+  {
+    require(!options.geometry_count, "--geometry-count is only valid for the traversal scene");
+    return rng_probe_scene{};
+  }
+  if (*options.scene == "traversal")
+  {
+    require(options.geometry_count.has_value(), "traversal scene requires --geometry-count");
+    auto const count = parse_unsigned<std::uint32_t>(*options.geometry_count, "--geometry-count");
+    return traversal_scene{domain_value([count] { return geometry_count::make(count); })};
+  }
+  throw usage_error("invalid --scene value: " + *options.scene);
+}
+
+
+[[nodiscard]]
+render_mode
+parse_rendering(raw_options const &options)
+{
+  if (*options.rendering == "deterministic")
+  {
+    require(!options.samples, "--samples is invalid for deterministic rendering");
+    require(!options.seed, "--seed is invalid for deterministic rendering");
+    return deterministic_render{};
+  }
+  if (*options.rendering == "randomized")
+  {
+    require(options.samples.has_value(), "randomized rendering requires --samples");
+    auto const samples = parse_unsigned<std::uint32_t>(*options.samples, "--samples");
+    std::optional<htracer::rendering::random_seed> seed;
+    if (options.seed && *options.seed != "none")
+    {
+      seed = htracer::rendering::random_seed{parse_unsigned<std::uint64_t>(*options.seed, "--seed")};
+    }
+    return domain_value([samples, seed]
+    { return randomized_render::make(htracer::rendering::samples_per_pixel{samples}, seed); });
+  }
+  throw usage_error("invalid --rendering value: " + *options.rendering);
+}
+
+
+[[nodiscard]]
+benchmark_definition
+parse_custom_definition(raw_options const &options)
 {
   require(options.benchmark && *options.benchmark == "render", "--benchmark only supports: render");
   require(options.scene.has_value(), "custom render requires --scene");
@@ -276,85 +306,38 @@ make_custom_case(raw_options const &options)
   require(options.precision.has_value(), "custom render requires --precision");
   require(options.policy.has_value(), "custom render requires --policy");
 
-  auto const scene = parse_scene(*options.scene);
-  auto const rendering = parse_rendering(*options.rendering);
   auto const width = parse_unsigned<std::uint32_t>(*options.width, "--width");
   auto const height = parse_unsigned<std::uint32_t>(*options.height, "--height");
-  auto const precision = parse_precision(*options.precision);
-  auto const policy = parse_policy(*options.policy);
-
-  require(width > 0, "--width must be greater than zero");
-  require(height > 0, "--height must be greater than zero");
-
-  std::optional<std::uint32_t> geometry_count;
-  if (scene == scene_kind::traversal)
-  {
-    require(options.geometry_count.has_value(), "traversal scene requires --geometry-count");
-    geometry_count = parse_unsigned<std::uint32_t>(*options.geometry_count, "--geometry-count");
-    require(*geometry_count > 0, "--geometry-count must be greater than zero");
-  }
-  else
-  {
-    require(!options.geometry_count, "--geometry-count is only valid for the traversal scene");
-  }
-
-  require(
-      scene != scene_kind::rng_probe || rendering == rendering_kind::randomized,
-      "rng-probe scene requires randomized rendering");
-
-  std::optional<std::uint32_t> samples;
-  std::optional<std::uint64_t> seed;
-  sensor_kind sensor = sensor_kind::point;
-
-  if (rendering == rendering_kind::randomized)
-  {
-    require(options.samples.has_value(), "randomized rendering requires --samples");
-    samples = parse_unsigned<std::uint32_t>(*options.samples, "--samples");
-    require(*samples > 0, "--samples must be greater than zero");
-    sensor = sensor_kind::uniform;
-
-    if (options.seed && *options.seed != "none")
-    {
-      seed = parse_unsigned<std::uint64_t>(*options.seed, "--seed");
-    }
-  }
-  else
-  {
-    require(!options.samples, "--samples is invalid for deterministic rendering");
-    require(!options.seed, "--seed is invalid for deterministic rendering");
-  }
-
-  auto const warmup = options.warmup ? parse_unsigned<std::uint32_t>(*options.warmup, "--warmup") : 1U;
+  auto const warmups = options.warmup ? parse_unsigned<std::uint32_t>(*options.warmup, "--warmup") : 1U;
   auto const repetitions =
       options.repetitions ? parse_unsigned<std::uint32_t>(*options.repetitions, "--repetitions") : 9U;
-  require(repetitions > 0, "--repetitions must be greater than zero");
 
-  require(
-      width <= std::numeric_limits<std::uint32_t>::max() / height,
-      "requested image dimensions overflow htracer's pixel count");
-  auto const pixel_count = static_cast<std::size_t>(width) * static_cast<std::size_t>(height);
-  auto const bytes_per_pixel = precision == precision_kind::f32 ? std::size_t{12} : std::size_t{24};
-  require(
-      pixel_count <= std::numeric_limits<std::size_t>::max() / bytes_per_pixel,
-      "requested image dimensions overflow addressable storage");
+  auto scene = parse_scene(options);
+  auto rendering = parse_rendering(options);
+  auto const precision = parse_precision(*options.precision);
+  auto const policy = parse_policy(*options.policy);
+  auto const extent = domain_value([width, height] { return image_extent::make(width, height); });
+  auto const measurement = measurement_plan{
+      .warmups = warmup_count{warmups},
+      .repetitions = domain_value([repetitions] { return repetition_count::make(repetitions); })};
 
-  return {
-      .id = "custom/render",
-      .canonical = false,
-      .render =
-          {.scene = scene,
-           .rendering = rendering,
-           .precision = precision,
-           .policy = policy,
-           .batcher = batcher_kind::column,
-           .sensor = sensor,
-           .lens = lens_kind::pinhole,
-           .width = width,
-           .height = height,
-           .geometry_count = geometry_count,
-           .samples_per_pixel = samples,
-           .seed = seed},
-      .measurement = {.warmup_count = warmup, .repetition_count = repetitions}};
+  return std::visit(
+      [&]<typename Mode>([[maybe_unused]]
+                         Mode mode)
+  {
+    if constexpr (std::same_as<Mode, deterministic_render>)
+    {
+      return domain_value([&]
+      { return benchmark_definition::deterministic(scene, precision, policy, extent, measurement); });
+    }
+    else
+    {
+      static_assert(std::same_as<Mode, randomized_render>);
+      return domain_value([&]
+      { return benchmark_definition::randomized(scene, mode, precision, policy, extent, measurement); });
+    }
+  },
+      rendering);
 }
 
 
@@ -377,56 +360,53 @@ parse_cli(std::span<char const *const> arguments)
   auto const operation_count = static_cast<unsigned>(options.help) + static_cast<unsigned>(options.list) +
                                static_cast<unsigned>(options.suite.has_value()) +
                                static_cast<unsigned>(options.benchmark.has_value());
-
   require(operation_count == 1, "specify exactly one of --help, --list, --suite, or --benchmark");
 
   if (options.help)
   {
     require(!options.output && !has_custom_options(options), "--help does not accept additional options");
-    return {.operation = operation_kind::help, .custom_case = std::nullopt, .output_path = std::nullopt};
+    return help_command{};
   }
-
   if (options.list)
   {
     require(!options.output && !has_custom_options(options), "--list does not accept additional options");
-    return {.operation = operation_kind::list, .custom_case = std::nullopt, .output_path = std::nullopt};
+    return list_command{};
   }
 
-  auto const output_path = options.output ? std::optional<std::filesystem::path>{*options.output} : std::nullopt;
-
+  auto const output = options.output ? std::optional{std::filesystem::path{*options.output}} : std::nullopt;
   if (options.suite)
   {
     require(*options.suite == "quick", "--suite only supports: quick");
     require(!has_custom_options(options), "--suite quick only accepts --output");
-    return {.operation = operation_kind::quick_suite, .custom_case = std::nullopt, .output_path = output_path};
+    return quick_suite_command{.output = output};
   }
 
-  return {
-      .operation = operation_kind::custom_render, .custom_case = make_custom_case(options), .output_path = output_path};
+  return custom_render_command{.benchmark = parse_custom_definition(options), .output = output};
 }
 
 
 void
-print_help(std::ostream &output)
+print_help()
 {
-  output << "Usage:\n"
-            "  htracer-benchmarks --help\n"
-            "  htracer-benchmarks --list\n"
-            "  htracer-benchmarks --suite quick [--output PATH]\n"
-            "  htracer-benchmarks --benchmark render OPTIONS\n\n"
-            "Required custom render options:\n"
-            "  --scene mixed|traversal|rng-probe\n"
-            "  --rendering deterministic|randomized\n"
-            "  --width N --height N\n"
-            "  --precision float|double\n"
-            "  --policy seq|par\n\n"
-            "Conditional and measurement options:\n"
-            "  --geometry-count N  Required only for traversal\n"
-            "  --samples N         Required only for randomized rendering\n"
-            "  --seed none|N       Optional unsigned decimal seed for randomized rendering\n"
-            "  --warmup N          Default: 1; zero is allowed\n"
-            "  --repetitions N     Default: 9\n"
-            "  --output PATH       Write versioned JSON in addition to console output\n";
+  std::print(
+      "Usage:\n"
+      "  htracer-benchmarks --help\n"
+      "  htracer-benchmarks --list\n"
+      "  htracer-benchmarks --suite quick [--output PATH]\n"
+      "  htracer-benchmarks --benchmark render OPTIONS\n\n"
+      "Required custom render options:\n"
+      "  --scene mixed|traversal|rng-probe\n"
+      "  --rendering deterministic|randomized\n"
+      "  --width N --height N\n"
+      "  --precision float|double\n"
+      "  --policy seq|par\n\n"
+      "Conditional and measurement options:\n"
+      "  --geometry-count N  Required only for traversal\n"
+      "  --samples N         Required only for randomized rendering\n"
+      "  --seed none|N       Optional unsigned decimal seed for randomized rendering\n"
+      "  --warmup N          Default: 1; zero is allowed\n"
+      "  --repetitions N     Default: 9\n"
+      "  --output PATH       Write versioned JSON in addition to console output\n");
 }
 
 } // namespace htracer::benchmarks

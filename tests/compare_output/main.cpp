@@ -46,7 +46,7 @@ build_test_scene()
 
 
 int
-main(int argc, char const *argv[])
+main(int argc, char const *argv[]) // NOLINT(bugprone-exception-escape)
 {
   std::vector<std::string_view> const args(argv + 1, argv + argc);
 

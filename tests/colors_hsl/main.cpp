@@ -19,15 +19,15 @@ check(hsl const &input, rgb const &expected)
   auto const actual = input.to_srgb();
   constexpr double tolerance = 1e-12;
 
-  if (std::abs(actual.r() - expected[0]) <= tolerance && std::abs(actual.g() - expected[1]) <= tolerance
-      && std::abs(actual.b() - expected[2]) <= tolerance)
+  if (std::abs(actual.r() - expected[0]) <= tolerance && std::abs(actual.g() - expected[1]) <= tolerance &&
+      std::abs(actual.b() - expected[2]) <= tolerance)
   {
     return true;
   }
 
-  std::cerr << "HSL(" << input.h() << ", " << input.s() << ", " << input.l() << ") produced RGB(" << actual.r()
-            << ", " << actual.g() << ", " << actual.b() << "), expected RGB(" << expected[0] << ", "
-            << expected[1] << ", " << expected[2] << ")\n";
+  std::cerr << "HSL(" << input.h() << ", " << input.s() << ", " << input.l() << ") produced RGB(" << actual.r() << ", "
+            << actual.g() << ", " << actual.b() << "), expected RGB(" << expected[0] << ", " << expected[1] << ", "
+            << expected[2] << ")\n";
   return false;
 }
 
@@ -35,7 +35,7 @@ check(hsl const &input, rgb const &expected)
 
 
 int
-main()
+main() // NOLINT(bugprone-exception-escape)
 {
   bool success = true;
 

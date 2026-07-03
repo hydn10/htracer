@@ -6,6 +6,7 @@ target_sources(
     ${target_name}
     PRIVATE
         src/main.cpp
+        src/model.cpp
         src/cli.cpp
         src/render_benchmark.cpp
         src/report.cpp
