@@ -1,8 +1,13 @@
-#include <htracer_benchmarks/suite.hpp>
+#include <htracer_benchmarks/quick_suite.hpp>
 
 #include <htracer/rendering/random_seed.hpp>
 #include <htracer/rendering/samples_per_pixel.hpp>
-#include <htracer_benchmarks/model.hpp>
+#include <htracer_benchmarks/benchmark_case.hpp>
+#include <htracer_benchmarks/benchmark_definition.hpp>
+#include <htracer_benchmarks/image_extent.hpp>
+#include <htracer_benchmarks/measurement_plan.hpp>
+#include <htracer_benchmarks/render_mode.hpp>
+#include <htracer_benchmarks/scene_spec.hpp>
 
 #include <array>
 #include <optional>

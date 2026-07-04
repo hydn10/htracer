@@ -116,6 +116,7 @@ Correct calls should be concise, discoverable, and difficult to assemble
 incorrectly. Values with the same primitive representation but different
 meanings should have distinct types when that distinction prevents confusion.
 Functions should request only the information they consume.
+Apply this rule within practical reason.
 
 Review an interface by considering misuse as well as intended use. If an
 invalid combination is knowable statically, prefer a compilation failure. If

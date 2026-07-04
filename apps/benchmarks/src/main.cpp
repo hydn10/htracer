@@ -1,8 +1,13 @@
+#include <htracer_benchmarks/benchmark_case.hpp>
 #include <htracer_benchmarks/cli.hpp>
-#include <htracer_benchmarks/model.hpp>
+#include <htracer_benchmarks/invocation.hpp>
+#include <htracer_benchmarks/quick_suite.hpp>
 #include <htracer_benchmarks/render_benchmark.hpp>
-#include <htracer_benchmarks/report.hpp>
-#include <htracer_benchmarks/suite.hpp>
+#include <htracer_benchmarks/reporting/benchmark_name.hpp>
+#include <htracer_benchmarks/reporting/console.hpp>
+#include <htracer_benchmarks/reporting/environment.hpp>
+#include <htracer_benchmarks/reporting/json.hpp>
+#include <htracer_benchmarks/run_report.hpp>
 
 #include <array>
 #include <concepts>
@@ -26,6 +31,7 @@ run_cases(
     std::span<htracer::benchmarks::benchmark_case const> cases, std::optional<std::filesystem::path> const &output)
 {
   using namespace htracer::benchmarks;
+  using namespace htracer::benchmarks::reporting;
 
   run_report report{.environment = get_environment_info(), .results = {}};
   report.results.reserve(cases.size());
@@ -52,6 +58,7 @@ int
 run(std::span<char const *const> arguments)
 {
   using namespace htracer::benchmarks;
+  using namespace htracer::benchmarks::reporting;
 
   return std::visit(
       []<typename Command>(Command const &command)

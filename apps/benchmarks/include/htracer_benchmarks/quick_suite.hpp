@@ -1,9 +1,10 @@
-#ifndef HTRACER_BENCHMARKS_SUITE_HPP
-#define HTRACER_BENCHMARKS_SUITE_HPP
+#ifndef HTRACER_BENCHMARKS_QUICK_SUITE_HPP
+#define HTRACER_BENCHMARKS_QUICK_SUITE_HPP
 
 
-#include <htracer_benchmarks/model.hpp>
+#include <htracer_benchmarks/benchmark_case.hpp>
 
+#include <cstdint>
 #include <span>
 
 

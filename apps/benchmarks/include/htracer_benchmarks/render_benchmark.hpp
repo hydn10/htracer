@@ -2,7 +2,8 @@
 #define HTRACER_BENCHMARKS_RENDER_BENCHMARK_HPP
 
 
-#include <htracer_benchmarks/model.hpp>
+#include <htracer_benchmarks/benchmark_case.hpp>
+#include <htracer_benchmarks/benchmark_result.hpp>
 
 
 namespace htracer::benchmarks

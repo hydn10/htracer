@@ -2,7 +2,7 @@
 #define HTRACER_BENCHMARKS_CLI_HPP
 
 
-#include <htracer_benchmarks/model.hpp>
+#include <htracer_benchmarks/invocation.hpp>
 
 #include <span>
 #include <stdexcept>
