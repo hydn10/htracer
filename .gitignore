@@ -9,7 +9,8 @@ CMakeUserPresets.json
 **/.ccls
 **/.cache
 
-result*
+/result
+/result-*
 
 .vs/
 .vscode/

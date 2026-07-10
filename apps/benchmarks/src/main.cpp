@@ -1,89 +1,58 @@
-#include <htracer_benchmarks/benchmark_case.hpp>
+#include <htracer_benchmarks/app.hpp>
 #include <htracer_benchmarks/cli.hpp>
-#include <htracer_benchmarks/invocation.hpp>
-#include <htracer_benchmarks/quick_suite.hpp>
-#include <htracer_benchmarks/render_benchmark.hpp>
-#include <htracer_benchmarks/reporting/benchmark_name.hpp>
-#include <htracer_benchmarks/reporting/console.hpp>
-#include <htracer_benchmarks/reporting/environment.hpp>
-#include <htracer_benchmarks/reporting/json.hpp>
-#include <htracer_benchmarks/run_report.hpp>
+#include <htracer_benchmarks/exit.hpp>
 
-#include <array>
-#include <concepts>
 #include <cstddef>
-#include <cstdio>
 #include <exception>
-#include <filesystem>
+#include <iostream>
 #include <new>
-#include <optional>
 #include <print>
 #include <span>
-#include <utility>
-#include <variant>
 
 
 namespace
 {
 
-void
-run_cases(
-    std::span<htracer::benchmarks::benchmark_case const> cases, std::optional<std::filesystem::path> const &output)
+[[nodiscard]]
+htracer::benchmarks::diagnostic_exit
+run_with_diagnostics(std::span<char const *const> arguments)
+try
 {
-  using namespace htracer::benchmarks;
-  using namespace htracer::benchmarks::reporting;
-
-  run_report report{.environment = get_environment_info(), .results = {}};
-  report.results.reserve(cases.size());
-  print_environment(report.environment);
-
-  for (auto const &benchmark : cases)
-  {
-    std::println("Running {}...", benchmark_name(benchmark));
-    (void)std::fflush(stdout);
-    auto result = run_benchmark(benchmark);
-    print_result(result);
-    report.results.push_back(std::move(result));
-  }
-
-  if (output)
-  {
-    write_json(*output, report);
-    std::println("Wrote {}", output->string());
-  }
+  htracer::benchmarks::run_app(arguments);
+  return htracer::benchmarks::diagnostic_exit::success();
+}
+catch (htracer::benchmarks::usage_error const &error)
+{
+  std::println(std::cerr, "error: {}\nTry --help for usage.", error.what());
+  return htracer::benchmarks::diagnostic_exit::usage_error();
+}
+catch (std::bad_alloc const &)
+{
+  std::println(std::cerr, "error: benchmark allocation failed");
+  return htracer::benchmarks::diagnostic_exit::failure();
+}
+catch (std::exception const &error)
+{
+  std::println(std::cerr, "error: {}", error.what());
+  return htracer::benchmarks::diagnostic_exit::failure();
+}
+catch (...)
+{
+  std::println(std::cerr, "error: benchmark failed with an unknown exception");
+  return htracer::benchmarks::diagnostic_exit::failure();
 }
 
 
-int
-run(std::span<char const *const> arguments)
+[[nodiscard]]
+htracer::benchmarks::process_exit
+run_noexcept(std::span<char const *const> arguments) noexcept
+try
 {
-  using namespace htracer::benchmarks;
-  using namespace htracer::benchmarks::reporting;
-
-  return std::visit(
-      []<typename Command>(Command const &command)
-  {
-    if constexpr (std::same_as<Command, help_command>)
-    {
-      print_help();
-    }
-    else if constexpr (std::same_as<Command, list_command>)
-    {
-      print_case_list(quick_suite_catalog::cases());
-    }
-    else if constexpr (std::same_as<Command, quick_suite_command>)
-    {
-      run_cases(quick_suite_catalog::cases(), command.output);
-    }
-    else
-    {
-      static_assert(std::same_as<Command, custom_render_command>);
-      std::array benchmarks{benchmark_case::custom(command.benchmark)};
-      run_cases(benchmarks, command.output);
-    }
-    return 0;
-  },
-      parse_cli(arguments));
+  return htracer::benchmarks::process_exit{run_with_diagnostics(arguments)};
+}
+catch (...)
+{
+  return htracer::benchmarks::process_exit{htracer::benchmarks::diagnostic_exit::failure()};
 }
 
 } // namespace
@@ -92,33 +61,7 @@ run(std::span<char const *const> arguments)
 int
 main(int argc, char const *argv[])
 {
-  try
-  {
-    return run(
-        {argv + 1, static_cast<std::size_t>(argc - 1)}); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-  }
-  catch (htracer::benchmarks::usage_error const &error)
-  {
-    (void)std::fputs("error: ", stderr);
-    (void)std::fputs(error.what(), stderr);
-    (void)std::fputs("\nTry --help for usage.\n", stderr);
-    return 2;
-  }
-  catch (std::bad_alloc const &)
-  {
-    (void)std::fputs("error: benchmark allocation failed\n", stderr);
-    return 1;
-  }
-  catch (std::exception const &error)
-  {
-    (void)std::fputs("error: ", stderr);
-    (void)std::fputs(error.what(), stderr);
-    (void)std::fputc('\n', stderr);
-    return 1;
-  }
-  catch (...)
-  {
-    (void)std::fputs("error: benchmark failed with an unknown exception\n", stderr);
-    return 1;
-  }
+  auto const arguments = std::span{
+      argv + 1, static_cast<std::size_t>(argc - 1)}; // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+  return run_noexcept(arguments).to_int();
 }

@@ -5,12 +5,14 @@ add_executable(${target_name})
 target_sources(
     ${target_name}
     PRIVATE
+        src/app.cpp
+        src/exit.cpp
         src/main.cpp
         src/benchmark_case.cpp
         src/benchmark_definition.cpp
         src/benchmark_result.cpp
         src/cli.cpp
-        src/help.cpp
+        
         src/image_extent.cpp
         src/measurement_plan.cpp
         src/quick_suite.cpp
@@ -33,9 +35,11 @@ target_sources(
             "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/benchmark_case.hpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/benchmark_definition.hpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/benchmark_result.hpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/app.hpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli.hpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli/custom_definition.hpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli/raw_options.hpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/exit.hpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/execution/image_validation.hpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/execution/measurement.hpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/image_extent.hpp"

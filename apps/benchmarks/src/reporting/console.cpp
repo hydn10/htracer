@@ -11,6 +11,7 @@
 #include <chrono>
 #include <concepts>
 #include <print>
+#include <ratio>
 #include <span>
 #include <variant>
 
@@ -70,19 +71,16 @@ void
 print_result(benchmark_result const &result)
 {
   auto const summary = result.summary();
-  auto const ns_to_ms = [](std::chrono::nanoseconds duration)
-  {
-    return static_cast<long double>(duration.count()) / 1'000'000.0L;
-  };
+  using milliseconds = std::chrono::duration<long double, std::milli>;
   std::println(
       "{}\n"
       "  median/min/max: {:.3f} / {:.3f} / {:.3f} ms\n"
       "  throughput: {:.3f} Mpixel/s, {:.3f} Mprimary-sample/s\n"
       "  checksum: {}\n",
       benchmark_name(result.benchmark()),
-      ns_to_ms(summary.median),
-      ns_to_ms(summary.minimum),
-      ns_to_ms(summary.maximum),
+      milliseconds{summary.median}.count(),
+      milliseconds{summary.minimum}.count(),
+      milliseconds{summary.maximum}.count(),
       pixels_per_second(result) / 1'000'000.0L,
       primary_samples_per_second(result) / 1'000'000.0L,
       hex_checksum(result.checksum()));
