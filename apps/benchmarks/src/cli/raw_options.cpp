@@ -24,6 +24,7 @@ set_once(std::optional<T> &destination, T value, std::string_view option)
   {
     throw usage_error("duplicate option: " + std::string{option});
   }
+
   destination = std::move(value);
 }
 
@@ -35,6 +36,7 @@ set_flag_once(bool &destination, std::string_view option)
   {
     throw usage_error("duplicate option: " + std::string{option});
   }
+
   destination = true;
 }
 
@@ -47,11 +49,14 @@ take_value(std::size_t &index, std::span<char const *const> arguments, std::stri
   {
     throw usage_error("missing value for option: " + std::string{option});
   }
+
   std::string value{arguments[++index]};
+
   if (value.starts_with("--"))
   {
     throw usage_error("missing value for option: " + std::string{option});
   }
+
   return value;
 }
 
@@ -62,6 +67,7 @@ raw_options
 parse_raw_options(std::span<char const *const> arguments)
 {
   raw_options options;
+
   for (std::size_t index = 0; index < arguments.size(); ++index)
   {
     std::string_view const option{arguments[index]};
@@ -134,6 +140,7 @@ parse_raw_options(std::span<char const *const> arguments)
       throw usage_error("unknown option: " + std::string{option});
     }
   }
+
   return options;
 }
 

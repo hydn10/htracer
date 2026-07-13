@@ -13,9 +13,9 @@ namespace htracer::benchmarks::reporting
 environment_info
 get_environment_info()
 {
-#if defined(_WIN32)
+#ifdef _WIN32
   std::string operating_system = "windows";
-#elif defined(__linux__)
+#elifdef __linux__
   std::string operating_system = "linux";
 #else
   std::string operating_system = "unknown";
@@ -29,14 +29,14 @@ get_environment_info()
   std::string architecture = "unknown";
 #endif
 
-#if defined(__clang__)
+#ifdef __clang__
   std::string compiler = "clang";
   std::string compiler_version = std::to_string(__clang_major__) + "." + std::to_string(__clang_minor__) + "." +
                                  std::to_string(__clang_patchlevel__);
-#elif defined(_MSC_VER)
+#elifdef _MSC_VER
   std::string compiler = "msvc";
   std::string compiler_version = std::to_string(_MSC_FULL_VER);
-#elif defined(__GNUC__)
+#elifdef __GNUC__
   std::string compiler = "gcc";
   std::string compiler_version =
       std::to_string(__GNUC__) + "." + std::to_string(__GNUC_MINOR__) + "." + std::to_string(__GNUC_PATCHLEVEL__);

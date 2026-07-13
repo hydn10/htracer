@@ -15,7 +15,8 @@
 #include <filesystem>
 #include <iostream>
 #include <optional>
-#include <print>
+#include <ostream>
+#include <print> // IWYU pragma: keep
 #include <span>
 #include <utility>
 #include <variant>

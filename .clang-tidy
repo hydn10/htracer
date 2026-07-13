@@ -11,6 +11,7 @@ Checks: "*,
         -readability-else-after-return,
         -misc-no-recursion,
         -cppcoreguidelines-avoid-magic-numbers,
+        -cppcoreguidelines-pro-bounds-avoid-unchecked-container-access,
         -readability-magic-numbers,
         -readability-math-missing-parentheses,
         -bugprone-easily-swappable-parameters

@@ -6,7 +6,7 @@
 
 #include <filesystem>
 #include <optional>
-#include <print>
+#include <print> // IWYU pragma: keep
 #include <span>
 
 

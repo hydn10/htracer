@@ -15,6 +15,7 @@
 #include <optional>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include <utility>
 #include <variant>
 
@@ -24,6 +25,19 @@ namespace htracer::benchmarks::cli
 
 namespace
 {
+
+template<typename T>
+[[nodiscard]]
+T const &
+required_value(std::optional<T> const &value, std::string_view message)
+{
+  if (!value)
+  {
+    throw usage_error(std::string{message});
+  }
+  return *value;
+}
+
 
 [[nodiscard]]
 precision_kind
@@ -75,51 +89,54 @@ domain_value(Factory &&factory)
 
 [[nodiscard]]
 scene_spec
-parse_scene(raw_options const &options)
+parse_scene(std::string const &scene, std::optional<std::string> const &geometry_count_option)
 {
-  if (*options.scene == "mixed")
+  if (scene == "mixed")
   {
-    require(!options.geometry_count, "--geometry-count is only valid for the traversal scene");
+    require(!geometry_count_option, "--geometry-count is only valid for the traversal scene");
     return mixed_scene{};
   }
-  if (*options.scene == "rng-probe")
+  if (scene == "rng-probe")
   {
-    require(!options.geometry_count, "--geometry-count is only valid for the traversal scene");
+    require(!geometry_count_option, "--geometry-count is only valid for the traversal scene");
     return rng_probe_scene{};
   }
-  if (*options.scene == "traversal")
+  if (scene == "traversal")
   {
-    require(options.geometry_count.has_value(), "traversal scene requires --geometry-count");
-    auto const count = parse_unsigned<std::uint32_t>(*options.geometry_count, "--geometry-count");
+    auto const &geometry_count = required_value(geometry_count_option, "traversal scene requires --geometry-count");
+    auto const count = parse_unsigned<std::uint32_t>(geometry_count, "--geometry-count");
     return traversal_scene{domain_value([count] { return geometry_count::make(count); })};
   }
-  throw usage_error("invalid --scene value: " + *options.scene);
+  throw usage_error("invalid --scene value: " + scene);
 }
 
 
 [[nodiscard]]
 render_mode
-parse_rendering(raw_options const &options)
+parse_rendering(
+    std::string const &rendering,
+    std::optional<std::string> const &samples_option,
+    std::optional<std::string> const &seed_option)
 {
-  if (*options.rendering == "deterministic")
+  if (rendering == "deterministic")
   {
-    require(!options.samples, "--samples is invalid for deterministic rendering");
-    require(!options.seed, "--seed is invalid for deterministic rendering");
+    require(!samples_option, "--samples is invalid for deterministic rendering");
+    require(!seed_option, "--seed is invalid for deterministic rendering");
     return deterministic_render{};
   }
-  if (*options.rendering == "randomized")
+  if (rendering == "randomized")
   {
-    require(options.samples.has_value(), "randomized rendering requires --samples");
-    auto const samples = parse_unsigned<std::uint32_t>(*options.samples, "--samples");
+    auto const &samples_text = required_value(samples_option, "randomized rendering requires --samples");
+    auto const samples = parse_unsigned<std::uint32_t>(samples_text, "--samples");
     std::optional<htracer::rendering::random_seed> seed;
-    if (options.seed && *options.seed != "none")
+    if (seed_option && *seed_option != "none")
     {
-      seed = htracer::rendering::random_seed{parse_unsigned<std::uint64_t>(*options.seed, "--seed")};
+      seed = htracer::rendering::random_seed{parse_unsigned<std::uint64_t>(*seed_option, "--seed")};
     }
     return domain_value([samples, seed]
     { return randomized_render::make(htracer::rendering::samples_per_pixel{samples}, seed); });
   }
-  throw usage_error("invalid --rendering value: " + *options.rendering);
+  throw usage_error("invalid --rendering value: " + rendering);
 }
 
 } // namespace
@@ -128,24 +145,25 @@ parse_rendering(raw_options const &options)
 benchmark_definition
 parse_custom_definition(raw_options const &options)
 {
-  require(options.benchmark && *options.benchmark == "render", "--benchmark only supports: render");
-  require(options.scene.has_value(), "custom render requires --scene");
-  require(options.rendering.has_value(), "custom render requires --rendering");
-  require(options.width.has_value(), "custom render requires --width");
-  require(options.height.has_value(), "custom render requires --height");
-  require(options.precision.has_value(), "custom render requires --precision");
-  require(options.policy.has_value(), "custom render requires --policy");
+  auto const &benchmark = required_value(options.benchmark, "custom render requires --benchmark");
+  require(benchmark == "render", "--benchmark only supports: render");
+  auto const &scene_text = required_value(options.scene, "custom render requires --scene");
+  auto const &rendering_text = required_value(options.rendering, "custom render requires --rendering");
+  auto const &width_text = required_value(options.width, "custom render requires --width");
+  auto const &height_text = required_value(options.height, "custom render requires --height");
+  auto const &precision_text = required_value(options.precision, "custom render requires --precision");
+  auto const &policy_text = required_value(options.policy, "custom render requires --policy");
 
-  auto const width = parse_unsigned<std::uint32_t>(*options.width, "--width");
-  auto const height = parse_unsigned<std::uint32_t>(*options.height, "--height");
+  auto const width = parse_unsigned<std::uint32_t>(width_text, "--width");
+  auto const height = parse_unsigned<std::uint32_t>(height_text, "--height");
   auto const warmups = options.warmup ? parse_unsigned<std::uint32_t>(*options.warmup, "--warmup") : 1U;
   auto const repetitions =
       options.repetitions ? parse_unsigned<std::uint32_t>(*options.repetitions, "--repetitions") : 9U;
 
-  auto scene = parse_scene(options);
-  auto rendering = parse_rendering(options);
-  auto const precision = parse_precision(*options.precision);
-  auto const policy = parse_policy(*options.policy);
+  auto scene = parse_scene(scene_text, options.geometry_count);
+  auto rendering = parse_rendering(rendering_text, options.samples, options.seed);
+  auto const precision = parse_precision(precision_text);
+  auto const policy = parse_policy(policy_text);
   auto const extent = domain_value([width, height] { return image_extent::make(width, height); });
   auto const measurement = measurement_plan{
       .warmups = warmup_count{warmups},

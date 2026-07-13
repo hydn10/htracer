@@ -1,38 +1,31 @@
 #include <htracer_benchmarks/reporting/json_writer.hpp>
 
-#include <cerrno>
-#include <cstdio>
 #include <filesystem>
+#include <format>
+#include <ios>
 #include <string_view>
-#include <system_error>
-#include <utility>
 
 
 namespace htracer::benchmarks::reporting
 {
 
 json_writer::json_writer(std::filesystem::path const &path)
+    : file_(path, std::ios::binary)
 {
-#if defined(_WIN32)
-  if (_wfopen_s(&file_, path.c_str(), L"wb") != 0) // NOLINT(misc-include-cleaner)
+  if (!file_)
   {
-    file_ = nullptr;
-  }
-#else
-  file_ = std::fopen(path.c_str(), "wb");
-#endif
-  if (file_ == nullptr)
-  {
-    throw std::system_error(errno, std::generic_category(), "failed to open JSON output");
+    throw std::ios_base::failure("failed to open JSON output");
   }
 }
 
 
-json_writer::~json_writer()
+void
+json_writer::write(std::string_view value)
 {
-  if (file_ != nullptr)
+  file_.write(value.data(), static_cast<std::streamsize>(value.size()));
+  if (!file_)
   {
-    (void)std::fclose(file_); // NOLINT(cppcoreguidelines-owning-memory)
+    throw std::ios_base::failure("failed to write JSON output");
   }
 }
 
@@ -69,11 +62,15 @@ json_writer::string(std::string_view value)
     default:
       if (character < 0x20)
       {
-        write("\\u{:04x}", static_cast<unsigned>(character));
+        write(std::format("\\u{:04x}", static_cast<unsigned>(character)));
       }
-      else if (std::fputc(character, file_) == EOF)
+      else
       {
-        throw std::system_error(errno, std::generic_category(), "failed to write JSON output");
+        file_.put(static_cast<char>(character));
+        if (!file_)
+        {
+          throw std::ios_base::failure("failed to write JSON output");
+        }
       }
     }
   }
@@ -84,10 +81,13 @@ json_writer::string(std::string_view value)
 void
 json_writer::close()
 {
-  auto *const file = std::exchange(file_, nullptr);
-  if (std::fclose(file) != 0) // NOLINT(cppcoreguidelines-owning-memory)
+  if (file_.is_open())
   {
-    throw std::system_error(errno, std::generic_category(), "failed to close JSON output");
+    file_.close();
+    if (!file_)
+    {
+      throw std::ios_base::failure("failed to close JSON output");
+    }
   }
 }
 

@@ -1,9 +1,9 @@
 #include <htracer/htracer.hpp>
 
+#include <cstddef>
 #include <cstdlib>
 #include <numbers>
-#include <string_view>
-#include <vector>
+#include <span>
 
 
 using ht_f64 = htracer::float_traits<double>;
@@ -48,7 +48,7 @@ build_test_scene()
 int
 main(int argc, char const *argv[]) // NOLINT(bugprone-exception-escape)
 {
-  std::vector<std::string_view> const args(argv + 1, argv + argc);
+  auto const args = std::span{argv, static_cast<std::size_t>(argc)}.subspan(1);
 
   if (args.size() != 1)
   {

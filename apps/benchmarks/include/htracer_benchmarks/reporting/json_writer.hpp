@@ -2,12 +2,9 @@
 #define HTRACER_BENCHMARKS_REPORTING_JSON_WRITER_HPP
 
 
-#include <cstdio>
 #include <filesystem>
-#include <format>
-#include <print>
+#include <fstream>
 #include <string_view>
-#include <utility>
 
 
 namespace htracer::benchmarks::reporting
@@ -15,6 +12,8 @@ namespace htracer::benchmarks::reporting
 
 class json_writer
 {
+  std::ofstream file_;
+
 public:
   explicit json_writer(std::filesystem::path const &path);
 
@@ -25,23 +24,14 @@ public:
   json_writer &
   operator=(json_writer &&) = delete;
 
-  ~json_writer();
-
-  template<typename... Args>
   void
-  write(std::format_string<Args...> format, Args &&...args)
-  {
-    std::print(file_, format, std::forward<Args>(args)...);
-  }
+  write(std::string_view value);
 
   void
   string(std::string_view value);
 
   void
   close();
-
-private:
-  std::FILE *file_{};
 };
 
 } // namespace htracer::benchmarks::reporting

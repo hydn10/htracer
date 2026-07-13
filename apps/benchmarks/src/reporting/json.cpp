@@ -11,8 +11,8 @@
 #include <htracer_benchmarks/scene_spec.hpp>
 
 #include <concepts>
-#include <cstddef>
 #include <filesystem>
+#include <format>
 #include <string>
 #include <variant>
 
@@ -36,7 +36,7 @@ write_environment(json_writer &output, environment_info const &environment)
   output.string(environment.compiler_version);
   output.write(",\n    \"build_type\": ");
   output.string(environment.build_type);
-  output.write(",\n    \"logical_processors\": {}\n", environment.logical_processors);
+  output.write(std::format(",\n    \"logical_processors\": {}\n", environment.logical_processors));
 }
 
 
@@ -50,7 +50,7 @@ write_scene(json_writer &output, scene_spec const &scene)
   {
     if constexpr (std::same_as<Scene, traversal_scene>)
     {
-      output.write("{}", value.count.value());
+      output.write(std::format("{}", value.count.value()));
     }
     else
     {
@@ -78,7 +78,7 @@ write_rendering(json_writer &output, render_mode const &rendering)
     {
       static_assert(std::same_as<Mode, randomized_render>);
       output.write(",\n      \"sensor\": \"uniform\"");
-      output.write(",\n      \"samples_per_pixel\": {}", mode.samples().value);
+      output.write(std::format(",\n      \"samples_per_pixel\": {}", mode.samples().value));
       output.write(",\n      \"seed\": ");
       if (mode.seed())
       {
@@ -100,9 +100,9 @@ write_result(json_writer &output, benchmark_result const &result)
   auto const &definition = result.benchmark().definition();
   auto const summary = result.summary();
 
-  output.write("    {{\n      \"id\": ");
+  output.write("    {\n      \"id\": ");
   output.string(benchmark_name(result.benchmark()));
-  output.write(",\n      \"canonical\": {}", result.benchmark().is_canonical());
+  output.write(std::format(",\n      \"canonical\": {}", result.benchmark().is_canonical()));
   output.write(",\n      \"benchmark\": \"render\"");
   output.write(",\n      \"scene\": ");
   write_scene(output, definition.scene());
@@ -114,25 +114,27 @@ write_result(json_writer &output, benchmark_result const &result)
   output.string(policy_name(definition.policy()));
   output.write(",\n      \"batcher\": \"column\"");
   output.write(",\n      \"lens\": \"pinhole\"");
-  output.write(",\n      \"width\": {}", definition.extent().width());
-  output.write(",\n      \"height\": {}", definition.extent().height());
-  output.write(",\n      \"warmup_count\": {}", definition.measurement().warmups.value());
-  output.write(",\n      \"repetition_count\": {}", definition.measurement().repetitions.value());
+  output.write(std::format(",\n      \"width\": {}", definition.extent().width()));
+  output.write(std::format(",\n      \"height\": {}", definition.extent().height()));
+  output.write(std::format(",\n      \"warmup_count\": {}", definition.measurement().warmups.value()));
+  output.write(std::format(",\n      \"repetition_count\": {}", definition.measurement().repetitions.value()));
   output.write(",\n      \"samples_ns\": [");
-  for (std::size_t index = 0; index < result.renders().size(); ++index)
+  auto first_sample = true;
+  for (auto const &render : result.renders())
   {
-    if (index != 0)
+    if (!first_sample)
     {
       output.write(", ");
     }
-    output.write("{}", result.renders()[index].duration.count());
+    first_sample = false;
+    output.write(std::format("{}", render.duration.count()));
   }
   output.write("]");
-  output.write(",\n      \"minimum_ns\": {}", summary.minimum.count());
-  output.write(",\n      \"median_ns\": {}", summary.median.count());
-  output.write(",\n      \"maximum_ns\": {}", summary.maximum.count());
-  output.write(",\n      \"pixels_per_second\": {}", pixels_per_second(result));
-  output.write(",\n      \"primary_samples_per_second\": {}", primary_samples_per_second(result));
+  output.write(std::format(",\n      \"minimum_ns\": {}", summary.minimum.count()));
+  output.write(std::format(",\n      \"median_ns\": {}", summary.median.count()));
+  output.write(std::format(",\n      \"maximum_ns\": {}", summary.maximum.count()));
+  output.write(std::format(",\n      \"pixels_per_second\": {}", pixels_per_second(result)));
+  output.write(std::format(",\n      \"primary_samples_per_second\": {}", primary_samples_per_second(result)));
   output.write(",\n      \"checksum\": ");
   output.string(hex_checksum(result.checksum()));
   output.write(",\n      \"warmup_checksum\": ");
@@ -144,7 +146,7 @@ write_result(json_writer &output, benchmark_result const &result)
   {
     output.write("null");
   }
-  output.write("\n    }}");
+  output.write("\n    }");
 }
 
 } // namespace
@@ -154,21 +156,23 @@ void
 write_json(std::filesystem::path const &path, run_report const &report)
 {
   json_writer output{path};
-  output.write(
+  output.write(std::format(
       "{{\n  \"schema_version\": {},\n  \"workload_version\": {},\n  \"environment\": {{\n",
       output_schema_version,
-      workload_schema_version);
+      workload_schema_version));
   write_environment(output, report.environment);
-  output.write("  }},\n  \"results\": [\n");
-  for (std::size_t index = 0; index < report.results.size(); ++index)
+  output.write("  },\n  \"results\": [\n");
+  auto first_result = true;
+  for (auto const &result : report.results)
   {
-    if (index != 0)
+    if (!first_result)
     {
       output.write(",\n");
     }
-    write_result(output, report.results[index]);
+    first_result = false;
+    write_result(output, result);
   }
-  output.write("\n  ]\n}}\n");
+  output.write("\n  ]\n}\n");
   output.close();
 }
 

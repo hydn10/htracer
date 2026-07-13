@@ -23,7 +23,7 @@ make_ring_positions_range(unsigned size, double radius, double azimuth_offset_de
 {
   return std::views::iota(0U, size) | std::views::transform([=](auto idx)
   {
-    using vec = typename ht_f64::v3;
+    using vec = ht_f64::v3;
     using std::sin;
     using std::cos;
 
