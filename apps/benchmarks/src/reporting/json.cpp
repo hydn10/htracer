@@ -80,9 +80,10 @@ write_rendering(json_writer &output, render_mode const &rendering)
       output.write(",\n      \"sensor\": \"uniform\"");
       output.write(std::format(",\n      \"samples_per_pixel\": {}", mode.samples().value));
       output.write(",\n      \"seed\": ");
-      if (mode.seed())
+      auto const seed = mode.seed();
+      if (seed)
       {
-        output.string(std::to_string(mode.seed()->value));
+        output.string(std::to_string(seed->value));
       }
       else
       {
@@ -138,9 +139,10 @@ write_result(json_writer &output, benchmark_result const &result)
   output.write(",\n      \"checksum\": ");
   output.string(hex_checksum(result.checksum()));
   output.write(",\n      \"warmup_checksum\": ");
-  if (result.warmup_checksum())
+  auto const warmup_checksum = result.warmup_checksum();
+  if (warmup_checksum)
   {
-    output.string(hex_checksum(*result.warmup_checksum()));
+    output.string(hex_checksum(*warmup_checksum));
   }
   else
   {

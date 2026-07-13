@@ -49,22 +49,18 @@ measure_randomized(
     Scene const &scene,
     Policy policy)
 {
-  if (rendering.seed())
+  auto const seed = rendering.seed();
+  if (seed)
   {
+    auto const seed_value = *seed;
     return execution::measure<Float>(
-        benchmark,
-        extent,
-        plan,
-        true,
-        [&renderer, &scene, policy, rendering]()
-    { return renderer.render(policy, scene, rendering.samples(), *rendering.seed()); });
+        benchmark, extent, plan, true, [&renderer, &scene, policy, rendering, seed_value]() {
+      return renderer.render(policy, scene, rendering.samples(), seed_value);
+    });
   }
-  return execution::measure<Float>(
-      benchmark,
-      extent,
-      plan,
-      false,
-      [&renderer, &scene, policy, rendering]() { return renderer.render(policy, scene, rendering.samples()); });
+  return execution::measure<Float>(benchmark, extent, plan, false, [&renderer, &scene, policy, rendering]() {
+    return renderer.render(policy, scene, rendering.samples());
+  });
 }
 
 

@@ -6,7 +6,8 @@
 #include <exception>
 #include <iostream>
 #include <new>
-#include <print> // IWYU pragma: keep
+#include <ostream> // IWYU pragma: keep
+#include <print>   // IWYU pragma: keep
 #include <span>
 
 
