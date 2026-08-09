@@ -27,7 +27,7 @@ effective_samples(render_mode const &rendering)
     else
     {
       static_assert(std::same_as<Mode, randomized_render>);
-      return mode.samples().value;
+      return mode.samples().value();
     }
   },
       rendering);
@@ -52,7 +52,7 @@ primary_samples_per_second(benchmark_result const &result)
 
 
 std::string
-hex_checksum(image_checksum checksum)
+hex_checksum(run_checksum checksum)
 {
   return std::format("0x{:016x}", checksum.value());
 }

@@ -2,17 +2,16 @@
 #define HTRACER_BENCHMARKS_EXECUTION_MEASUREMENT_HPP
 
 
+#include <htracer/float_traits.hpp>
 #include <htracer_benchmarks/benchmark_case.hpp>
 #include <htracer_benchmarks/benchmark_result.hpp>
 #include <htracer_benchmarks/execution/image_validation.hpp>
-#include <htracer_benchmarks/image_extent.hpp>
-#include <htracer_benchmarks/measurement_plan.hpp>
 
 #include <chrono>
 #include <concepts>
 #include <cstdint>
-#include <optional>
 #include <stdexcept>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -21,25 +20,24 @@ namespace htracer::benchmarks::execution
 {
 
 template<std::floating_point Float, typename RenderOnce>
+requires std::regular_invocable<RenderOnce const &> &&
+         std::same_as<std::invoke_result_t<RenderOnce const &>, typename htracer::float_traits<Float>::image>
 [[nodiscard]]
 benchmark_result
-measure(
-    benchmark_case const &benchmark,
-    image_extent extent,
-    measurement_plan plan,
-    bool reproducible,
-    RenderOnce const &render_once)
+measure(benchmark_case const &benchmark, RenderOnce const &render_once)
 {
-  std::uint64_t warmup_hash = fnv_offset_basis;
+  auto const extent = benchmark.definition().extent();
+  auto const plan = benchmark.definition().measurement();
+
+  std::vector<image_checksum> warmup_checksums;
+  warmup_checksums.reserve(plan.warmups.value());
   for (std::uint32_t warmup = 0; warmup < plan.warmups.value(); ++warmup)
   {
-    combine_hash(warmup_hash, validate_and_hash_image<Float>(render_once(), extent));
+    warmup_checksums.push_back(validate_and_hash_image<Float>(render_once(), extent));
   }
-  auto const warmup_checksum = plan.warmups.value() == 0 ? std::nullopt : std::optional{image_checksum{warmup_hash}};
 
   std::vector<measured_render> renders;
   renders.reserve(plan.repetitions.value());
-  std::optional<image_checksum> expected_image_checksum;
 
   for (std::uint32_t repetition = 0; repetition < plan.repetitions.value(); ++repetition)
   {
@@ -53,18 +51,10 @@ measure(
     }
 
     auto const checksum = validate_and_hash_image<Float>(image, extent);
-    if (reproducible)
-    {
-      if (expected_image_checksum && *expected_image_checksum != checksum)
-      {
-        throw std::runtime_error("deterministic or seeded render changed across repetitions");
-      }
-      expected_image_checksum = checksum;
-    }
-    renders.push_back({.duration = duration, .checksum = checksum});
+    renders.push_back(measured_render::make(duration, checksum));
   }
 
-  return benchmark_result::make(benchmark, std::move(renders), warmup_checksum);
+  return benchmark_result::make(benchmark, std::move(renders), std::move(warmup_checksums));
 }
 
 } // namespace htracer::benchmarks::execution

@@ -10,8 +10,8 @@
 #include <htracer/rendering/policies.hpp>
 #include <htracer/rendering/random_engine.hpp>
 #include <htracer/rendering/random_seed.hpp>
-#include <htracer/rendering/samples_per_pixel.hpp>
 #include <htracer/rendering/samplers/repeat_sampler.hpp>
+#include <htracer/rendering/samples_per_pixel.hpp>
 #include <htracer/utils/generator_providers/seeded_provider.hpp>
 #include <htracer/utils/generator_providers/thread_local_provider.hpp>
 #include <htracer/utils/generator_providers/wrapping_provider.hpp>
@@ -36,7 +36,7 @@ namespace htracer::rendering::renderers
 {
 
 template<typename Float, typename Batcher, typename Sensor, typename Lens>
-  requires sensor<detail_::component_type<Sensor>, Float> && lens<detail_::component_type<Lens>, Float>
+requires sensor<detail_::component_type<Sensor>, Float> && lens<detail_::component_type<Lens>, Float>
 class randomized_renderer
 {
   camera<Float> camera_;
@@ -68,7 +68,7 @@ public:
 
 
 template<typename Float, typename Batcher, typename Sensor, typename Lens>
-  requires sensor<detail_::component_type<Sensor>, Float> && lens<detail_::component_type<Lens>, Float>
+requires sensor<detail_::component_type<Sensor>, Float> && lens<detail_::component_type<Lens>, Float>
 constexpr randomized_renderer<Float, Batcher, Sensor, Lens>::randomized_renderer(
     camera<Float> camera, Batcher batcher, Sensor sensor, Lens lens)
     : camera_{std::move(camera)}
@@ -80,14 +80,14 @@ constexpr randomized_renderer<Float, Batcher, Sensor, Lens>::randomized_renderer
 
 
 template<typename Float, typename Batcher, typename Sensor, typename Lens>
-  requires sensor<detail_::component_type<Sensor>, Float> && lens<detail_::component_type<Lens>, Float>
+requires sensor<detail_::component_type<Sensor>, Float> && lens<detail_::component_type<Lens>, Float>
 template<rendering_policy ExPolicy, typename Scene, typename GeneratorProvider>
 image<Float>
 randomized_renderer<Float, Batcher, Sensor, Lens>::render(
     ExPolicy &&policy, Scene const &scene, samples_per_pixel samples, GeneratorProvider &&rep) const
 {
   std::vector<colors::srgb_linear<Float>> pixels(camera_.v_res() * camera_.h_res());
-  samplers::detail_::repeat_sampler sampler(samples.value, std::forward<GeneratorProvider>(rep));
+  samplers::detail_::repeat_sampler sampler(samples.value(), std::forward<GeneratorProvider>(rep));
 
   auto const &batcher = detail_::component_ref(batcher_);
   auto const &sensor = detail_::component_ref(sensor_);
@@ -103,7 +103,7 @@ randomized_renderer<Float, Batcher, Sensor, Lens>::render(
 
 
 template<typename Float, typename Batcher, typename Sensor, typename Lens>
-  requires sensor<detail_::component_type<Sensor>, Float> && lens<detail_::component_type<Lens>, Float>
+requires sensor<detail_::component_type<Sensor>, Float> && lens<detail_::component_type<Lens>, Float>
 template<rendering_policy ExPolicy, typename Scene>
 image<Float>
 randomized_renderer<Float, Batcher, Sensor, Lens>::render(
@@ -126,7 +126,7 @@ randomized_renderer<Float, Batcher, Sensor, Lens>::render(
 
 
 template<typename Float, typename Batcher, typename Sensor, typename Lens>
-  requires sensor<detail_::component_type<Sensor>, Float> && lens<detail_::component_type<Lens>, Float>
+requires sensor<detail_::component_type<Sensor>, Float> && lens<detail_::component_type<Lens>, Float>
 template<rendering_policy ExPolicy, typename Scene>
 image<Float>
 randomized_renderer<Float, Batcher, Sensor, Lens>::render(

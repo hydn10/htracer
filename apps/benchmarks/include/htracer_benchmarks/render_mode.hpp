@@ -6,6 +6,7 @@
 #include <htracer/rendering/samples_per_pixel.hpp>
 
 #include <optional>
+#include <utility>
 #include <variant>
 
 
@@ -20,9 +21,12 @@ struct deterministic_render
 class randomized_render
 {
 public:
-  [[nodiscard]]
-  static randomized_render
-  make(htracer::rendering::samples_per_pixel samples, std::optional<htracer::rendering::random_seed> seed);
+  constexpr randomized_render(
+      htracer::rendering::samples_per_pixel samples, std::optional<htracer::rendering::random_seed> seed) noexcept
+      : samples_{samples}
+      , seed_{std::move(seed)}
+  {
+  }
 
   [[nodiscard]]
   constexpr htracer::rendering::samples_per_pixel
@@ -39,13 +43,6 @@ public:
   }
 
 private:
-  constexpr randomized_render(
-      htracer::rendering::samples_per_pixel samples, std::optional<htracer::rendering::random_seed> seed) noexcept
-      : samples_{samples}
-      , seed_{seed}
-  {
-  }
-
   htracer::rendering::samples_per_pixel samples_;
   std::optional<htracer::rendering::random_seed> seed_;
 };

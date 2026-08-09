@@ -3,14 +3,33 @@
 
 
 #include <cstdint>
+#include <stdexcept>
 
 
 namespace htracer::rendering
 {
 
-struct samples_per_pixel
+class samples_per_pixel
 {
-  uint32_t value;
+public:
+  explicit constexpr samples_per_pixel(std::uint32_t value)
+      : value_{value}
+  {
+    if (value == 0)
+    {
+      throw std::invalid_argument("samples per pixel must be greater than zero");
+    }
+  }
+
+  [[nodiscard]]
+  constexpr std::uint32_t
+  value() const noexcept
+  {
+    return value_;
+  }
+
+private:
+  std::uint32_t value_;
 };
 
 } // namespace htracer::rendering

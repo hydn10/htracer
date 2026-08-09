@@ -5,7 +5,6 @@
 #include <htracer_benchmarks/render_mode.hpp>
 #include <htracer_benchmarks/scene_spec.hpp>
 
-#include <stdexcept>
 #include <variant>
 
 
@@ -31,13 +30,19 @@ benchmark_definition::benchmark_definition(
 
 benchmark_definition
 benchmark_definition::deterministic(
-    scene_spec scene, precision_kind precision, policy_kind policy, image_extent extent, measurement_plan measurement)
+    deterministic_scene_spec scene,
+    precision_kind precision,
+    policy_kind policy,
+    image_extent extent,
+    measurement_plan measurement)
 {
-  if (std::holds_alternative<rng_probe_scene>(scene))
-  {
-    throw std::invalid_argument("rng-probe scene requires randomized rendering");
-  }
-  return {scene, deterministic_render{}, precision, policy, extent, measurement};
+  return {
+      std::visit([](auto value) -> scene_spec { return value; }, scene),
+      deterministic_render{},
+      precision,
+      policy,
+      extent,
+      measurement};
 }
 
 

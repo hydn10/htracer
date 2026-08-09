@@ -29,7 +29,7 @@ primary_samples_per_second(benchmark_result const &result);
 
 [[nodiscard]]
 std::string
-hex_checksum(image_checksum checksum);
+hex_checksum(run_checksum checksum);
 
 } // namespace htracer::benchmarks::reporting
 

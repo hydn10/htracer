@@ -50,6 +50,7 @@ struct rng_probe_scene
 
 
 using scene_spec = std::variant<mixed_scene, traversal_scene, rng_probe_scene>;
+using deterministic_scene_spec = std::variant<mixed_scene, traversal_scene>;
 
 } // namespace htracer::benchmarks
 

@@ -5,8 +5,8 @@
 #include <htracer_benchmarks/benchmark_definition.hpp>
 #include <htracer_benchmarks/benchmark_result.hpp>
 #include <htracer_benchmarks/execution/measurement.hpp>
+#include <htracer_benchmarks/execution/render_pipeline.hpp>
 #include <htracer_benchmarks/image_extent.hpp>
-#include <htracer_benchmarks/measurement_plan.hpp>
 #include <htracer_benchmarks/render_mode.hpp>
 #include <htracer_benchmarks/scenes/make_scene.hpp>
 
@@ -25,15 +25,10 @@ template<std::floating_point Float, typename Renderer, typename Scene, htracer::
 [[nodiscard]]
 benchmark_result
 measure_deterministic(
-    benchmark_case const &benchmark,
-    image_extent extent,
-    measurement_plan plan,
-    Renderer const &renderer,
-    Scene const &scene,
-    Policy policy)
+    benchmark_case const &benchmark, Renderer const &renderer, Scene const &scene, Policy const &policy)
 {
   return execution::measure<Float>(
-      benchmark, extent, plan, true, [&renderer, &scene, policy]() { return renderer.render(policy, scene); });
+      benchmark, [&renderer, &scene, &policy]() { return renderer.render(policy, scene); });
 }
 
 
@@ -42,23 +37,20 @@ template<std::floating_point Float, typename Renderer, typename Scene, htracer::
 benchmark_result
 measure_randomized(
     benchmark_case const &benchmark,
-    image_extent extent,
-    measurement_plan plan,
-    randomized_render rendering,
+    randomized_render const &rendering,
     Renderer const &renderer,
     Scene const &scene,
-    Policy policy)
+    Policy const &policy)
 {
   auto const seed = rendering.seed();
   if (seed)
   {
     auto const seed_value = *seed;
-    return execution::measure<Float>(
-        benchmark, extent, plan, true, [&renderer, &scene, policy, rendering, seed_value]() {
+    return execution::measure<Float>(benchmark, [&renderer, &scene, &policy, &rendering, seed_value]() {
       return renderer.render(policy, scene, rendering.samples(), seed_value);
     });
   }
-  return execution::measure<Float>(benchmark, extent, plan, false, [&renderer, &scene, policy, rendering]() {
+  return execution::measure<Float>(benchmark, [&renderer, &scene, &policy, &rendering]() {
     return renderer.render(policy, scene, rendering.samples());
   });
 }
@@ -70,9 +62,7 @@ benchmark_result
 dispatch_policy(
     benchmark_case const &benchmark,
     policy_kind execution_policy,
-    image_extent extent,
-    measurement_plan plan,
-    Mode mode,
+    Mode const &mode,
     Renderer const &renderer,
     Scene const &scene)
 {
@@ -81,20 +71,20 @@ dispatch_policy(
   case policy_kind::seq:
     if constexpr (std::same_as<Mode, deterministic_render>)
     {
-      return measure_deterministic<Float>(benchmark, extent, plan, renderer, scene, htracer::rendering::seq);
+      return measure_deterministic<Float>(benchmark, renderer, scene, htracer::rendering::seq);
     }
     else
     {
-      return measure_randomized<Float>(benchmark, extent, plan, mode, renderer, scene, htracer::rendering::seq);
+      return measure_randomized<Float>(benchmark, mode, renderer, scene, htracer::rendering::seq);
     }
   case policy_kind::par:
     if constexpr (std::same_as<Mode, deterministic_render>)
     {
-      return measure_deterministic<Float>(benchmark, extent, plan, renderer, scene, htracer::rendering::par);
+      return measure_deterministic<Float>(benchmark, renderer, scene, htracer::rendering::par);
     }
     else
     {
-      return measure_randomized<Float>(benchmark, extent, plan, mode, renderer, scene, htracer::rendering::par);
+      return measure_randomized<Float>(benchmark, mode, renderer, scene, htracer::rendering::par);
     }
   }
   std::unreachable();
@@ -111,27 +101,31 @@ run_typed(benchmark_case const &benchmark, benchmark_definition const &definitio
   auto setup = scenes::make_scene<Float>(definition.scene());
   auto const extent = definition.extent();
   typename traits::camera const camera{
-      setup.camera_position, setup.camera_view, setup.camera_up, extent.width(), extent.height(), setup.fov};
-  htracer::rendering::batchers::column_batcher const batcher;
-  typename traits::pinhole_lens const lens;
+      setup.camera_position,
+      setup.camera_view,
+      setup.camera_up,
+      extent.width().value(),
+      extent.height().value(),
+      setup.fov};
 
   return std::visit(
-      [&]<typename Mode>(Mode mode) -> benchmark_result
+      [&]<typename Mode>(Mode const &mode) -> benchmark_result
   {
+    using pipeline = execution::render_pipeline<Mode>;
+
+    typename pipeline::batcher const batcher;
+    typename pipeline::template sensor<Float> const sensor;
+    typename pipeline::template lens<Float> const lens;
+    auto const renderer = htracer::rendering::make_renderer(camera, batcher, sensor, lens);
+
     if constexpr (std::same_as<Mode, deterministic_render>)
     {
-      typename traits::point_sensor const sensor;
-      auto const renderer = htracer::rendering::make_renderer(camera, batcher, sensor, lens);
-      return dispatch_policy<Float>(
-          benchmark, definition.policy(), definition.extent(), definition.measurement(), mode, renderer, setup.scene);
+      return dispatch_policy<Float>(benchmark, definition.policy(), mode, renderer, setup.scene);
     }
     else
     {
       static_assert(std::same_as<Mode, randomized_render>);
-      typename traits::uniform_sensor const sensor;
-      auto const renderer = htracer::rendering::make_renderer(camera, batcher, sensor, lens);
-      return dispatch_policy<Float>(
-          benchmark, definition.policy(), definition.extent(), definition.measurement(), mode, renderer, setup.scene);
+      return dispatch_policy<Float>(benchmark, definition.policy(), mode, renderer, setup.scene);
     }
   },
       definition.rendering());

@@ -4,16 +4,11 @@
 
 #include <htracer_benchmarks/benchmark_case.hpp>
 
-#include <cstdint>
 #include <span>
 
 
 namespace htracer::benchmarks
 {
-
-inline constexpr std::uint32_t output_schema_version{1};
-inline constexpr std::uint32_t workload_schema_version{1};
-
 
 class quick_suite_catalog
 {

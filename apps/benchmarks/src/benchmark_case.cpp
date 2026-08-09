@@ -2,7 +2,6 @@
 
 #include <htracer_benchmarks/benchmark_definition.hpp>
 
-
 namespace htracer::benchmarks
 {
 

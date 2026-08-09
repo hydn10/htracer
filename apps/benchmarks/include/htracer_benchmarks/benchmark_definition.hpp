@@ -31,7 +31,7 @@ public:
   [[nodiscard]]
   static benchmark_definition
   deterministic(
-      scene_spec scene,
+      deterministic_scene_spec scene,
       precision_kind precision,
       policy_kind policy,
       image_extent extent,

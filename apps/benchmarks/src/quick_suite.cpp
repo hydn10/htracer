@@ -36,7 +36,11 @@ benchmark_definition
 mixed_deterministic(precision_kind precision, policy_kind policy)
 {
   return benchmark_definition::deterministic(
-      mixed_scene{}, precision, policy, image_extent::make(640, 360), quick_measurement());
+      mixed_scene{},
+      precision,
+      policy,
+      image_extent::make(image_width::make(640), image_height::make(360)),
+      quick_measurement());
 }
 
 
@@ -46,10 +50,10 @@ mixed_randomized(precision_kind precision, policy_kind policy)
 {
   return benchmark_definition::randomized(
       mixed_scene{},
-      randomized_render::make(htracer::rendering::samples_per_pixel{8}, canonical_seed),
+      randomized_render{htracer::rendering::samples_per_pixel{8}, canonical_seed},
       precision,
       policy,
-      image_extent::make(320, 180),
+      image_extent::make(image_width::make(320), image_height::make(180)),
       quick_measurement());
 }
 
@@ -63,10 +67,10 @@ rng_probe(
 {
   return benchmark_definition::randomized(
       rng_probe_scene{},
-      randomized_render::make(samples, seed),
+      randomized_render{samples, seed},
       precision_kind::f64,
       policy,
-      image_extent::make(640, 360),
+      image_extent::make(image_width::make(640), image_height::make(360)),
       quick_measurement());
 }
 

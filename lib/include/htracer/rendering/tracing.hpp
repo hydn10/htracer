@@ -62,11 +62,19 @@ render_single_pixel(
 
   auto const get_dv = [v_tan, v_res](Float idx)
   {
+    if (v_res == 1)
+    {
+      return Float{0};
+    }
     return v_tan * (1 - ((2 * idx) / (v_res - 1)));
   };
 
   auto const get_dh = [h_tan, h_res](Float idx)
   {
+    if (h_res == 1)
+    {
+      return Float{0};
+    }
     return h_tan * (((2 * idx) / (h_res - 1)) - 1);
   };
 

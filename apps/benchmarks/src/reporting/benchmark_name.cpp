@@ -4,10 +4,10 @@
 #include <htracer_benchmarks/benchmark_definition.hpp>
 #include <htracer_benchmarks/render_mode.hpp>
 #include <htracer_benchmarks/scene_spec.hpp>
+#include <htracer_benchmarks/schema_version.hpp>
 
 #include <concepts>
 #include <format>
-#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -36,10 +36,50 @@ precision_id(precision_kind precision) noexcept
 
 
 [[nodiscard]]
-std::string_view
-seed_id(randomized_render const &rendering) noexcept
+std::string
+scene_id(scene_spec const &scene)
 {
-  return rendering.seed() ? "seeded" : "unseeded";
+  return std::visit(
+      []<typename Scene>(Scene const &value) -> std::string
+  {
+    if constexpr (std::same_as<Scene, mixed_scene>)
+    {
+      return "mixed";
+    }
+    else if constexpr (std::same_as<Scene, traversal_scene>)
+    {
+      return std::format("traversal-g{}", value.count.value());
+    }
+    else
+    {
+      static_assert(std::same_as<Scene, rng_probe_scene>);
+      return "rng-probe";
+    }
+  },
+      scene);
+}
+
+
+[[nodiscard]]
+std::string
+rendering_id(render_mode const &rendering)
+{
+  return std::visit(
+      []<typename Mode>(Mode const &mode) -> std::string
+  {
+    if constexpr (std::same_as<Mode, deterministic_render>)
+    {
+      return "deterministic";
+    }
+    else
+    {
+      static_assert(std::same_as<Mode, randomized_render>);
+      auto const seed = mode.seed();
+      auto const seed_value = seed ? std::format("{:016x}", seed->value) : std::string{"none"};
+      return std::format("randomized-spp{}-seed{}", mode.samples().value(), seed_value);
+    }
+  },
+      rendering);
 }
 
 
@@ -47,63 +87,19 @@ seed_id(randomized_render const &rendering) noexcept
 std::string
 canonical_benchmark_name(benchmark_definition const &definition)
 {
-  auto const precision = precision_id(definition.precision());
-  auto const policy = policy_name(definition.policy());
-
-  return std::visit(
-      [&]<typename Scene>(Scene const &scene) -> std::string
-  {
-    return std::visit(
-        [&]<typename Mode>(Mode const &mode) -> std::string
-    {
-      if constexpr (std::same_as<Scene, mixed_scene>)
-      {
-        if constexpr (std::same_as<Mode, deterministic_render>)
-        {
-          return std::format("quick.v1/mixed/deterministic/{}/{}", precision, policy);
-        }
-        else
-        {
-          static_assert(std::same_as<Mode, randomized_render>);
-          return std::format("quick.v1/mixed/randomized-{}/{}/{}", seed_id(mode), precision, policy);
-        }
-      }
-      else if constexpr (std::same_as<Scene, traversal_scene>)
-      {
-        if constexpr (std::same_as<Mode, deterministic_render>)
-        {
-          return std::format("quick.v1/traversal/g{}/deterministic/{}/{}", scene.count.value(), precision, policy);
-        }
-        else
-        {
-          static_assert(std::same_as<Mode, randomized_render>);
-          return std::format(
-              "quick.v1/traversal/g{}/randomized-{}/spp{}/{}/{}",
-              scene.count.value(),
-              seed_id(mode),
-              mode.samples().value,
-              precision,
-              policy);
-        }
-      }
-      else
-      {
-        static_assert(std::same_as<Scene, rng_probe_scene>);
-        if constexpr (std::same_as<Mode, deterministic_render>)
-        {
-          throw std::logic_error("canonical RNG probe cannot use deterministic rendering");
-        }
-        else
-        {
-          static_assert(std::same_as<Mode, randomized_render>);
-          return std::format(
-              "quick.v1/rng-probe/{}/spp{}/{}/{}", seed_id(mode), mode.samples().value, precision, policy);
-        }
-      }
-    },
-        definition.rendering());
-  },
-      definition.scene());
+  auto const extent = definition.extent();
+  auto const measurement = definition.measurement();
+  return std::format(
+      "quick.v{}/{}/{}/{}/{}/{}x{}/w{}/r{}",
+      workload_schema_version,
+      scene_id(definition.scene()),
+      rendering_id(definition.rendering()),
+      precision_id(definition.precision()),
+      policy_name(definition.policy()),
+      extent.width().value(),
+      extent.height().value(),
+      measurement.warmups.value(),
+      measurement.repetitions.value());
 }
 
 } // namespace

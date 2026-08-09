@@ -16,6 +16,7 @@
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <type_traits>
 #include <utility>
 #include <variant>
 
@@ -134,7 +135,7 @@ parse_rendering(
       seed = htracer::rendering::random_seed{parse_unsigned<std::uint64_t>(*seed_option, "--seed")};
     }
     return domain_value([samples, seed]
-    { return randomized_render::make(htracer::rendering::samples_per_pixel{samples}, seed); });
+    { return randomized_render{htracer::rendering::samples_per_pixel{samples}, seed}; });
   }
   throw usage_error("invalid --rendering value: " + rendering);
 }
@@ -164,7 +165,10 @@ parse_custom_definition(raw_options const &options)
   auto rendering = parse_rendering(rendering_text, options.samples, options.seed);
   auto const precision = parse_precision(precision_text);
   auto const policy = parse_policy(policy_text);
-  auto const extent = domain_value([width, height] { return image_extent::make(width, height); });
+  auto const parsed_width = domain_value([width] { return image_width::make(width); });
+  auto const parsed_height = domain_value([height] { return image_height::make(height); });
+  auto const extent =
+      domain_value([parsed_width, parsed_height] { return image_extent::make(parsed_width, parsed_height); });
   auto const measurement = measurement_plan{
       .warmups = warmup_count{warmups},
       .repetitions = domain_value([repetitions] { return repetition_count::make(repetitions); })};
@@ -175,8 +179,21 @@ parse_custom_definition(raw_options const &options)
   {
     if constexpr (std::same_as<Mode, deterministic_render>)
     {
-      return domain_value([&]
-      { return benchmark_definition::deterministic(scene, precision, policy, extent, measurement); });
+      return std::visit(
+          [&](auto const &scene_value) -> benchmark_definition
+      {
+        using Scene = std::remove_cvref_t<decltype(scene_value)>;
+        if constexpr (std::same_as<Scene, rng_probe_scene>)
+        {
+          throw usage_error("rng-probe scene requires randomized rendering");
+        }
+        else
+        {
+          return benchmark_definition::deterministic(
+              deterministic_scene_spec{scene_value}, precision, policy, extent, measurement);
+        }
+      },
+          scene);
     }
     else
     {

@@ -29,8 +29,8 @@ print_case_list(std::span<benchmark_case const> benchmarks)
     std::print(
         "  {} [{}x{}, {}, {}, {}, {}",
         benchmark_name(benchmark),
-        definition.extent().width(),
-        definition.extent().height(),
+        definition.extent().width().value(),
+        definition.extent().height().value(),
         scene_name(definition.scene()),
         rendering_name(definition.rendering()),
         precision_name(definition.precision()),
@@ -40,7 +40,7 @@ print_case_list(std::span<benchmark_case const> benchmarks)
     {
       if constexpr (std::same_as<Mode, randomized_render>)
       {
-        std::print(", spp={}", mode.samples().value);
+        std::print(", spp={}", mode.samples().value());
       }
     },
         definition.rendering());
