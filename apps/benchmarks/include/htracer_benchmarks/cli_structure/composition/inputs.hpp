@@ -41,7 +41,7 @@ public:
   descriptors() const;
 
   template<typename Result>
-  requires(inputs<Items...>::template constructs<Result>)
+  requires(detail::brace_constructible_from<Result, typename Items::result_type...>)
   [[nodiscard]]
   Result
   construct(detail::parsed_arguments const &values, std::string_view path) const;
@@ -94,7 +94,7 @@ inputs<Items...>::descriptors() const
 
 template<typename... Items>
 template<typename Result>
-requires(inputs<Items...>::template constructs<Result>)
+requires(detail::brace_constructible_from<Result, typename Items::result_type...>)
 Result
 inputs<Items...>::construct(detail::parsed_arguments const &values, std::string_view path) const
 {
