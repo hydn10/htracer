@@ -22,21 +22,21 @@ make_scene(scene_spec const &specification)
 {
   return std::visit(
       []<typename Scene>(Scene const &scene) -> scene_setup<Float>
-  {
-    if constexpr (std::same_as<Scene, mixed_scene>)
-    {
-      return make_mixed<Float>();
-    }
-    else if constexpr (std::same_as<Scene, traversal_scene>)
-    {
-      return make_traversal<Float>(scene.count);
-    }
-    else
-    {
-      static_assert(std::same_as<Scene, rng_probe_scene>);
-      return make_rng_probe<Float>();
-    }
-  },
+      {
+        if constexpr (std::same_as<Scene, mixed_scene>)
+        {
+          return make_mixed<Float>();
+        }
+        else if constexpr (std::same_as<Scene, traversal_scene>)
+        {
+          return make_traversal<Float>(scene.count);
+        }
+        else
+        {
+          static_assert(std::same_as<Scene, rng_probe_scene>);
+          return make_rng_probe<Float>();
+        }
+      },
       specification);
 }
 

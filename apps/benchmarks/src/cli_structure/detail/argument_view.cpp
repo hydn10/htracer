@@ -48,7 +48,12 @@ argument_view::subspan(std::size_t offset) const noexcept
 bool
 argument_view::contains_help() const noexcept
 {
-  return std::ranges::any_of(values_, [](char const *value) { return is_help(value); });
+  return std::ranges::any_of(
+      values_,
+      [](char const *value)
+      {
+        return is_help(value);
+      });
 }
 
 } // namespace htracer::benchmarks::cli_structure::detail

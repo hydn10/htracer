@@ -2,8 +2,8 @@
 #define HTRACER_BENCHMARKS_CLI_HPP
 
 
-#include <htracer_benchmarks/cli_structure/foundations/errors.hpp>
 #include <htracer_benchmarks/cli/invocation.hpp>
+#include <htracer_benchmarks/cli_structure/foundations/errors.hpp>
 
 #include <span>
 

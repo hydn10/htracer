@@ -110,20 +110,20 @@ validate_output_consistency(
 {
   std::visit(
       [&]<typename Mode>(Mode const &mode)
-  {
-    if constexpr (std::same_as<Mode, deterministic_render>)
-    {
-      require_stable_checksums(warmup_checksums, renders);
-    }
-    else
-    {
-      static_assert(std::same_as<Mode, randomized_render>);
-      if (mode.seed())
       {
-        require_stable_checksums(warmup_checksums, renders);
-      }
-    }
-  },
+        if constexpr (std::same_as<Mode, deterministic_render>)
+        {
+          require_stable_checksums(warmup_checksums, renders);
+        }
+        else
+        {
+          static_assert(std::same_as<Mode, randomized_render>);
+          if (mode.seed())
+          {
+            require_stable_checksums(warmup_checksums, renders);
+          }
+        }
+      },
       rendering);
 }
 

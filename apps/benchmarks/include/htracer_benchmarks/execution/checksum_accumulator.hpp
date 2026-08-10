@@ -13,8 +13,8 @@ namespace htracer::benchmarks::execution
 
 class checksum_accumulator
 {
-  static constexpr std::uint64_t fnv_offset_basis{14695981039346656037ULL};
-  static constexpr std::uint64_t fnv_prime{1099511628211ULL};
+  static constexpr std::uint64_t fnv_offset_basis{14695981039346656037ull};
+  static constexpr std::uint64_t fnv_prime{1099511628211ull};
 
   std::uint64_t value_{fnv_offset_basis};
 

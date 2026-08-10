@@ -14,14 +14,14 @@ namespace htracer::benchmarks
 enum class precision_kind
 {
   f32,
-  f64
+  f64,
 };
 
 
 enum class policy_kind
 {
   seq,
-  par
+  par,
 };
 
 

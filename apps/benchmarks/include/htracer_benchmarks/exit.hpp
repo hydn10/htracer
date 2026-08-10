@@ -12,7 +12,7 @@ enum class exit_code : std::uint8_t
 {
   success = 0,
   failure = 1,
-  usage_error = 2
+  usage_error = 2,
 };
 
 

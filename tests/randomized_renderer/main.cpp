@@ -102,7 +102,7 @@ main() // NOLINT(bugprone-exception-escape)
   auto const renderer = htracer::rendering::make_renderer(
       camera, htracer::rendering::batchers::pixel_batcher{}, ht_f64::uniform_sensor{}, ht_f64::pinhole_lens{});
   auto constexpr samples = htracer::rendering::samples_per_pixel{4};
-  auto constexpr seed = htracer::rendering::random_seed{0x0123456789abcdefULL};
+  auto constexpr seed = htracer::rendering::random_seed{0x0123456789ABCDEFull};
 
   auto const unseeded_seq = renderer.render(htracer::rendering::seq, scene, samples);
   auto const unseeded_par = renderer.render(htracer::rendering::par, scene, samples);

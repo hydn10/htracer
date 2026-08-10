@@ -28,7 +28,11 @@ measure_deterministic(
     benchmark_case const &benchmark, Renderer const &renderer, Scene const &scene, Policy const &policy)
 {
   return execution::measure<Float>(
-      benchmark, [&renderer, &scene, &policy]() { return renderer.render(policy, scene); });
+      benchmark,
+      [&renderer, &scene, &policy]()
+      {
+        return renderer.render(policy, scene);
+      });
 }
 
 
@@ -46,13 +50,19 @@ measure_randomized(
   if (seed)
   {
     auto const seed_value = *seed;
-    return execution::measure<Float>(benchmark, [&renderer, &scene, &policy, &rendering, seed_value]() {
-      return renderer.render(policy, scene, rendering.samples(), seed_value);
-    });
+    return execution::measure<Float>(
+        benchmark,
+        [&renderer, &scene, &policy, &rendering, seed_value]()
+        {
+          return renderer.render(policy, scene, rendering.samples(), seed_value);
+        });
   }
-  return execution::measure<Float>(benchmark, [&renderer, &scene, &policy, &rendering]() {
-    return renderer.render(policy, scene, rendering.samples());
-  });
+  return execution::measure<Float>(
+      benchmark,
+      [&renderer, &scene, &policy, &rendering]()
+      {
+        return renderer.render(policy, scene, rendering.samples());
+      });
 }
 
 
@@ -110,24 +120,24 @@ run_typed(benchmark_case const &benchmark, benchmark_definition const &definitio
 
   return std::visit(
       [&]<typename Mode>(Mode const &mode) -> benchmark_result
-  {
-    using pipeline = execution::render_pipeline<Mode>;
+      {
+        using pipeline = execution::render_pipeline<Mode>;
 
-    typename pipeline::batcher const batcher;
-    typename pipeline::template sensor<Float> const sensor;
-    typename pipeline::template lens<Float> const lens;
-    auto const renderer = htracer::rendering::make_renderer(camera, batcher, sensor, lens);
+        typename pipeline::batcher const batcher;
+        typename pipeline::template sensor<Float> const sensor;
+        typename pipeline::template lens<Float> const lens;
+        auto const renderer = htracer::rendering::make_renderer(camera, batcher, sensor, lens);
 
-    if constexpr (std::same_as<Mode, deterministic_render>)
-    {
-      return dispatch_policy<Float>(benchmark, definition.policy(), mode, renderer, setup.scene);
-    }
-    else
-    {
-      static_assert(std::same_as<Mode, randomized_render>);
-      return dispatch_policy<Float>(benchmark, definition.policy(), mode, renderer, setup.scene);
-    }
-  },
+        if constexpr (std::same_as<Mode, deterministic_render>)
+        {
+          return dispatch_policy<Float>(benchmark, definition.policy(), mode, renderer, setup.scene);
+        }
+        else
+        {
+          static_assert(std::same_as<Mode, randomized_render>);
+          return dispatch_policy<Float>(benchmark, definition.policy(), mode, renderer, setup.scene);
+        }
+      },
       definition.rendering());
 }
 

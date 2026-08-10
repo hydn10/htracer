@@ -72,7 +72,12 @@ template<std::size_t Size>
 constexpr void
 inputs<Items...>::append_descriptors(std::array<detail::option_descriptor, Size> &values, std::size_t &index) const
 {
-  std::apply([&](auto const &...items) { (items.append_descriptors(values, index), ...); }, items_);
+  std::apply(
+      [&](auto const &...items)
+      {
+        (items.append_descriptors(values, index), ...);
+      },
+      items_);
 }
 
 
@@ -93,9 +98,18 @@ requires(inputs<Items...>::template constructs<Result>)
 Result
 inputs<Items...>::construct(detail::parsed_arguments const &values, std::string_view path) const
 {
-  auto parsed = std::apply([&](auto const &...items) { return std::tuple{items.evaluate(values, path)...}; }, items_);
+  auto parsed = std::apply(
+      [&](auto const &...items)
+      {
+        return std::tuple{items.evaluate(values, path)...};
+      },
+      items_);
   return std::apply(
-      [](auto &&...arguments) { return Result{std::forward<decltype(arguments)>(arguments)...}; }, std::move(parsed));
+      [](auto &&...arguments)
+      {
+        return Result{std::forward<decltype(arguments)>(arguments)...};
+      },
+      std::move(parsed));
 }
 
 
@@ -104,7 +118,12 @@ template<typename Parser>
 std::invoke_result_t<Parser const &, typename Items::result_type...>
 inputs<Items...>::parse_with(Parser const &parser, detail::parsed_arguments const &values, std::string_view path) const
 {
-  auto parsed = std::apply([&](auto const &...items) { return std::tuple{items.evaluate(values, path)...}; }, items_);
+  auto parsed = std::apply(
+      [&](auto const &...items)
+      {
+        return std::tuple{items.evaluate(values, path)...};
+      },
+      items_);
   return std::apply(parser, std::move(parsed));
 }
 
@@ -113,7 +132,12 @@ template<typename... Items>
 void
 inputs<Items...>::print_help(detail::help_writer &writer) const
 {
-  std::apply([&](auto const &...items) { (items.print_help(writer), ...); }, items_);
+  std::apply(
+      [&](auto const &...items)
+      {
+        (items.print_help(writer), ...);
+      },
+      items_);
 }
 
 } // namespace htracer::benchmarks::cli_structure

@@ -18,7 +18,7 @@ class benchmark_case
   enum class origin
   {
     canonical,
-    custom
+    custom,
   };
 
   [[nodiscard]]

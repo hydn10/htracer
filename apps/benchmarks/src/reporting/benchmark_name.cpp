@@ -41,21 +41,21 @@ scene_id(scene_spec const &scene)
 {
   return std::visit(
       []<typename Scene>(Scene const &value) -> std::string
-  {
-    if constexpr (std::same_as<Scene, mixed_scene>)
-    {
-      return "mixed";
-    }
-    else if constexpr (std::same_as<Scene, traversal_scene>)
-    {
-      return std::format("traversal-g{}", value.count.value());
-    }
-    else
-    {
-      static_assert(std::same_as<Scene, rng_probe_scene>);
-      return "rng-probe";
-    }
-  },
+      {
+        if constexpr (std::same_as<Scene, mixed_scene>)
+        {
+          return "mixed";
+        }
+        else if constexpr (std::same_as<Scene, traversal_scene>)
+        {
+          return std::format("traversal-g{}", value.count.value());
+        }
+        else
+        {
+          static_assert(std::same_as<Scene, rng_probe_scene>);
+          return "rng-probe";
+        }
+      },
       scene);
 }
 
@@ -66,19 +66,19 @@ rendering_id(render_mode const &rendering)
 {
   return std::visit(
       []<typename Mode>(Mode const &mode) -> std::string
-  {
-    if constexpr (std::same_as<Mode, deterministic_render>)
-    {
-      return "deterministic";
-    }
-    else
-    {
-      static_assert(std::same_as<Mode, randomized_render>);
-      auto const seed = mode.seed();
-      auto const seed_value = seed ? std::format("{:016x}", seed->value) : std::string{"none"};
-      return std::format("randomized-spp{}-seed{}", mode.samples().value(), seed_value);
-    }
-  },
+      {
+        if constexpr (std::same_as<Mode, deterministic_render>)
+        {
+          return "deterministic";
+        }
+        else
+        {
+          static_assert(std::same_as<Mode, randomized_render>);
+          auto const seed = mode.seed();
+          auto const seed_value = seed ? std::format("{:016x}", seed->value) : std::string{"none"};
+          return std::format("randomized-spp{}-seed{}", mode.samples().value(), seed_value);
+        }
+      },
       rendering);
 }
 
@@ -110,21 +110,21 @@ scene_name(scene_spec const &scene)
 {
   return std::visit(
       []<typename Scene>(Scene const &) -> std::string_view
-  {
-    if constexpr (std::same_as<Scene, mixed_scene>)
-    {
-      return "mixed";
-    }
-    else if constexpr (std::same_as<Scene, traversal_scene>)
-    {
-      return "traversal";
-    }
-    else
-    {
-      static_assert(std::same_as<Scene, rng_probe_scene>);
-      return "rng-probe";
-    }
-  },
+      {
+        if constexpr (std::same_as<Scene, mixed_scene>)
+        {
+          return "mixed";
+        }
+        else if constexpr (std::same_as<Scene, traversal_scene>)
+        {
+          return "traversal";
+        }
+        else
+        {
+          static_assert(std::same_as<Scene, rng_probe_scene>);
+          return "rng-probe";
+        }
+      },
       scene);
 }
 
@@ -134,17 +134,17 @@ rendering_name(render_mode const &rendering)
 {
   return std::visit(
       []<typename Mode>(Mode const &) -> std::string_view
-  {
-    if constexpr (std::same_as<Mode, deterministic_render>)
-    {
-      return "deterministic";
-    }
-    else
-    {
-      static_assert(std::same_as<Mode, randomized_render>);
-      return "randomized";
-    }
-  },
+      {
+        if constexpr (std::same_as<Mode, deterministic_render>)
+        {
+          return "deterministic";
+        }
+        else
+        {
+          static_assert(std::same_as<Mode, randomized_render>);
+          return "randomized";
+        }
+      },
       rendering);
 }
 

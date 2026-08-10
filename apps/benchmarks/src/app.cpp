@@ -76,7 +76,11 @@ handle([[maybe_unused]] htracer::benchmarks::list_command const &command)
 std::optional<std::filesystem::path>
 output_path(std::optional<htracer::benchmarks::output_option> const &output)
 {
-  return output.transform([](htracer::benchmarks::output_option const &option) { return option.value; });
+  return output.transform(
+      [](htracer::benchmarks::output_option const &option)
+      {
+        return option.value;
+      });
 }
 
 
@@ -106,7 +110,12 @@ randomized_definition(
   return benchmark_definition::randomized(
       scene,
       randomized_render{
-          randomized.samples.value, randomized.seed.transform([](seed_option const &option) { return option.value; })},
+          randomized.samples.value,
+          randomized.seed.transform(
+              [](seed_option const &option)
+              {
+                return option.value;
+              })},
       options.precision.value,
       options.policy.value,
       options.extent.value,
@@ -178,7 +187,12 @@ namespace htracer::benchmarks
 void
 run_app(std::span<char const *const> arguments)
 {
-  std::visit([](auto const &command) { return handle(command); }, parse_cli(arguments));
+  std::visit(
+      [](auto const &command)
+      {
+        return handle(command);
+      },
+      parse_cli(arguments));
 }
 
 } // namespace htracer::benchmarks

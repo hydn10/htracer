@@ -12,7 +12,7 @@ namespace htracer::benchmarks::cli_structure::detail
 enum class option_syntax
 {
   flag,
-  value
+  value,
 };
 
 

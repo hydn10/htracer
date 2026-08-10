@@ -37,12 +37,12 @@ print_case_list(std::span<benchmark_case const> benchmarks)
         policy_name(definition.policy()));
     std::visit(
         []<typename Mode>(Mode const &mode)
-    {
-      if constexpr (std::same_as<Mode, randomized_render>)
-      {
-        std::print(", spp={}", mode.samples().value());
-      }
-    },
+        {
+          if constexpr (std::same_as<Mode, randomized_render>)
+          {
+            std::print(", spp={}", mode.samples().value());
+          }
+        },
         definition.rendering());
     std::println("]");
   }
@@ -81,8 +81,8 @@ print_result(benchmark_result const &result)
       milliseconds{summary.median}.count(),
       milliseconds{summary.minimum}.count(),
       milliseconds{summary.maximum}.count(),
-      pixels_per_second(result) / 1'000'000.0L,
-      primary_samples_per_second(result) / 1'000'000.0L,
+      pixels_per_second(result) / 1'000'000.0l,
+      primary_samples_per_second(result) / 1'000'000.0l,
       hex_checksum(result.checksum()));
 }
 

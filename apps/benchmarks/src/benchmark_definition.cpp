@@ -37,7 +37,12 @@ benchmark_definition::deterministic(
     measurement_plan measurement)
 {
   return {
-      std::visit([](auto value) -> scene_spec { return value; }, scene),
+      std::visit(
+          [](auto value) -> scene_spec
+          {
+            return value;
+          },
+          scene),
       deterministic_render{},
       precision,
       policy,

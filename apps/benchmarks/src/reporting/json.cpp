@@ -138,16 +138,16 @@ write_scene(json_buffer &output, scene_spec const &scene)
   output.write(",\n      \"geometry_count\": ");
   std::visit(
       [&output]<typename Scene>(Scene const &value)
-  {
-    if constexpr (std::same_as<Scene, traversal_scene>)
-    {
-      output.write(std::format("{}", value.count.value()));
-    }
-    else
-    {
-      output.write("null");
-    }
-  },
+      {
+        if constexpr (std::same_as<Scene, traversal_scene>)
+        {
+          output.write(std::format("{}", value.count.value()));
+        }
+        else
+        {
+          output.write("null");
+        }
+      },
       scene);
 }
 
@@ -158,37 +158,37 @@ write_rendering(json_buffer &output, render_mode const &rendering)
   output.string(rendering_name(rendering));
   std::visit(
       [&output]<typename Mode>(Mode const &mode)
-  {
-    using pipeline = execution::render_pipeline<Mode>;
-
-    output.write(",\n      \"sensor\": ");
-    output.string(pipeline::sensor_name);
-    output.write(",\n      \"batcher\": ");
-    output.string(pipeline::batcher_name);
-    output.write(",\n      \"lens\": ");
-    output.string(pipeline::lens_name);
-
-    if constexpr (std::same_as<Mode, deterministic_render>)
-    {
-      output.write(",\n      \"samples_per_pixel\": null");
-      output.write(",\n      \"seed\": null");
-    }
-    else
-    {
-      static_assert(std::same_as<Mode, randomized_render>);
-      output.write(std::format(",\n      \"samples_per_pixel\": {}", mode.samples().value()));
-      output.write(",\n      \"seed\": ");
-      auto const seed = mode.seed();
-      if (seed)
       {
-        output.string(std::to_string(seed->value));
-      }
-      else
-      {
-        output.write("null");
-      }
-    }
-  },
+        using pipeline = execution::render_pipeline<Mode>;
+
+        output.write(",\n      \"sensor\": ");
+        output.string(pipeline::sensor_name);
+        output.write(",\n      \"batcher\": ");
+        output.string(pipeline::batcher_name);
+        output.write(",\n      \"lens\": ");
+        output.string(pipeline::lens_name);
+
+        if constexpr (std::same_as<Mode, deterministic_render>)
+        {
+          output.write(",\n      \"samples_per_pixel\": null");
+          output.write(",\n      \"seed\": null");
+        }
+        else
+        {
+          static_assert(std::same_as<Mode, randomized_render>);
+          output.write(std::format(",\n      \"samples_per_pixel\": {}", mode.samples().value()));
+          output.write(",\n      \"seed\": ");
+          auto const seed = mode.seed();
+          if (seed)
+          {
+            output.string(std::to_string(seed->value));
+          }
+          else
+          {
+            output.write("null");
+          }
+        }
+      },
       rendering);
 }
 

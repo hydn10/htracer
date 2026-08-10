@@ -16,7 +16,12 @@ template<typename Vector>
 constexpr Vector
 clamp(Vector const &v, typename Vector::float_type min, typename Vector::float_type max) noexcept
 {
-  return utils::transform(v, [min, max](auto const &val) { return std::clamp(val, min, max); });
+  return utils::transform(
+      v,
+      [min, max](auto const &val)
+      {
+        return std::clamp(val, min, max);
+      });
 }
 
 
@@ -35,7 +40,12 @@ template<typename Vector, typename Float>
 Vector
 pow(Vector const &v, Float exp)
 {
-  return utils::transform(v, [exp](auto const &val) { return std::pow(val, exp); });
+  return utils::transform(
+      v,
+      [exp](auto const &val)
+      {
+        return std::pow(val, exp);
+      });
 }
 
 

@@ -21,25 +21,29 @@ degs_to_rads(double degs)
 constexpr auto
 make_ring_positions_range(unsigned size, double radius, double azimuth_offset_degs, double tilt_degs, double spin_degs)
 {
-  return std::views::iota(0U, size) | std::views::transform([=](auto idx)
-  {
-    using vec = ht_f64::v3;
-    using std::sin;
-    using std::cos;
+  return std::views::iota(0u, size) | std::views::transform(
+                                          [=](auto idx)
+                                          {
+                                            using vec = ht_f64::v3;
+                                            using std::sin;
+                                            using std::cos;
 
-    auto const degs = idx * 2 * std::numbers::pi / size;
+                                            auto const degs = idx * 2 * std::numbers::pi / size;
 
-    auto const azimuth = degs + degs_to_rads(azimuth_offset_degs);
+                                            auto const azimuth = degs + degs_to_rads(azimuth_offset_degs);
 
-    auto const tilt = degs_to_rads(tilt_degs);
-    auto const spin = degs_to_rads(spin_degs);
+                                            auto const tilt = degs_to_rads(tilt_degs);
+                                            auto const spin = degs_to_rads(spin_degs);
 
-    auto const flat_pos = radius * vec{cos(azimuth), 0, sin(azimuth)};
-    auto const tilted = vec{flat_pos[0], -flat_pos[2] * sin(tilt), flat_pos[2] * cos(tilt)};
+                                            auto const flat_pos = radius * vec{cos(azimuth), 0, sin(azimuth)};
+                                            auto const tilted =
+                                                vec{flat_pos[0], -flat_pos[2] * sin(tilt), flat_pos[2] * cos(tilt)};
 
-    return vec{
-        tilted[0] * cos(spin) + tilted[2] * sin(spin), tilted[1], tilted[0] * -sin(spin) + tilted[2] * cos(spin)};
-  });
+                                            return vec{
+                                                tilted[0] * cos(spin) + tilted[2] * sin(spin),
+                                                tilted[1],
+                                                tilted[0] * -sin(spin) + tilted[2] * cos(spin)};
+                                          });
 }
 
 } // namespace

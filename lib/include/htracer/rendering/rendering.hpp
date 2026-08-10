@@ -20,15 +20,15 @@ template<typename Float, typename Batcher, typename Sensor, typename Lens>
 [[nodiscard]]
 constexpr auto
 make_renderer(camera<Float> camera_arg, Batcher &&batcher_arg, Sensor &&sensor_arg, Lens &&lens_arg)
-    requires sensor<detail_::component_type<Sensor>, Float> && lens<detail_::component_type<Lens>, Float>
+requires sensor<detail_::component_type<Sensor>, Float> && lens<detail_::component_type<Lens>, Float>
 {
   using stored_batcher = detail_::stored_component<Batcher>;
   using stored_sensor = detail_::stored_component<Sensor>;
   using stored_lens = detail_::stored_component<Lens>;
 
   if constexpr (
-      deterministic_sensor<detail_::component_type<stored_sensor>, Float>
-      && deterministic_lens<detail_::component_type<stored_lens>, Float>)
+      deterministic_sensor<detail_::component_type<stored_sensor>, Float> &&
+      deterministic_lens<detail_::component_type<stored_lens>, Float>)
   {
     return renderers::deterministic_renderer<Float, stored_batcher, stored_sensor, stored_lens>{
         std::move(camera_arg),
@@ -65,14 +65,10 @@ render(
     Sensor &&sensor_arg,
     Lens &&lens_arg,
     Args &&...args)
-    requires requires {
-      make_renderer(
-          std::declval<camera<Float>>(),
-          std::declval<Batcher>(),
-          std::declval<Sensor>(),
-          std::declval<Lens>())
-          .render(std::declval<ExPolicy>(), std::declval<Scene const &>(), std::declval<Args>()...);
-    }
+requires requires {
+  make_renderer(std::declval<camera<Float>>(), std::declval<Batcher>(), std::declval<Sensor>(), std::declval<Lens>())
+      .render(std::declval<ExPolicy>(), std::declval<Scene const &>(), std::declval<Args>()...);
+}
 {
   auto renderer = make_renderer(
       std::move(camera_arg),

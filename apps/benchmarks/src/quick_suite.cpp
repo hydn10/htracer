@@ -26,7 +26,7 @@ namespace htracer::benchmarks
 namespace
 {
 
-constexpr htracer::rendering::random_seed canonical_seed{0x0123456789abcdefULL};
+constexpr htracer::rendering::random_seed canonical_seed{0x0123456789ABCDEFull};
 
 template<typename Value>
 [[nodiscard]]

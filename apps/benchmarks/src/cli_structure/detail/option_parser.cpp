@@ -31,7 +31,7 @@ parse_token(std::string_view argument, std::string_view path)
     std::optional<std::string_view> attached;
     if (argument.size() > 2)
     {
-      attached = argument.substr(argument[2] == '=' ? 3U : 2U);
+      attached = argument.substr(argument[2] == '=' ? 3u : 2u);
     }
     return {.short_name = argument[1], .long_name = {}, .attached_value = attached};
   }

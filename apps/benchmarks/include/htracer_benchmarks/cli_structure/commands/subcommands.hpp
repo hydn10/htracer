@@ -52,7 +52,12 @@ template<typename... Children>
 constexpr subcommands<Children...>::subcommands(Children... children)
     : children_{std::move(children)...}
 {
-  auto const names = std::apply([](auto const &...values) { return std::array{values.name()...}; }, children_);
+  auto const names = std::apply(
+      [](auto const &...values)
+      {
+        return std::array{values.name()...};
+      },
+      children_);
 
   for (std::size_t outer = 0; outer < names.size(); ++outer)
   {
@@ -88,24 +93,23 @@ subcommands<Children...>::parse(
 
   auto parsed = std::apply(
       [&](auto const &...children) -> std::optional<Result>
-  {
-    std::optional<Result> result;
-
-    auto try_parse = [&](auto const &child)
-    {
-      if (candidate != child.name())
       {
-        return false;
-      }
+        std::optional<Result> result;
 
-      result.emplace(child.template parse<Result>(
-          remaining, std::string{path} + " " + std::string{child.name()}));
-      return true;
-    };
+        auto try_parse = [&](auto const &child)
+        {
+          if (candidate != child.name())
+          {
+            return false;
+          }
 
-    (try_parse(children) || ...);
-    return result;
-  },
+          result.emplace(child.template parse<Result>(remaining, std::string{path} + " " + std::string{child.name()}));
+          return true;
+        };
+
+        (try_parse(children) || ...);
+        return result;
+      },
       children_);
 
   if (!parsed)
@@ -126,9 +130,12 @@ subcommands<Children...>::render_help(std::string_view path, std::string_view de
   writer.usage(path, " <command>");
   writer.paragraph(description);
   writer.heading("Commands");
-  std::apply([&](auto const &...children) {
-    (writer.entry(std::string{children.name()}, std::string{children.description()}), ...);
-  }, children_);
+  std::apply(
+      [&](auto const &...children)
+      {
+        (writer.entry(std::string{children.name()}, std::string{children.description()}), ...);
+      },
+      children_);
   writer.paragraph("Append --help to a command path for contextual help.");
   return std::move(writer).finish();
 }

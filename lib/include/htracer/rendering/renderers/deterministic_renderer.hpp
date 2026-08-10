@@ -8,8 +8,8 @@
 #include <htracer/rendering/detail/component_ref.hpp>
 #include <htracer/rendering/image.hpp>
 #include <htracer/rendering/policies.hpp>
-#include <htracer/rendering/samples_per_pixel.hpp>
 #include <htracer/rendering/samplers/deterministic_sampler.hpp>
+#include <htracer/rendering/samples_per_pixel.hpp>
 
 #include <algorithm>
 #include <utility>
@@ -26,13 +26,9 @@
 namespace htracer::rendering::renderers
 {
 
-template<
-    typename Float,
-    typename Batcher,
-    typename Sensor,
-    typename Lens>
-  requires deterministic_sensor<detail_::component_type<Sensor>, Float>
-        && deterministic_lens<detail_::component_type<Lens>, Float>
+template<typename Float, typename Batcher, typename Sensor, typename Lens>
+requires deterministic_sensor<detail_::component_type<Sensor>, Float> &&
+         deterministic_lens<detail_::component_type<Lens>, Float>
 class deterministic_renderer
 {
   camera<Float> camera_;
@@ -54,13 +50,9 @@ public:
 };
 
 
-template<
-    typename Float,
-    typename Batcher,
-    typename Sensor,
-    typename Lens>
-  requires deterministic_sensor<detail_::component_type<Sensor>, Float>
-        && deterministic_lens<detail_::component_type<Lens>, Float>
+template<typename Float, typename Batcher, typename Sensor, typename Lens>
+requires deterministic_sensor<detail_::component_type<Sensor>, Float> &&
+             deterministic_lens<detail_::component_type<Lens>, Float>
 constexpr deterministic_renderer<Float, Batcher, Sensor, Lens>::deterministic_renderer(
     camera<Float> camera, Batcher batcher, Sensor sensor, Lens lens)
     : camera_{std::move(camera)}
@@ -71,13 +63,9 @@ constexpr deterministic_renderer<Float, Batcher, Sensor, Lens>::deterministic_re
 }
 
 
-template<
-    typename Float,
-    typename Batcher,
-    typename Sensor,
-    typename Lens>
-  requires deterministic_sensor<detail_::component_type<Sensor>, Float>
-        && deterministic_lens<detail_::component_type<Lens>, Float>
+template<typename Float, typename Batcher, typename Sensor, typename Lens>
+requires deterministic_sensor<detail_::component_type<Sensor>, Float> &&
+         deterministic_lens<detail_::component_type<Lens>, Float>
 template<rendering_policy ExPolicy, typename Scene>
 image<Float>
 deterministic_renderer<Float, Batcher, Sensor, Lens>::render(ExPolicy &&policy, Scene const &scene) const

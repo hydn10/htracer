@@ -69,8 +69,9 @@ repeat_sampler<GeneratorProvider>::render_pixel(
   adapters::detail_::randomized_adapter<Float, typename GeneratorProvider::generator_type, Sensor, Lens> adapter{
       sensor, lens, generator_state.get()};
 
-  for ([[maybe_unused]]
-       auto const sample_idx : std::views::iota(uint32_t{0}, num_samples_))
+  for (
+      [[maybe_unused]]
+      auto const sample_idx : std::views::iota(uint32_t{0}, num_samples_))
   {
     auto const color = render_single_pixel(v_idx, h_idx, scene, camera, adapter);
     accumulated += color;
