@@ -3,6 +3,8 @@
 
 
 #include <cstdint>
+#include <expected>
+#include <string_view>
 
 
 namespace htracer::benchmarks
@@ -10,10 +12,17 @@ namespace htracer::benchmarks
 
 class repetition_count
 {
+  std::uint32_t value_;
+
+  explicit constexpr repetition_count(std::uint32_t value) noexcept
+      : value_{value}
+  {
+  }
+
 public:
   [[nodiscard]]
-  static repetition_count
-  make(std::uint32_t value);
+  static std::expected<repetition_count, std::string_view>
+  try_make(std::uint32_t value) noexcept;
 
   [[nodiscard]]
   constexpr std::uint32_t
@@ -21,19 +30,13 @@ public:
   {
     return value_;
   }
-
-private:
-  explicit constexpr repetition_count(std::uint32_t value) noexcept
-      : value_{value}
-  {
-  }
-
-  std::uint32_t value_;
 };
 
 
 class warmup_count
 {
+  std::uint32_t value_;
+
 public:
   explicit constexpr warmup_count(std::uint32_t value) noexcept
       : value_{value}
@@ -46,9 +49,6 @@ public:
   {
     return value_;
   }
-
-private:
-  std::uint32_t value_;
 };
 
 

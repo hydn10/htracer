@@ -15,6 +15,8 @@ namespace htracer::benchmarks
 
 class image_checksum
 {
+  std::uint64_t value_;
+
 public:
   explicit constexpr image_checksum(std::uint64_t value) noexcept
       : value_{value}
@@ -30,14 +32,13 @@ public:
 
   friend constexpr bool
   operator==(image_checksum const &, image_checksum const &) noexcept = default;
-
-private:
-  std::uint64_t value_;
 };
 
 
 class run_checksum
 {
+  std::uint64_t value_;
+
 public:
   explicit constexpr run_checksum(std::uint64_t value) noexcept
       : value_{value}
@@ -53,14 +54,20 @@ public:
 
   friend constexpr bool
   operator==(run_checksum const &, run_checksum const &) noexcept = default;
-
-private:
-  std::uint64_t value_;
 };
 
 
 class measured_render
 {
+  std::chrono::nanoseconds duration_;
+  image_checksum checksum_;
+
+  constexpr measured_render(std::chrono::nanoseconds duration, image_checksum checksum) noexcept
+      : duration_{duration}
+      , checksum_{checksum}
+  {
+  }
+
 public:
   [[nodiscard]]
   static measured_render
@@ -79,16 +86,6 @@ public:
   {
     return checksum_;
   }
-
-private:
-  constexpr measured_render(std::chrono::nanoseconds duration, image_checksum checksum) noexcept
-      : duration_{duration}
-      , checksum_{checksum}
-  {
-  }
-
-  std::chrono::nanoseconds duration_;
-  image_checksum checksum_;
 };
 
 
@@ -102,6 +99,21 @@ struct duration_summary
 
 class benchmark_result
 {
+  benchmark_case benchmark_;
+  std::vector<measured_render> renders_;
+  duration_summary summary_;
+  run_checksum checksum_;
+  std::vector<image_checksum> warmup_checksums_;
+  std::optional<run_checksum> warmup_checksum_;
+
+  benchmark_result(
+      benchmark_case benchmark,
+      std::vector<measured_render> renders,
+      duration_summary summary,
+      run_checksum checksum,
+      std::vector<image_checksum> warmup_checksums,
+      std::optional<run_checksum> warmup_checksum);
+
 public:
   [[nodiscard]]
   static benchmark_result
@@ -148,22 +160,6 @@ public:
   {
     return warmup_checksums_;
   }
-
-private:
-  benchmark_result(
-      benchmark_case benchmark,
-      std::vector<measured_render> renders,
-      duration_summary summary,
-      run_checksum checksum,
-      std::vector<image_checksum> warmup_checksums,
-      std::optional<run_checksum> warmup_checksum);
-
-  benchmark_case benchmark_;
-  std::vector<measured_render> renders_;
-  duration_summary summary_;
-  run_checksum checksum_;
-  std::vector<image_checksum> warmup_checksums_;
-  std::optional<run_checksum> warmup_checksum_;
 };
 
 } // namespace htracer::benchmarks

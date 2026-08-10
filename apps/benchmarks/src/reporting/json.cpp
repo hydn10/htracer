@@ -29,6 +29,8 @@ namespace
 
 class json_buffer
 {
+  std::string value_;
+
 public:
   void
   write(std::string_view value)
@@ -86,9 +88,6 @@ public:
   {
     return std::move(value_);
   }
-
-private:
-  std::string value_;
 };
 
 

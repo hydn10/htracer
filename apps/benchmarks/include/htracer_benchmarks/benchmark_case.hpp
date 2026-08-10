@@ -13,6 +13,23 @@ class quick_suite_catalog;
 
 class benchmark_case
 {
+  friend class quick_suite_catalog;
+
+  enum class origin
+  {
+    canonical,
+    custom
+  };
+
+  [[nodiscard]]
+  static benchmark_case
+  canonical(benchmark_definition definition);
+
+  benchmark_case(origin provenance, benchmark_definition definition);
+
+  origin origin_;
+  benchmark_definition definition_;
+
 public:
   [[nodiscard]]
   static benchmark_case
@@ -31,24 +48,6 @@ public:
   {
     return origin_ == origin::canonical;
   }
-
-private:
-  friend class quick_suite_catalog;
-
-  enum class origin
-  {
-    canonical,
-    custom
-  };
-
-  [[nodiscard]]
-  static benchmark_case
-  canonical(benchmark_definition definition);
-
-  benchmark_case(origin provenance, benchmark_definition definition);
-
-  origin origin_;
-  benchmark_definition definition_;
 };
 
 } // namespace htracer::benchmarks

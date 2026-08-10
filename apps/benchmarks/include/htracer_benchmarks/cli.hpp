@@ -2,29 +2,22 @@
 #define HTRACER_BENCHMARKS_CLI_HPP
 
 
-#include <htracer_benchmarks/invocation.hpp>
+#include <htracer_benchmarks/cli_structure/foundations/errors.hpp>
+#include <htracer_benchmarks/cli/invocation.hpp>
 
 #include <span>
-#include <stdexcept>
 
 
 namespace htracer::benchmarks
 {
 
-class usage_error : public std::runtime_error
-{
-public:
-  using std::runtime_error::runtime_error;
-};
+using usage_error = cli_structure::usage_error;
+using schema_error = cli_structure::schema_error;
 
 
 [[nodiscard]]
 invocation
 parse_cli(std::span<char const *const> arguments);
-
-
-void
-print_help();
 
 } // namespace htracer::benchmarks
 

@@ -27,6 +27,21 @@ enum class policy_kind
 
 class benchmark_definition
 {
+  scene_spec scene_;
+  render_mode rendering_;
+  precision_kind precision_;
+  policy_kind policy_;
+  image_extent extent_;
+  measurement_plan measurement_;
+
+  benchmark_definition(
+      scene_spec scene,
+      render_mode rendering,
+      precision_kind precision,
+      policy_kind policy,
+      image_extent extent,
+      measurement_plan measurement);
+
 public:
   [[nodiscard]]
   static benchmark_definition
@@ -88,22 +103,6 @@ public:
   {
     return measurement_;
   }
-
-private:
-  benchmark_definition(
-      scene_spec scene,
-      render_mode rendering,
-      precision_kind precision,
-      policy_kind policy,
-      image_extent extent,
-      measurement_plan measurement);
-
-  scene_spec scene_;
-  render_mode rendering_;
-  precision_kind precision_;
-  policy_kind policy_;
-  image_extent extent_;
-  measurement_plan measurement_;
 };
 
 } // namespace htracer::benchmarks

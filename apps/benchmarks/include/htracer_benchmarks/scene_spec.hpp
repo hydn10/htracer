@@ -3,6 +3,8 @@
 
 
 #include <cstdint>
+#include <expected>
+#include <string_view>
 #include <variant>
 
 
@@ -11,10 +13,17 @@ namespace htracer::benchmarks
 
 class geometry_count
 {
+  std::uint32_t value_;
+
+  explicit constexpr geometry_count(std::uint32_t value) noexcept
+      : value_{value}
+  {
+  }
+
 public:
   [[nodiscard]]
-  static geometry_count
-  make(std::uint32_t value);
+  static std::expected<geometry_count, std::string_view>
+  try_make(std::uint32_t value) noexcept;
 
   [[nodiscard]]
   constexpr std::uint32_t
@@ -22,14 +31,6 @@ public:
   {
     return value_;
   }
-
-private:
-  explicit constexpr geometry_count(std::uint32_t value) noexcept
-      : value_{value}
-  {
-  }
-
-  std::uint32_t value_;
 };
 
 

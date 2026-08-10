@@ -1,18 +1,19 @@
 #include <htracer_benchmarks/scene_spec.hpp>
 
 #include <cstdint>
-#include <stdexcept>
+#include <expected>
+#include <string_view>
 
 
 namespace htracer::benchmarks
 {
 
-geometry_count
-geometry_count::make(std::uint32_t value)
+std::expected<geometry_count, std::string_view>
+geometry_count::try_make(std::uint32_t value) noexcept
 {
   if (value == 0)
   {
-    throw std::invalid_argument("geometry count must be greater than zero");
+    return std::unexpected{"geometry count must be greater than zero"};
   }
   return geometry_count{value};
 }

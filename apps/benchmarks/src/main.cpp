@@ -23,8 +23,13 @@ try
 }
 catch (htracer::benchmarks::usage_error const &error)
 {
-  std::println(std::cerr, "error: {}\nTry --help for usage.", error.what());
+  std::println(std::cerr, "error: {}\nTry '{} --help' for usage.", error.what(), error.help_path());
   return htracer::benchmarks::diagnostic_exit::usage_error();
+}
+catch (htracer::benchmarks::schema_error const &error)
+{
+  std::println(std::cerr, "internal CLI schema error: {}", error.what());
+  return htracer::benchmarks::diagnostic_exit::failure();
 }
 catch (std::bad_alloc const &)
 {

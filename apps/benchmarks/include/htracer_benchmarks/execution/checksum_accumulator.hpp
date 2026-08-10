@@ -13,6 +13,11 @@ namespace htracer::benchmarks::execution
 
 class checksum_accumulator
 {
+  static constexpr std::uint64_t fnv_offset_basis{14695981039346656037ULL};
+  static constexpr std::uint64_t fnv_prime{1099511628211ULL};
+
+  std::uint64_t value_{fnv_offset_basis};
+
 public:
   template<typename T>
   requires std::is_trivially_copyable_v<T>
@@ -38,12 +43,6 @@ public:
   {
     return value_;
   }
-
-private:
-  static constexpr std::uint64_t fnv_offset_basis{14695981039346656037ULL};
-  static constexpr std::uint64_t fnv_prime{1099511628211ULL};
-
-  std::uint64_t value_{fnv_offset_basis};
 };
 
 } // namespace htracer::benchmarks::execution

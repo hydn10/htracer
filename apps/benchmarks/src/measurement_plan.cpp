@@ -1,18 +1,19 @@
 #include <htracer_benchmarks/measurement_plan.hpp>
 
 #include <cstdint>
-#include <stdexcept>
+#include <expected>
+#include <string_view>
 
 
 namespace htracer::benchmarks
 {
 
-repetition_count
-repetition_count::make(std::uint32_t value)
+std::expected<repetition_count, std::string_view>
+repetition_count::try_make(std::uint32_t value) noexcept
 {
   if (value == 0)
   {
-    throw std::invalid_argument("repetition count must be greater than zero");
+    return std::unexpected{"repetition count must be greater than zero"};
   }
   return repetition_count{value};
 }

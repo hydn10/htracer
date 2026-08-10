@@ -4,6 +4,8 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <expected>
+#include <string_view>
 
 
 namespace htracer::benchmarks
@@ -11,34 +13,17 @@ namespace htracer::benchmarks
 
 class image_width
 {
-public:
-  [[nodiscard]]
-  static image_width
-  make(std::uint32_t value);
+  std::uint32_t value_;
 
-  [[nodiscard]]
-  constexpr std::uint32_t
-  value() const noexcept
-  {
-    return value_;
-  }
-
-private:
   explicit constexpr image_width(std::uint32_t value) noexcept
       : value_{value}
   {
   }
 
-  std::uint32_t value_;
-};
-
-
-class image_height
-{
 public:
   [[nodiscard]]
-  static image_height
-  make(std::uint32_t value);
+  static std::expected<image_width, std::string_view>
+  try_make(std::uint32_t value) noexcept;
 
   [[nodiscard]]
   constexpr std::uint32_t
@@ -46,23 +31,47 @@ public:
   {
     return value_;
   }
+};
 
-private:
+
+class image_height
+{
+  std::uint32_t value_;
+
   explicit constexpr image_height(std::uint32_t value) noexcept
       : value_{value}
   {
   }
 
-  std::uint32_t value_;
+public:
+  [[nodiscard]]
+  static std::expected<image_height, std::string_view>
+  try_make(std::uint32_t value) noexcept;
+
+  [[nodiscard]]
+  constexpr std::uint32_t
+  value() const noexcept
+  {
+    return value_;
+  }
 };
 
 
 class image_extent
 {
+  image_width width_;
+  image_height height_;
+
+  constexpr image_extent(image_width width, image_height height) noexcept
+      : width_{width}
+      , height_{height}
+  {
+  }
+
 public:
   [[nodiscard]]
-  static image_extent
-  make(image_width width, image_height height);
+  static std::expected<image_extent, std::string_view>
+  try_make(image_width width, image_height height) noexcept;
 
   [[nodiscard]]
   constexpr image_width
@@ -84,16 +93,6 @@ public:
   {
     return static_cast<std::size_t>(width_.value()) * height_.value();
   }
-
-private:
-  constexpr image_extent(image_width width, image_height height) noexcept
-      : width_{width}
-      , height_{height}
-  {
-  }
-
-  image_width width_;
-  image_height height_;
 };
 
 } // namespace htracer::benchmarks

@@ -10,8 +10,14 @@
 #include <htracer_benchmarks/scene_spec.hpp>
 
 #include <array>
+#include <cstdint>
+#include <expected>
 #include <optional>
 #include <span>
+#include <stdexcept>
+#include <string>
+#include <string_view>
+#include <utility>
 
 
 namespace htracer::benchmarks
@@ -22,12 +28,41 @@ namespace
 
 constexpr htracer::rendering::random_seed canonical_seed{0x0123456789abcdefULL};
 
+template<typename Value>
+[[nodiscard]]
+Value
+required(std::expected<Value, std::string_view> result)
+{
+  if (!result)
+  {
+    throw std::logic_error{"invalid canonical benchmark value: " + std::string{result.error()}};
+  }
+  return std::move(*result);
+}
+
+
+[[nodiscard]]
+image_extent
+extent(std::uint32_t width, std::uint32_t height)
+{
+  return required(
+      image_extent::try_make(required(image_width::try_make(width)), required(image_height::try_make(height))));
+}
+
+
+[[nodiscard]]
+htracer::rendering::samples_per_pixel
+samples(std::uint32_t value)
+{
+  return required(htracer::rendering::samples_per_pixel::try_make(value));
+}
+
 
 [[nodiscard]]
 measurement_plan
 quick_measurement()
 {
-  return {.warmups = warmup_count{1}, .repetitions = repetition_count::make(5)};
+  return {.warmups = warmup_count{1}, .repetitions = required(repetition_count::try_make(5))};
 }
 
 
@@ -35,12 +70,7 @@ quick_measurement()
 benchmark_definition
 mixed_deterministic(precision_kind precision, policy_kind policy)
 {
-  return benchmark_definition::deterministic(
-      mixed_scene{},
-      precision,
-      policy,
-      image_extent::make(image_width::make(640), image_height::make(360)),
-      quick_measurement());
+  return benchmark_definition::deterministic(mixed_scene{}, precision, policy, extent(640, 360), quick_measurement());
 }
 
 
@@ -50,10 +80,10 @@ mixed_randomized(precision_kind precision, policy_kind policy)
 {
   return benchmark_definition::randomized(
       mixed_scene{},
-      randomized_render{htracer::rendering::samples_per_pixel{8}, canonical_seed},
+      randomized_render{samples(8), canonical_seed},
       precision,
       policy,
-      image_extent::make(image_width::make(320), image_height::make(180)),
+      extent(320, 180),
       quick_measurement());
 }
 
@@ -70,7 +100,7 @@ rng_probe(
       randomized_render{samples, seed},
       precision_kind::f64,
       policy,
-      image_extent::make(image_width::make(640), image_height::make(360)),
+      extent(640, 360),
       quick_measurement());
 }
 
@@ -89,15 +119,14 @@ quick_suite_catalog::cases()
       benchmark_case::canonical(mixed_randomized(precision_kind::f64, policy_kind::seq)),
       benchmark_case::canonical(mixed_deterministic(precision_kind::f64, policy_kind::par)),
       benchmark_case::canonical(mixed_randomized(precision_kind::f64, policy_kind::par)),
-      benchmark_case::canonical(rng_probe(std::nullopt, policy_kind::seq, htracer::rendering::samples_per_pixel{1})),
-      benchmark_case::canonical(rng_probe(std::nullopt, policy_kind::par, htracer::rendering::samples_per_pixel{1})),
-      benchmark_case::canonical(rng_probe(std::nullopt, policy_kind::seq, htracer::rendering::samples_per_pixel{16})),
-      benchmark_case::canonical(rng_probe(std::nullopt, policy_kind::par, htracer::rendering::samples_per_pixel{16})),
-      benchmark_case::canonical(rng_probe(canonical_seed, policy_kind::seq, htracer::rendering::samples_per_pixel{1})),
-      benchmark_case::canonical(rng_probe(canonical_seed, policy_kind::par, htracer::rendering::samples_per_pixel{1})),
-      benchmark_case::canonical(rng_probe(canonical_seed, policy_kind::seq, htracer::rendering::samples_per_pixel{16})),
-      benchmark_case::canonical(
-          rng_probe(canonical_seed, policy_kind::par, htracer::rendering::samples_per_pixel{16}))};
+      benchmark_case::canonical(rng_probe(std::nullopt, policy_kind::seq, samples(1))),
+      benchmark_case::canonical(rng_probe(std::nullopt, policy_kind::par, samples(1))),
+      benchmark_case::canonical(rng_probe(std::nullopt, policy_kind::seq, samples(16))),
+      benchmark_case::canonical(rng_probe(std::nullopt, policy_kind::par, samples(16))),
+      benchmark_case::canonical(rng_probe(canonical_seed, policy_kind::seq, samples(1))),
+      benchmark_case::canonical(rng_probe(canonical_seed, policy_kind::par, samples(1))),
+      benchmark_case::canonical(rng_probe(canonical_seed, policy_kind::seq, samples(16))),
+      benchmark_case::canonical(rng_probe(canonical_seed, policy_kind::par, samples(16)))};
 
   return benchmarks;
 }

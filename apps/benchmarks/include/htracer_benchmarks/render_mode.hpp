@@ -20,6 +20,9 @@ struct deterministic_render
 
 class randomized_render
 {
+  htracer::rendering::samples_per_pixel samples_;
+  std::optional<htracer::rendering::random_seed> seed_;
+
 public:
   constexpr randomized_render(
       htracer::rendering::samples_per_pixel samples, std::optional<htracer::rendering::random_seed> seed) noexcept
@@ -41,10 +44,6 @@ public:
   {
     return seed_;
   }
-
-private:
-  htracer::rendering::samples_per_pixel samples_;
-  std::optional<htracer::rendering::random_seed> seed_;
 };
 
 

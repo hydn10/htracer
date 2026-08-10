@@ -143,8 +143,8 @@
         "debug",
         "build-apps",
         "build-tests",
-        "build-examples",
-        "enable-clang-tidy-msvc"
+        "enable-clang-tidy-msvc",
+        "build-examples"
       ]
     },
     {

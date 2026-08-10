@@ -182,21 +182,19 @@ The quick suite provides a standardized canary covering deterministic and random
 sequential and parallel execution, and seeded and unseeded randomness:
 
 ```bash
-htracer-benchmarks --list
-htracer-benchmarks --suite quick
-htracer-benchmarks --suite quick --output results.json
+htracer-benchmarks list
+htracer-benchmarks suite quick
+htracer-benchmarks suite quick --output results.json
 ```
 
 The application can also measure one explicitly configured experiment. External scripts can invoke this form repeatedly
 to perform parameter sweeps:
 
 ```bash
-htracer-benchmarks --benchmark render \
-    --scene traversal \
+htracer-benchmarks render traversal randomized \
     --geometry-count 64 \
     --width 640 \
     --height 360 \
-    --rendering randomized \
     --samples 16 \
     --precision double \
     --policy par \
@@ -204,7 +202,8 @@ htracer-benchmarks --benchmark render \
     --output traversal-64.json
 ```
 
-Use `htracer-benchmarks --help` for the complete MVP interface. Rendering is the only timed operation; scene setup,
+Use `htracer-benchmarks --help` to discover commands and append `--help` to any command path for its contextual help.
+Every value option also has a short name shown in that help. Rendering is the only timed operation. Scene setup,
 validation, checksumming, reporting, and file I/O are excluded. JSON results retain every raw duration and the effective
 configuration.
 
