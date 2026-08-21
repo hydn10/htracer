@@ -24,7 +24,7 @@ template<typename Float>
 constexpr Float const &
 srgb<Float>::r() const noexcept
 {
-  return (*this)[0];
+  return this->template get<0>();
 }
 
 
@@ -32,7 +32,7 @@ template<typename Float>
 constexpr Float const &
 srgb<Float>::g() const noexcept
 {
-  return (*this)[1];
+  return this->template get<1>();
 }
 
 
@@ -40,7 +40,7 @@ template<typename Float>
 constexpr Float const &
 srgb<Float>::b() const noexcept
 {
-  return (*this)[2];
+  return this->template get<2>();
 }
 
 
@@ -55,10 +55,10 @@ srgb<Float>::to_linear() const
       [](auto val)
       {
         // TODO: Assert 0 <= val <= 1;
-        constexpr Float SRGB_CUTOFF = static_cast<Float>(0.0404482362771082);
-        constexpr Float SLOPE = static_cast<Float>(12.92);
-        constexpr Float EXP_OFFSET = static_cast<Float>(0.055);
-        constexpr Float EXPONENT = static_cast<Float>(2.4);
+        constexpr auto SRGB_CUTOFF = static_cast<Float>(0.0404482362771082);
+        constexpr auto SLOPE = static_cast<Float>(12.92);
+        constexpr auto EXP_OFFSET = static_cast<Float>(0.055);
+        constexpr auto EXPONENT = static_cast<Float>(2.4);
 
         if (val <= SRGB_CUTOFF)
         {

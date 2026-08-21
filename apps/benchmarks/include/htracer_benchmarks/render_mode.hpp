@@ -27,7 +27,7 @@ public:
   constexpr randomized_render(
       htracer::rendering::samples_per_pixel samples, std::optional<htracer::rendering::random_seed> seed) noexcept
       : samples_{samples}
-      , seed_{std::move(seed)}
+      , seed_{seed}
   {
   }
 

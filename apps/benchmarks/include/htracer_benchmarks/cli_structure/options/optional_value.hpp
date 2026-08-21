@@ -3,10 +3,8 @@
 
 
 #include <htracer_benchmarks/cli_structure/detail/help_writer.hpp>
-#include <htracer_benchmarks/cli_structure/detail/option_descriptor.hpp>
 #include <htracer_benchmarks/cli_structure/detail/parsed_arguments.hpp>
 
-#include <array>
 #include <cstddef>
 #include <optional>
 #include <string_view>
@@ -27,9 +25,9 @@ public:
 
   constexpr explicit optional_value(Option option);
 
-  template<std::size_t Size>
-  constexpr void
-  append_descriptors(std::array<detail::option_descriptor, Size> &values, std::size_t &index) const;
+  [[nodiscard]]
+  constexpr auto
+  descriptors() const;
 
   [[nodiscard]]
   result_type
@@ -53,17 +51,15 @@ constexpr optional_value<Option>::optional_value(Option option)
 
 
 template<typename Option>
-template<std::size_t Size>
-constexpr void
-optional_value<Option>::append_descriptors(
-    std::array<detail::option_descriptor, Size> &values, std::size_t &index) const
+constexpr auto
+optional_value<Option>::descriptors() const
 {
-  option_.append_descriptors(values, index);
+  return option_.descriptors();
 }
 
 
 template<typename Option>
-typename optional_value<Option>::result_type
+optional_value<Option>::result_type
 optional_value<Option>::evaluate(detail::parsed_arguments const &values, std::string_view path) const
 {
   return option_.evaluate_optional(values, path);

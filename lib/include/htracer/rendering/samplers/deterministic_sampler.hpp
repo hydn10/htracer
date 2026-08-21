@@ -41,7 +41,7 @@ deterministic_sampler::render_pixel(
     Sensor const &sensor,
     Lens const &lens) const
 {
-  adapters::detail_::deterministic_adapter<Float, Sensor, Lens> adapter{sensor, lens};
+  adapters::detail_::deterministic_adapter<Float, Sensor, Lens> const adapter{sensor, lens};
   return render_single_pixel(v_idx, h_idx, scene, camera, adapter);
 }
 

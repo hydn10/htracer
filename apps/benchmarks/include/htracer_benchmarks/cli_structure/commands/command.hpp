@@ -22,7 +22,7 @@ class command
   Body body_;
 
 public:
-  using result_types = typename Body::result_types;
+  using result_types = Body::result_types;
 
   constexpr command(std::string_view name, std::string_view description, Body body);
 
@@ -37,7 +37,7 @@ public:
   template<typename Result>
   [[nodiscard]]
   Result
-  parse(detail::argument_view arguments, std::string path) const;
+  parse(detail::argument_view arguments, std::string_view path) const;
 };
 
 
@@ -77,7 +77,7 @@ command<Body>::description() const noexcept
 template<typename Body>
 template<typename Result>
 Result
-command<Body>::parse(detail::argument_view arguments, std::string path) const
+command<Body>::parse(detail::argument_view arguments, std::string_view path) const
 {
   return body_.template parse<Result>(arguments, path, description_);
 }

@@ -19,7 +19,7 @@ class application
   Root root_;
 
 public:
-  using invocation_type = typename detail::invocation_from_results<typename Root::result_types>::type;
+  using invocation_type = detail::invocation_from_results<typename Root::result_types>::type;
 
   constexpr explicit application(Root root);
 
@@ -36,7 +36,7 @@ make_application(Root root);
 
 
 template<typename Root>
-using invocation_t = typename application<Root>::invocation_type;
+using invocation_t = application<Root>::invocation_type;
 
 
 template<typename Root>
@@ -47,7 +47,7 @@ constexpr application<Root>::application(Root root)
 
 
 template<typename Root>
-typename application<Root>::invocation_type
+application<Root>::invocation_type
 application<Root>::parse(std::span<char const *const> arguments) const
 {
   return root_.template parse<invocation_type>(detail::argument_view{arguments}, std::string{root_.name()});

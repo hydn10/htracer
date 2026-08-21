@@ -30,9 +30,9 @@ public:
 
   constexpr explicit flag_option(flag_info info);
 
-  template<std::size_t Size>
-  constexpr void
-  append_descriptors(std::array<detail::option_descriptor, Size> &values, std::size_t &index) const;
+  [[nodiscard]]
+  constexpr auto
+  descriptors() const;
 
   [[nodiscard]]
   result_type
@@ -53,15 +53,14 @@ constexpr flag_option<Presence>::flag_option(flag_info info)
 
 template<typename Presence>
 requires std::default_initializable<Presence>
-template<std::size_t Size>
-constexpr void
-flag_option<Presence>::append_descriptors(std::array<detail::option_descriptor, Size> &values, std::size_t &index) const
+constexpr auto
+flag_option<Presence>::descriptors() const
 {
-  values[index++] = {
+  return std::array{detail::option_descriptor{
       .short_name = info_.name().short_name(),
       .long_name = info_.name().long_name(),
       .value_name = {},
-      .syntax = detail::option_syntax::flag};
+      .syntax = detail::option_syntax::flag}};
 }
 
 

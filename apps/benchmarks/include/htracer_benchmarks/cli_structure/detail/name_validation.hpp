@@ -2,6 +2,7 @@
 #define HTRACER_BENCHMARKS_CLI_STRUCTURE_DETAIL_NAME_VALIDATION_HPP
 
 
+#include <algorithm>
 #include <string_view>
 
 
@@ -45,15 +46,7 @@ valid_name(std::string_view value) noexcept
     return false;
   }
 
-  for (auto const character : value)
-  {
-    if (!valid_character(character))
-    {
-      return false;
-    }
-  }
-
-  return true;
+  return std::ranges::all_of(value, valid_character);
 }
 
 } // namespace htracer::benchmarks::cli_structure::detail

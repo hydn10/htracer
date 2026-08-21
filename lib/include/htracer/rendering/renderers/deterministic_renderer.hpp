@@ -16,7 +16,7 @@
 #include <vector>
 
 
-#if defined(_MSC_VER)
+#ifdef _MSC_VER
 #define HTRACER_NO_UNIQUE_ADDRESS [[msvc::no_unique_address]]
 #else
 #define HTRACER_NO_UNIQUE_ADDRESS [[no_unique_address]]
@@ -42,9 +42,10 @@ public:
   template<rendering_policy ExPolicy, typename Scene>
   [[nodiscard]]
   image<Float>
-  render(ExPolicy &&, Scene const &scene) const;
+  render(ExPolicy && /*policy*/, Scene const &scene) const;
 
   template<rendering_policy ExPolicy, typename Scene>
+  [[nodiscard]]
   image<Float>
   render(ExPolicy &&, Scene const &, samples_per_pixel) const = delete;
 };
@@ -71,7 +72,7 @@ image<Float>
 deterministic_renderer<Float, Batcher, Sensor, Lens>::render(ExPolicy &&policy, Scene const &scene) const
 {
   std::vector<colors::srgb_linear<Float>> pixels(camera_.v_res() * camera_.h_res());
-  samplers::detail_::deterministic_sampler sampler;
+  samplers::detail_::deterministic_sampler const sampler;
 
   auto const &batcher = detail_::component_ref(batcher_);
   auto const &sensor = detail_::component_ref(sensor_);

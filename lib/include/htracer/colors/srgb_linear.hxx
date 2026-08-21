@@ -25,11 +25,14 @@ public:
   srgb_linear() noexcept = default;
   constexpr srgb_linear(Float r, Float g, Float b) noexcept;
 
-  using VecCrtp::operator[];
+  using VecCrtp::get;
 
   using VecCrtp::operator+=;
   using VecCrtp::operator-=;
   using VecCrtp::operator*=;
+
+  using VecCrtp::begin;
+  using VecCrtp::end;
 
   [[nodiscard]]
   constexpr srgb<Float>

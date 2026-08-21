@@ -4,6 +4,7 @@
 
 #include <functional>
 #include <type_traits>
+#include <utility>
 
 
 namespace htracer::rendering::detail_
@@ -28,24 +29,16 @@ using stored_component = std::decay_t<T>;
 
 
 template<typename T>
-using component_type = typename unwrap_reference_wrapper<std::decay_t<T>>::type;
+using component_type = unwrap_reference_wrapper<std::decay_t<T>>::type;
 
 
 template<typename T>
-constexpr T &
-component_ref(T &component) noexcept
+requires std::is_lvalue_reference_v<T&&>
+constexpr T&&
+component_ref(T&& component) noexcept
 {
-  return component;
+  return std::forward<T>(component);
 }
-
-
-template<typename T>
-constexpr T const &
-component_ref(T const &component) noexcept
-{
-  return component;
-}
-
 
 template<typename T>
 constexpr T &

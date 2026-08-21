@@ -3,9 +3,12 @@
 
 
 #include <htracer_benchmarks/cli_structure/detail/brace_constructible.hpp>
+#include <htracer_benchmarks/cli_structure/detail/concat_arrays.hpp>
+#include <htracer_benchmarks/cli_structure/detail/contains_duplicates.hpp>
 #include <htracer_benchmarks/cli_structure/detail/help_writer.hpp>
 #include <htracer_benchmarks/cli_structure/detail/option_descriptor.hpp>
 #include <htracer_benchmarks/cli_structure/detail/parsed_arguments.hpp>
+#include <htracer_benchmarks/cli_structure/foundations/errors.hpp>
 
 #include <array>
 #include <cstddef>
@@ -32,9 +35,6 @@ public:
 
   constexpr explicit inputs(Items... items);
 
-  template<std::size_t Size>
-  constexpr void
-  append_descriptors(std::array<detail::option_descriptor, Size> &values, std::size_t &index) const;
 
   [[nodiscard]]
   constexpr auto
@@ -64,20 +64,12 @@ template<typename... Items>
 constexpr inputs<Items...>::inputs(Items... items)
     : items_{std::move(items)...}
 {
-}
-
-
-template<typename... Items>
-template<std::size_t Size>
-constexpr void
-inputs<Items...>::append_descriptors(std::array<detail::option_descriptor, Size> &values, std::size_t &index) const
-{
-  std::apply(
-      [&](auto const &...items)
-      {
-        (items.append_descriptors(values, index), ...);
-      },
-      items_);
+  auto const values = descriptors();
+  if (detail::contains_duplicates(values, &detail::option_descriptor::short_name) ||
+      detail::contains_duplicates(values, &detail::option_descriptor::long_name))
+  {
+    throw schema_error{"duplicate short or long option name in an input set"};
+  }
 }
 
 
@@ -85,10 +77,19 @@ template<typename... Items>
 constexpr auto
 inputs<Items...>::descriptors() const
 {
-  std::array<detail::option_descriptor, option_count> result;
-  std::size_t index{};
-  append_descriptors(result, index);
-  return result;
+  if constexpr (sizeof...(Items) == 0)
+  {
+    return std::array<detail::option_descriptor, 0>{};
+  }
+  else
+  {
+    return std::apply(
+        [](auto const &...items)
+        {
+          return detail::concat_arrays(items.descriptors()...);
+        },
+        items_);
+  }
 }
 
 

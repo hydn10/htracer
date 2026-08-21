@@ -40,7 +40,10 @@ owned_generator_state<Generator>
 seeded_provider<Generator>::make_state(std::uint32_t v_idx, std::uint32_t h_idx) const
 {
   std::seed_seq seed_sequence{
-      static_cast<std::uint32_t>(seed_.value), static_cast<std::uint32_t>(seed_.value >> 32), v_idx, h_idx};
+      static_cast<std::uint32_t>(seed_.value),
+      static_cast<std::uint32_t>(seed_.value >> std::uint64_t{32}),
+      v_idx,
+      h_idx};
 
   return owned_generator_state<Generator>{seed_sequence};
 }

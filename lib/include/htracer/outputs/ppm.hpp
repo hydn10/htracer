@@ -4,6 +4,7 @@
 
 #include <htracer/rendering/image.hpp>
 
+#include <array>
 #include <bit>
 #include <cstdint>
 #include <filesystem>
@@ -17,7 +18,7 @@ namespace htracer::outputs
 class ppm
 {
 public:
-  enum class bytes_per_value
+  enum class bytes_per_value : std::uint8_t
   {
     BPV1,
     BPV2,
@@ -55,7 +56,9 @@ struct bpv_traits<ppm::bytes_per_value::BPV2>
   static constexpr pixel_value_t
   to_big_endian(pixel_value_t value)
   {
-    return (value >> 8) | (value << 8);
+    auto const value32 = static_cast<std::uint32_t>(value);
+    return static_cast<pixel_value_t>(
+        (value32 >> std::uint32_t{8}) | (value32 << std::uint32_t{8}));
   }
 };
 
@@ -71,7 +74,7 @@ ppm::save(std::filesystem::path const &filename, rendering::image<Float> const &
   using traits_t = detail_::bpv_traits<BPV>;
 
   auto constexpr NUM_COLORS = traits_t::NUM_COLORS;
-  using pixel_value_t = typename traits_t::pixel_value_t;
+  using pixel_value_t = traits_t::pixel_value_t;
 
   auto const to_pixel_value = [](Float x) -> pixel_value_t
   {
@@ -99,10 +102,11 @@ ppm::save(std::filesystem::path const &filename, rendering::image<Float> const &
 
   auto const write_value = [](auto &stream, pixel_value_t value)
   {
-    stream.write(reinterpret_cast<char const *>(&value), sizeof value);
+    auto const bytes = std::bit_cast<std::array<char, sizeof(value)>>(value);
+    stream.write(bytes.data(), static_cast<std::streamsize>(bytes.size()));
   };
 
-  std::ofstream out(filename, std::ios::out | std::ios::binary);
+  std::ofstream out(filename, std::ios::binary);
 
   out << "P6\n" << image.h_res() << " " << image.v_res() << '\n' << std::to_string(NUM_COLORS - 1) << '\n';
 

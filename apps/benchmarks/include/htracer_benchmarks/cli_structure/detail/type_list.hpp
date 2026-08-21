@@ -41,7 +41,7 @@ struct concatenate<>
 template<typename First, typename... Remaining>
 struct concatenate<First, Remaining...>
 {
-  using type = typename concatenate_two<First, typename concatenate<Remaining...>::type>::type;
+  using type = concatenate_two<First, typename concatenate<Remaining...>::type>::type;
 };
 
 

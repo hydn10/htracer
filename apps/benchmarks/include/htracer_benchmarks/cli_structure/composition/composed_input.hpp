@@ -3,12 +3,10 @@
 
 
 #include <htracer_benchmarks/cli_structure/detail/help_writer.hpp>
-#include <htracer_benchmarks/cli_structure/detail/option_descriptor.hpp>
 #include <htracer_benchmarks/cli_structure/detail/parsed_arguments.hpp>
 #include <htracer_benchmarks/cli_structure/foundations/errors.hpp>
 #include <htracer_benchmarks/cli_structure/foundations/parse_result.hpp>
 
-#include <array>
 #include <concepts>
 #include <cstddef>
 #include <string>
@@ -38,9 +36,9 @@ public:
 
   constexpr composed_input(InputSet values, Parser parser);
 
-  template<std::size_t Size>
-  constexpr void
-  append_descriptors(std::array<detail::option_descriptor, Size> &result, std::size_t &index) const;
+  [[nodiscard]]
+  constexpr auto
+  descriptors() const;
 
   [[nodiscard]]
   result_type
@@ -77,12 +75,10 @@ requires std::same_as<
         std::declval<detail::parsed_arguments const &>(),
         std::declval<std::string_view>())),
     parse_result<Result>>
-template<std::size_t Size>
-constexpr void
-composed_input<Result, InputSet, Parser>::append_descriptors(
-    std::array<detail::option_descriptor, Size> &result, std::size_t &index) const
+constexpr auto
+composed_input<Result, InputSet, Parser>::descriptors() const
 {
-  values_.append_descriptors(result, index);
+  return values_.descriptors();
 }
 
 
@@ -93,7 +89,7 @@ requires std::same_as<
         std::declval<detail::parsed_arguments const &>(),
         std::declval<std::string_view>())),
     parse_result<Result>>
-typename composed_input<Result, InputSet, Parser>::result_type
+composed_input<Result, InputSet, Parser>::result_type
 composed_input<Result, InputSet, Parser>::evaluate(detail::parsed_arguments const &parsed, std::string_view path) const
 {
   auto result = values_.parse_with(parser_, parsed, path);

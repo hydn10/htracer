@@ -15,10 +15,10 @@ struct scene_setup
 {
   using traits = htracer::float_traits<Float>;
 
-  typename traits::scene scene;
-  typename traits::v3 camera_position;
-  typename traits::v3 camera_view;
-  typename traits::v3 camera_up;
+  traits::scene scene;
+  traits::v3 camera_position;
+  traits::v3 camera_view;
+  traits::v3 camera_up;
   Float fov;
 };
 

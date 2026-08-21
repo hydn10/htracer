@@ -1,6 +1,7 @@
-#include <htracer_benchmarks/cli/schema.hpp>
+#ifndef HTRACER_BENCHMARKS_CLI_SCHEMA_DEFINITION_HPP
+#define HTRACER_BENCHMARKS_CLI_SCHEMA_DEFINITION_HPP
 
-#include <htracer_benchmarks/cli/option_values.hpp>
+
 #include <htracer_benchmarks/cli/parsers.hpp>
 #include <htracer_benchmarks/cli/schema/command_tree.hpp>
 #include <htracer_benchmarks/cli_structure/foundations/errors.hpp>
@@ -17,26 +18,27 @@
 
 namespace htracer::benchmarks::cli
 {
-namespace
+namespace schema_detail
 {
 
 template<typename Value>
 [[nodiscard]]
-Value
+constexpr Value
 schema_value(std::expected<Value, std::string_view> result)
 {
   if (!result)
   {
-    throw cli_structure::schema_error{"invalid schema value: " + std::string{result.error()}};
+    throw cli_structure::schema_error{std::string{result.error()}};
   }
 
   return std::move(*result);
 }
 
-} // namespace
+} // namespace schema_detail
 
 
-root_command
+[[nodiscard]]
+constexpr root_command
 make_root_command()
 {
   auto const width = width_input{
@@ -86,15 +88,14 @@ make_root_command()
 
   auto const extent = extent_input{extent_inputs{width, height}, extent_parser{}};
 
-  auto const render = render_options_input{render_inputs{
-      extent,
-      precision,
-      policy,
-      cli_structure::defaulted(warmups, warmups_option{warmup_count{1}}, "1"),
-      cli_structure::defaulted(repetitions, repetitions_option{schema_value(repetition_count::try_make(9))}, "9"),
-      cli_structure::optional(output)}};
+  auto const measurement = measurement_plan_input{measurement_inputs{
+      cli_structure::defaulted(warmups, warmup_count{1}, "1"),
+      cli_structure::defaulted(repetitions, schema_detail::schema_value(repetition_count::try_make(9)), "9")}};
 
-  auto const randomized = randomized_options_input{randomized_inputs{samples, cli_structure::optional(seed)}};
+  auto const render = render_configuration_input{
+      render_inputs{extent, precision, policy, measurement, cli_structure::optional(output)}};
+
+  auto const randomized = randomized_render_input{randomized_inputs{samples, cli_structure::optional(seed)}};
 
   return root_command{
       "htracer-benchmarks",
@@ -108,6 +109,7 @@ make_root_command()
                   "quick",
                   "Run the canonical quick benchmark suite.",
                   quick_suite_leaf{quick_suite_inputs{cli_structure::optional(output)}}}}},
+
           render_node{
               "render",
               "Run one explicitly configured render benchmark.",
@@ -124,6 +126,7 @@ make_root_command()
                               "randomized",
                               "Run a randomized mixed-scene benchmark.",
                               mixed_randomized_leaf{mixed_randomized_inputs{randomized, render}}}}},
+
                   traversal_node{
                       "traversal",
                       "Benchmark the geometry traversal diagnostic scene.",
@@ -136,6 +139,7 @@ make_root_command()
                               "randomized",
                               "Run a randomized traversal benchmark.",
                               traversal_randomized_leaf{traversal_randomized_inputs{traversal, randomized, render}}}}},
+
                   rng_probe_node{
                       "rng-probe",
                       "Benchmark the random-number generation diagnostic scene.",
@@ -146,3 +150,5 @@ make_root_command()
 }
 
 } // namespace htracer::benchmarks::cli
+
+#endif

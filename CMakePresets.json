@@ -84,7 +84,7 @@
       "name": "enable-clang-tidy",
       "hidden": true,
       "cacheVariables": {
-        "CMAKE_CXX_CLANG_TIDY": "clang-tidy;--warnings-as-errors=*",
+        "CMAKE_CXX_CLANG_TIDY": "clang-tidy",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
       }
     },
@@ -93,7 +93,7 @@
       "hidden": true,
       "inherits": "enable-clang-tidy",
       "cacheVariables": {
-        "CMAKE_CXX_CLANG_TIDY": "clang-tidy;--warnings-as-errors=*;--extra-arg=/EHsc"
+        "CMAKE_CXX_CLANG_TIDY": "clang-tidy;--extra-arg=/EHsc"
       }
     },
     {

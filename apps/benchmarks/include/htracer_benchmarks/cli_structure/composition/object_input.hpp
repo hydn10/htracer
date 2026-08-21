@@ -3,10 +3,8 @@
 
 
 #include <htracer_benchmarks/cli_structure/detail/help_writer.hpp>
-#include <htracer_benchmarks/cli_structure/detail/option_descriptor.hpp>
 #include <htracer_benchmarks/cli_structure/detail/parsed_arguments.hpp>
 
-#include <array>
 #include <cstddef>
 #include <string_view>
 #include <utility>
@@ -28,9 +26,9 @@ public:
 
   constexpr explicit object_input(InputSet values);
 
-  template<std::size_t Size>
-  constexpr void
-  append_descriptors(std::array<detail::option_descriptor, Size> &result, std::size_t &index) const;
+  [[nodiscard]]
+  constexpr auto
+  descriptors() const;
 
   [[nodiscard]]
   result_type
@@ -54,17 +52,15 @@ constexpr object_input<Result, InputSet>::object_input(InputSet values)
 
 
 template<typename Result, typename InputSet>
-template<std::size_t Size>
-constexpr void
-object_input<Result, InputSet>::append_descriptors(
-    std::array<detail::option_descriptor, Size> &result, std::size_t &index) const
+constexpr auto
+object_input<Result, InputSet>::descriptors() const
 {
-  values_.append_descriptors(result, index);
+  return values_.descriptors();
 }
 
 
 template<typename Result, typename InputSet>
-typename object_input<Result, InputSet>::result_type
+object_input<Result, InputSet>::result_type
 object_input<Result, InputSet>::evaluate(detail::parsed_arguments const &parsed, std::string_view path) const
 {
   return values_.template construct<Result>(parsed, path);

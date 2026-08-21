@@ -6,6 +6,7 @@
 #include <htracer/rendering/concepts.hpp>
 
 #include <cstdint>
+#include <functional>
 
 
 namespace htracer::rendering::adapters::detail_
@@ -14,11 +15,13 @@ namespace htracer::rendering::adapters::detail_
 template<typename Float, deterministic_sensor<Float> Sensor, deterministic_lens<Float> Lens>
 class deterministic_adapter
 {
-  Sensor const &sensor_;
-  Lens const &lens_;
+  std::reference_wrapper<Sensor const> sensor_;
+  std::reference_wrapper<Lens const> lens_;
 
 public:
-  constexpr deterministic_adapter(Sensor const &sensor, Lens const &lens) noexcept;
+  constexpr deterministic_adapter(
+      std::reference_wrapper<Sensor const> sensor,
+      std::reference_wrapper<Lens const> lens) noexcept;
 
   [[nodiscard]]
   constexpr auto
@@ -32,7 +35,8 @@ public:
 
 template<typename Float, deterministic_sensor<Float> Sensor, deterministic_lens<Float> Lens>
 constexpr deterministic_adapter<Float, Sensor, Lens>::deterministic_adapter(
-    Sensor const &sensor, Lens const &lens) noexcept
+    std::reference_wrapper<Sensor const> sensor,
+    std::reference_wrapper<Lens const> lens) noexcept
     : sensor_{sensor}
     , lens_{lens}
 {
@@ -43,7 +47,7 @@ template<typename Float, deterministic_sensor<Float> Sensor, deterministic_lens<
 constexpr auto
 deterministic_adapter<Float, Sensor, Lens>::get_coords(uint32_t v_idx, uint32_t h_idx) const
 {
-  return sensor_.get_coords(v_idx, h_idx);
+  return sensor_.get().get_coords(v_idx, h_idx);
 }
 
 
@@ -51,7 +55,7 @@ template<typename Float, deterministic_sensor<Float> Sensor, deterministic_lens<
 constexpr auto
 deterministic_adapter<Float, Sensor, Lens>::get_ray(Float dv, Float dh, camera<Float> const &camera) const
 {
-  return lens_.get_ray(dv, dh, camera.position(), camera.view(), camera.up(), camera.right());
+  return lens_.get().get_ray(dv, dh, camera.position(), camera.view(), camera.up(), camera.right());
 }
 
 } // namespace htracer::rendering::adapters::detail_

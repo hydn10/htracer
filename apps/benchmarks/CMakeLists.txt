@@ -13,18 +13,14 @@ target_sources(
         src/benchmark_result.cpp
         src/cli.cpp
         src/cli/parsers.cpp
-        src/cli/schema.cpp
         src/cli_structure/detail/argument_view.cpp
         src/cli_structure/detail/help_writer.cpp
         src/cli_structure/detail/option_parser.cpp
         src/cli_structure/detail/parsed_arguments.cpp
         src/cli_structure/foundations/errors.cpp
         src/cli_structure/parsing/parsers.cpp
-        src/image_extent.cpp
-        src/measurement_plan.cpp
         src/quick_suite.cpp
         src/render_benchmark.cpp
-        src/scene_spec.cpp
         src/reporting/benchmark_name.cpp
         src/reporting/console.cpp
         src/reporting/environment.cpp
@@ -42,10 +38,11 @@ target_sources(
             "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli.hpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli/commands.hpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli/invocation.hpp"
-            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli/option_values.hpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli/parsers.hpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli/render_configuration.hpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli/schema.hpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli/schema/command_tree.hpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli/schema/definition.hpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli/schema/inputs.hpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/commands/application.hpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/commands/command.hpp"

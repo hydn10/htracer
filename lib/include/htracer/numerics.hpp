@@ -30,7 +30,7 @@ template<typename Vector>
 constexpr Vector
 saturate(Vector const &v) noexcept
 {
-  using float_type = typename Vector::float_type;
+  using float_type = Vector::float_type;
   return clamp(v, float_type{0}, float_type{1});
 }
 

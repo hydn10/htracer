@@ -38,9 +38,8 @@ validate_and_hash_image(typename htracer::float_traits<Float>::image const &imag
 
   for (auto const &pixel : image.pixels())
   {
-    for (std::size_t channel = 0; channel < 3; ++channel)
+    for (auto const value : pixel)
     {
-      auto const value = pixel[channel];
       if (!std::isfinite(value))
       {
         throw std::runtime_error("render returned a non-finite pixel channel");

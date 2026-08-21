@@ -33,12 +33,16 @@ public:
       uint32_t vertical_resolution,
       Float fov) noexcept;
 
+  [[nodiscard]]
   constexpr v3<Float> const &
   position() const noexcept;
+  [[nodiscard]]
   constexpr v3<Float> const &
   view() const noexcept;
+  [[nodiscard]]
   constexpr v3<Float> const &
   up() const noexcept;
+  [[nodiscard]]
   constexpr v3<Float> const &
   right() const noexcept;
   [[nodiscard]]
@@ -47,6 +51,7 @@ public:
   [[nodiscard]]
   constexpr uint32_t
   v_res() const noexcept;
+  [[nodiscard]]
   constexpr Float
   fov() const noexcept;
 };
@@ -61,13 +66,13 @@ constexpr camera<Float>::camera(
     uint32_t vertical_resolution,
     Float fov) noexcept
     : position_{position}
+    , view_{normalize(view)}
+    , up_{cross(normalize(cross(view, up)), normalize(view))}
+    , right_{normalize(cross(view, up))}
     , h_res_{horizontal_resolution}
     , v_res_{vertical_resolution}
     , fov_{fov}
 {
-  view_ = normalize(view);
-  right_ = normalize(cross(view, up));
-  up_ = cross(right_, view_);
 }
 
 

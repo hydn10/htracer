@@ -32,17 +32,17 @@ public:
 
 template<std::floating_point Float>
 constexpr void
-scene<Float>::emplace_sphere(geometries::sphere<Float> sphere, material<Float> material)
+scene<Float>::emplace_sphere(geometries::sphere<Float> geometry, material<Float> material)
 {
-  emplace_object(std::move(sphere), std::move(material));
+  emplace_object(std::move(geometry), std::move(material));
 }
 
 
 template<std::floating_point Float>
 constexpr void
-scene<Float>::emplace_plane(geometries::plane<Float> plane, material<Float> material)
+scene<Float>::emplace_plane(geometries::plane<Float> geometry, material<Float> material)
 {
-  emplace_object(std::move(plane), std::move(material));
+  emplace_object(std::move(geometry), std::move(material));
 }
 
 

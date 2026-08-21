@@ -18,9 +18,10 @@ Checks: "*,
         -readability-uppercase-literal-suffix,
         -hicpp-uppercase-literal-suffix,
         -cert-dcl16-c,
+        -readability-identifier-length,
 "
-WarningsAsErrors: ''
-HeaderFilterRegex: ''
+WarningsAsErrors: '*'
+HeaderFilterRegex: '.*'
 FormatStyle: file
 
 CheckOptions:

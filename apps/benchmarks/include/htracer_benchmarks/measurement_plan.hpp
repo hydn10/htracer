@@ -21,7 +21,7 @@ class repetition_count
 
 public:
   [[nodiscard]]
-  static std::expected<repetition_count, std::string_view>
+  static constexpr std::expected<repetition_count, std::string_view>
   try_make(std::uint32_t value) noexcept;
 
   [[nodiscard]]
@@ -57,6 +57,18 @@ struct measurement_plan
   warmup_count warmups;
   repetition_count repetitions;
 };
+
+
+constexpr std::expected<repetition_count, std::string_view>
+repetition_count::try_make(std::uint32_t value) noexcept
+{
+  if (value == 0)
+  {
+    return std::unexpected{"repetition count must be greater than zero"};
+  }
+  
+  return repetition_count{value};
+}
 
 } // namespace htracer::benchmarks
 

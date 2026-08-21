@@ -3,35 +3,55 @@
 
 
 #include <array>
+#include <concepts>
+#include <ranges>
+#include <type_traits>
+#include <utility>
 
 
 namespace htracer::utils
 {
+
+namespace detail_
+{
+
+template<typename Float, typename... Args>
+inline constexpr bool vector_components_nothrow =
+    (std::is_nothrow_constructible_v<Float, Args> && ...);
+
+} // namespace detail_
+
 
 template<typename Derived, typename Float, std::size_t N>
 class vector_crtp
 {
   std::array<Float, N> elems_;
 
-public:
-  using float_type = Float;
-  static constexpr std::size_t size = N;
-
-  using iterator = typename decltype(elems_)::iterator;
-  using const_iterator = typename decltype(elems_)::const_iterator;
+  friend Derived;
 
   constexpr vector_crtp() noexcept;
   constexpr explicit vector_crtp(std::array<Float, N> values) noexcept;
   template<typename... Args>
-  constexpr vector_crtp(Args... values) noexcept;
-  virtual ~vector_crtp() = default;
+  requires(sizeof...(Args) == N && (std::constructible_from<Float, Args> && ...))
+  explicit(sizeof...(Args) == 1) constexpr vector_crtp(Args &&...values) noexcept(
+      detail_::vector_components_nothrow<Float, Args...>);
 
+public:
+  using float_type = Float;
+  static constexpr std::size_t size = N;
+
+  using iterator = decltype(elems_)::iterator;
+  using const_iterator = decltype(elems_)::const_iterator;
+
+
+  template<std::size_t I>
   constexpr Float &
-  operator[](std::size_t index) noexcept;
+  get() noexcept;
 
+  template<std::size_t I>
   [[nodiscard]]
   constexpr Float const &
-  operator[](std::size_t index) const noexcept;
+  get() const noexcept;
 
   constexpr Derived &
   operator+=(Derived const &rhs) noexcept;
@@ -44,12 +64,16 @@ public:
   begin() noexcept;
   constexpr iterator
   end() noexcept;
+  [[nodiscard]]
   constexpr const_iterator
   begin() const noexcept;
+  [[nodiscard]]
   constexpr const_iterator
   end() const noexcept;
+  [[nodiscard]]
   constexpr const_iterator
   cbegin() const noexcept;
+  [[nodiscard]]
   constexpr const_iterator
   cend() const noexcept;
 
@@ -74,8 +98,10 @@ constexpr vector_crtp<Derived, Float, N>::vector_crtp(std::array<Float, N> value
 
 template<typename Derived, typename Float, std::size_t N>
 template<typename... Args>
-constexpr vector_crtp<Derived, Float, N>::vector_crtp(Args... values) noexcept
-    : elems_{static_cast<Float>(values)...}
+requires(sizeof...(Args) == N && (std::constructible_from<Float, Args> && ...))
+constexpr vector_crtp<Derived, Float, N>::vector_crtp(Args &&...values) noexcept(
+    detail_::vector_components_nothrow<Float, Args...>)
+    : elems_{static_cast<Float>(std::forward<Args>(values))...}
 {
 }
 
@@ -84,9 +110,9 @@ template<typename Derived, typename Float, std::size_t N>
 constexpr Derived &
 vector_crtp<Derived, Float, N>::operator+=(Derived const &rhs) noexcept
 {
-  for (std::size_t i = 0; i < N; ++i)
+  for (auto &&[left, right] : std::views::zip(this->elems_, rhs.elems_))
   {
-    this->elems_[i] += rhs.elems_[i];
+    left += right;
   }
 
   return static_cast<Derived &>(*this);
@@ -97,9 +123,9 @@ template<typename Derived, typename Float, std::size_t N>
 constexpr Derived &
 vector_crtp<Derived, Float, N>::operator-=(Derived const &rhs) noexcept
 {
-  for (std::size_t i = 0; i < N; ++i)
+  for (auto &&[left, right] : std::views::zip(this->elems_, rhs.elems_))
   {
-    this->elems_[i] -= rhs.elems_[i];
+    left -= right;
   }
 
   return static_cast<Derived &>(*this);
@@ -110,9 +136,9 @@ template<typename Derived, typename Float, std::size_t N>
 constexpr Derived &
 vector_crtp<Derived, Float, N>::operator*=(Float scale) noexcept
 {
-  for (std::size_t i = 0; i < N; ++i)
+  for (auto &element : elems_)
   {
-    elems_[i] *= scale;
+    element *= scale;
   }
 
   return static_cast<Derived &>(*this);
@@ -176,18 +202,20 @@ vector_crtp<Derived, Float, N>::swap(Derived &rhs) noexcept
 
 
 template<typename Derived, typename Float, std::size_t N>
+template<std::size_t I>
 constexpr Float &
-vector_crtp<Derived, Float, N>::operator[](std::size_t index) noexcept
+vector_crtp<Derived, Float, N>::get() noexcept
 {
-  return elems_[index];
+  return std::get<I>(elems_);
 }
 
 
 template<typename Derived, typename Float, std::size_t N>
+template<std::size_t I>
 constexpr Float const &
-vector_crtp<Derived, Float, N>::operator[](std::size_t index) const noexcept
+vector_crtp<Derived, Float, N>::get() const noexcept
 {
-  return elems_[index];
+  return std::get<I>(elems_);
 }
 
 } // namespace htracer::utils

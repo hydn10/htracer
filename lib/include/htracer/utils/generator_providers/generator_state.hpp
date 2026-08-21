@@ -20,6 +20,7 @@ public:
   borrowed_generator_state(borrowed_generator_state const &) = delete;
   borrowed_generator_state &
   operator=(borrowed_generator_state const &) = delete;
+  ~borrowed_generator_state() = default;
 
   borrowed_generator_state(borrowed_generator_state &&other) noexcept;
   borrowed_generator_state &
@@ -45,10 +46,11 @@ public:
   owned_generator_state(owned_generator_state const &) = delete;
   owned_generator_state &
   operator=(owned_generator_state const &) = delete;
+  ~owned_generator_state() = default;
 
-  owned_generator_state(owned_generator_state &&);
+  owned_generator_state(owned_generator_state &&) noexcept;
   owned_generator_state &
-  operator=(owned_generator_state &&);
+  operator=(owned_generator_state &&) noexcept;
 
   [[nodiscard]]
   Generator &
@@ -98,12 +100,12 @@ owned_generator_state<Generator>::owned_generator_state(std::seed_seq &seed_sequ
 
 
 template<typename Generator>
-owned_generator_state<Generator>::owned_generator_state(owned_generator_state<Generator> &&) = default;
+owned_generator_state<Generator>::owned_generator_state(owned_generator_state<Generator> &&) noexcept = default;
 
 
 template<typename Generator>
 owned_generator_state<Generator> &
-owned_generator_state<Generator>::operator=(owned_generator_state<Generator> &&) = default;
+owned_generator_state<Generator>::operator=(owned_generator_state<Generator> &&) noexcept = default;
 
 
 template<typename Generator>

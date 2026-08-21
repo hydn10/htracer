@@ -2,7 +2,7 @@
 #define HTRACER_BENCHMARKS_CLI_INVOCATION_HPP
 
 
-#include <htracer_benchmarks/cli/schema.hpp>
+#include <htracer_benchmarks/cli/schema/command_tree.hpp>
 #include <htracer_benchmarks/cli_structure/commands/application.hpp>
 
 

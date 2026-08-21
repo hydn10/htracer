@@ -15,7 +15,7 @@ class benchmark_case
 {
   friend class quick_suite_catalog;
 
-  enum class origin
+  enum class origin : std::uint8_t
   {
     canonical,
     custom,

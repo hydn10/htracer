@@ -39,7 +39,7 @@ private:
   {
   };
 
-  explicit constexpr samples_per_pixel(unchecked, std::uint32_t value) noexcept
+  explicit constexpr samples_per_pixel([[maybe_unused]] unchecked unchecked, std::uint32_t value) noexcept
       : value_{value}
   {
   }

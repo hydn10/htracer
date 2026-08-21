@@ -14,9 +14,9 @@ namespace htracer::rendering
 template<typename Float>
 class image
 {
-  std::vector<colors::srgb_linear<Float>> const pixels_;
-  uint32_t const h_res_;
-  uint32_t const v_res_;
+  std::vector<colors::srgb_linear<Float>> pixels_;
+  uint32_t h_res_;
+  uint32_t v_res_;
 
 public:
   image(uint32_t h_res, uint32_t v_res, std::vector<colors::srgb_linear<Float>> pixels) noexcept;

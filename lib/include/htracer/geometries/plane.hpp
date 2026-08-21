@@ -33,7 +33,7 @@ public:
   constexpr std::optional<Float>
   intersect(ray<Float> const &ray) const noexcept;
 
-  // TODO: nodiscard? how does it work with inheritance?
+  [[nodiscard]]
   constexpr v3<Float>
   normal(v3<Float> const &point) const noexcept override;
 };
@@ -81,7 +81,7 @@ plane<Float>::intersect(ray<Float> const &ray) const noexcept
 
 template<typename Float>
 constexpr v3<Float>
-plane<Float>::normal(v3<Float> const &) const noexcept
+plane<Float>::normal(v3<Float> const & /*unused*/) const noexcept
 {
   return up_;
 }

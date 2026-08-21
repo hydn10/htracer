@@ -4,8 +4,12 @@
 
 #include <htracer/utils/vector_crtp.hpp>
 
+#include <array>
 #include <cmath>
+#include <concepts>
 #include <numeric>
+#include <type_traits>
+#include <utility>
 
 
 namespace htracer
@@ -25,13 +29,17 @@ public:
   using typename VecCrtp::float_type;
   using VecCrtp::size;
 
-  using iterator = typename VecCrtp::iterator;
-  using const_iterator = typename VecCrtp::const_iterator;
+  using iterator = VecCrtp::iterator;
+  using const_iterator = VecCrtp::const_iterator;
 
-  // TODO: For some reason clang++ does'nt like VecCrtp::vector_crtp
-  using utils::vector_crtp<vector<Float, N>, Float, N>::vector_crtp;
+  constexpr vector() noexcept = default;
+  constexpr explicit vector(std::array<Float, N> values) noexcept;
+  template<typename... Args>
+  requires(sizeof...(Args) == N && (std::constructible_from<Float, Args> && ...))
+  explicit(sizeof...(Args) == 1) constexpr vector(Args &&...values) noexcept(
+      utils::detail_::vector_components_nothrow<Float, Args...>);
 
-  using VecCrtp::operator[];
+  using VecCrtp::get;
 
   using VecCrtp::operator+=;
   using VecCrtp::operator-=;
@@ -91,6 +99,23 @@ vector<Float, N>::swap(vector<Float, N> &rhs) noexcept
 
 
 template<typename Float, std::size_t N>
+constexpr vector<Float, N>::vector(std::array<Float, N> values) noexcept
+    : VecCrtp{std::move(values)}
+{
+}
+
+
+template<typename Float, std::size_t N>
+template<typename... Args>
+requires(sizeof...(Args) == N && (std::constructible_from<Float, Args> && ...))
+constexpr vector<Float, N>::vector(Args &&...values) noexcept(
+    utils::detail_::vector_components_nothrow<Float, Args...>)
+    : VecCrtp{std::forward<Args>(values)...}
+{
+}
+
+
+template<typename Float, std::size_t N>
 constexpr vector<Float, N>
 operator+(vector<Float, N> lhs, vector<Float, N> const &rhs) noexcept
 {
@@ -143,7 +168,10 @@ template<typename Float>
 constexpr vector<Float, 3>
 cross(vector<Float, 3> const &lhs, vector<Float, 3> const &rhs) noexcept
 {
-  return {lhs[1] * rhs[2] - rhs[1] * lhs[2], lhs[2] * rhs[0] - rhs[2] * lhs[0], lhs[0] * rhs[1] - rhs[0] * lhs[1]};
+  return {
+      lhs.template get<1>() * rhs.template get<2>() - rhs.template get<1>() * lhs.template get<2>(),
+      lhs.template get<2>() * rhs.template get<0>() - rhs.template get<2>() * lhs.template get<0>(),
+      lhs.template get<0>() * rhs.template get<1>() - rhs.template get<0>() * lhs.template get<1>()};
 }
 
 } // namespace htracer

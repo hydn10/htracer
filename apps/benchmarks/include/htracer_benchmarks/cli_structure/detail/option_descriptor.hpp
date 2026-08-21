@@ -9,7 +9,7 @@
 namespace htracer::benchmarks::cli_structure::detail
 {
 
-enum class option_syntax
+enum class option_syntax : std::uint8_t
 {
   flag,
   value,

@@ -3,10 +3,8 @@
 
 
 #include <htracer_benchmarks/cli_structure/detail/help_writer.hpp>
-#include <htracer_benchmarks/cli_structure/detail/option_descriptor.hpp>
 #include <htracer_benchmarks/cli_structure/detail/parsed_arguments.hpp>
 
-#include <array>
 #include <cstddef>
 #include <string>
 #include <string_view>
@@ -20,7 +18,7 @@ template<typename Option>
 class defaulted_value
 {
 public:
-  using result_type = typename Option::result_type;
+  using result_type = Option::result_type;
 
 private:
   Option option_;
@@ -32,9 +30,9 @@ public:
 
   constexpr defaulted_value(Option option, result_type default_value, std::string_view default_text);
 
-  template<std::size_t Size>
-  constexpr void
-  append_descriptors(std::array<detail::option_descriptor, Size> &values, std::size_t &index) const;
+  [[nodiscard]]
+  constexpr auto
+  descriptors() const;
 
   [[nodiscard]]
   result_type
@@ -61,17 +59,15 @@ constexpr defaulted_value<Option>::defaulted_value(
 
 
 template<typename Option>
-template<std::size_t Size>
-constexpr void
-defaulted_value<Option>::append_descriptors(
-    std::array<detail::option_descriptor, Size> &values, std::size_t &index) const
+constexpr auto
+defaulted_value<Option>::descriptors() const
 {
-  option_.append_descriptors(values, index);
+  return option_.descriptors();
 }
 
 
 template<typename Option>
-typename defaulted_value<Option>::result_type
+defaulted_value<Option>::result_type
 defaulted_value<Option>::evaluate(detail::parsed_arguments const &values, std::string_view path) const
 {
   auto parsed = option_.evaluate_optional(values, path);

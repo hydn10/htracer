@@ -19,13 +19,13 @@ public:
 
   [[nodiscard]]
   borrowed_generator_state<Generator>
-  make_state(std::uint32_t, std::uint32_t) const;
+  make_state(std::uint32_t /*unused*/, std::uint32_t /*unused*/) const;
 };
 
 
 template<typename Generator>
 borrowed_generator_state<Generator>
-thread_local_provider<Generator>::make_state(std::uint32_t, std::uint32_t) const
+thread_local_provider<Generator>::make_state(std::uint32_t /*unused*/, std::uint32_t /*unused*/) const
 {
   thread_local Generator generator(std::random_device{}());
   return borrowed_generator_state<Generator>{generator};

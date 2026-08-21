@@ -10,6 +10,8 @@
 
 #include <cstdint>
 #include <ranges>
+#include <type_traits>
+#include <utility>
 
 
 namespace htracer::rendering::samplers::detail_
@@ -22,7 +24,8 @@ class repeat_sampler
   GeneratorProvider rep_;
 
 public:
-  repeat_sampler(uint32_t num_samples, GeneratorProvider rep) noexcept;
+  repeat_sampler(uint32_t num_samples, GeneratorProvider rep)
+      noexcept(std::is_nothrow_move_constructible_v<GeneratorProvider>);
 
   template<
       typename Float,
@@ -42,7 +45,8 @@ public:
 
 
 template<typename GeneratorProvider>
-repeat_sampler<GeneratorProvider>::repeat_sampler(uint32_t num_samples, GeneratorProvider rep) noexcept
+repeat_sampler<GeneratorProvider>::repeat_sampler(uint32_t num_samples, GeneratorProvider rep)
+    noexcept(std::is_nothrow_move_constructible_v<GeneratorProvider>)
     : num_samples_{num_samples}
     , rep_{std::move(rep)}
 {
@@ -66,8 +70,8 @@ repeat_sampler<GeneratorProvider>::render_pixel(
 {
   colors::srgb_linear<Float> accumulated{0, 0, 0};
   auto generator_state = rep_.make_state(v_idx, h_idx);
-  adapters::detail_::randomized_adapter<Float, typename GeneratorProvider::generator_type, Sensor, Lens> adapter{
-      sensor, lens, generator_state.get()};
+  auto adapter = adapters::detail_::randomized_adapter<
+      Float, typename GeneratorProvider::generator_type, Sensor, Lens>{sensor, lens, generator_state.get()};
 
   for (
       [[maybe_unused]]

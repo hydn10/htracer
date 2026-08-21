@@ -43,9 +43,9 @@ public:
 
   constexpr value_option(value_option_info info, Parser parser);
 
-  template<std::size_t Size>
-  constexpr void
-  append_descriptors(std::array<detail::option_descriptor, Size> &values, std::size_t &index) const;
+  [[nodiscard]]
+  constexpr auto
+  descriptors() const;
 
   [[nodiscard]]
   result_type
@@ -75,22 +75,20 @@ constexpr value_option<Result, Parser>::value_option(value_option_info info, Par
 
 template<typename Result, typename Parser>
 requires std::same_as<std::invoke_result_t<Parser const &, std::string_view>, parse_result<Result>>
-template<std::size_t Size>
-constexpr void
-value_option<Result, Parser>::append_descriptors(
-    std::array<detail::option_descriptor, Size> &values, std::size_t &index) const
+constexpr auto
+value_option<Result, Parser>::descriptors() const
 {
-  values[index++] = {
+  return std::array{detail::option_descriptor{
       .short_name = info_.name().short_name(),
       .long_name = info_.name().long_name(),
       .value_name = info_.value_name(),
-      .syntax = detail::option_syntax::value};
+      .syntax = detail::option_syntax::value}};
 }
 
 
 template<typename Result, typename Parser>
 requires std::same_as<std::invoke_result_t<Parser const &, std::string_view>, parse_result<Result>>
-typename value_option<Result, Parser>::result_type
+value_option<Result, Parser>::result_type
 value_option<Result, Parser>::evaluate(detail::parsed_arguments const &values, std::string_view path) const
 {
   auto const *value = values.find(info_.name().long_name());
@@ -131,7 +129,7 @@ value_option<Result, Parser>::print_help(detail::help_writer &writer, std::strin
 
 template<typename Result, typename Parser>
 requires std::same_as<std::invoke_result_t<Parser const &, std::string_view>, parse_result<Result>>
-typename value_option<Result, Parser>::result_type
+value_option<Result, Parser>::result_type
 value_option<Result, Parser>::parse(std::string_view text, std::string_view path) const
 {
   auto parsed = std::invoke(parser_, text);

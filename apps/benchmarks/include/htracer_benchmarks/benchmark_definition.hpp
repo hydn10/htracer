@@ -11,14 +11,14 @@
 namespace htracer::benchmarks
 {
 
-enum class precision_kind
+enum class precision_kind : std::uint8_t
 {
   f32,
   f64,
 };
 
 
-enum class policy_kind
+enum class policy_kind : std::uint8_t
 {
   seq,
   par,

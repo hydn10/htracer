@@ -15,7 +15,7 @@ class object_base
   material<Float> material_;
 
 public:
-  constexpr object_base(material<Float> material) noexcept;
+  explicit constexpr object_base(material<Float> material) noexcept;
   virtual ~object_base() = default;
 
   object_base(object_base<Float> const &) noexcept = default;

@@ -15,7 +15,7 @@
   cmakeFlags = oldAttrs.cmakeFlags ++ [
     "-DCMAKE_COMPILE_WARNING_AS_ERROR=ON"
     "-DCMAKE_EXE_LINKER_FLAGS=-fsanitize=address,undefined"
-    "-DCMAKE_CXX_CLANG_TIDY=${llvmPackages.clang-tools}/bin/clang-tidy;--warnings-as-errors=*"
+    "-DCMAKE_CXX_CLANG_TIDY=${llvmPackages.clang-tools}/bin/clang-tidy"
   ];
 
   preConfigure = (oldAttrs.preConfigure or "") + ''

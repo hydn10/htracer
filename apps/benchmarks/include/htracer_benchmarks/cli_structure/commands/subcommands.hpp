@@ -3,6 +3,7 @@
 
 
 #include <htracer_benchmarks/cli_structure/detail/argument_view.hpp>
+#include <htracer_benchmarks/cli_structure/detail/contains_duplicates.hpp>
 #include <htracer_benchmarks/cli_structure/detail/help_writer.hpp>
 #include <htracer_benchmarks/cli_structure/detail/name_validation.hpp>
 #include <htracer_benchmarks/cli_structure/detail/type_list.hpp>
@@ -10,7 +11,6 @@
 #include <htracer_benchmarks/cli_structure/foundations/help_page.hpp>
 
 #include <array>
-#include <cstddef>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -29,7 +29,7 @@ class subcommands
   std::tuple<Children...> children_;
 
 public:
-  using result_types = typename detail::concatenate<typename Children::result_types...>::type;
+  using result_types = detail::concatenate<typename Children::result_types...>::type;
 
   constexpr explicit subcommands(Children... children);
 
@@ -59,15 +59,9 @@ constexpr subcommands<Children...>::subcommands(Children... children)
       },
       children_);
 
-  for (std::size_t outer = 0; outer < names.size(); ++outer)
+  if (detail::contains_duplicates(names))
   {
-    for (std::size_t inner = outer + 1; inner < names.size(); ++inner)
-    {
-      if (names[outer] == names[inner])
-      {
-        throw schema_error{"duplicate sibling command name"};
-      }
-    }
+    throw schema_error{"duplicate sibling command name"};
   }
 }
 

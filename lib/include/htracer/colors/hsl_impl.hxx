@@ -24,7 +24,7 @@ template<typename Float>
 constexpr Float const &
 hsl<Float>::h() const noexcept
 {
-  return (*this)[0];
+  return this->template get<0>();
 }
 
 
@@ -32,7 +32,7 @@ template<typename Float>
 constexpr Float const &
 hsl<Float>::s() const noexcept
 {
-  return (*this)[1];
+  return this->template get<1>();
 }
 
 
@@ -40,7 +40,7 @@ template<typename Float>
 constexpr Float const &
 hsl<Float>::l() const noexcept
 {
-  return (*this)[2];
+  return this->template get<2>();
 }
 
 

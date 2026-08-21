@@ -34,7 +34,7 @@ public:
   constexpr std::optional<Float>
   intersect(ray<Float> const &ray) const;
 
-  // TODO: nodiscard? how does it work with inheritance?
+  [[nodiscard]]
   constexpr v3<Float>
   normal(v3<Float> const &point) const noexcept override;
 };

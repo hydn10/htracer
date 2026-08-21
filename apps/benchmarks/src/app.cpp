@@ -4,11 +4,11 @@
 #include <htracer_benchmarks/benchmark_definition.hpp>
 #include <htracer_benchmarks/cli.hpp>
 #include <htracer_benchmarks/cli/commands.hpp>
-#include <htracer_benchmarks/cli/option_values.hpp>
+#include <htracer_benchmarks/cli/render_configuration.hpp>
 #include <htracer_benchmarks/cli_structure/foundations/help_page.hpp>
-#include <htracer_benchmarks/measurement_plan.hpp>
 #include <htracer_benchmarks/quick_suite.hpp>
 #include <htracer_benchmarks/render_benchmark.hpp>
+#include <htracer_benchmarks/render_mode.hpp>
 #include <htracer_benchmarks/reporting/benchmark_name.hpp>
 #include <htracer_benchmarks/reporting/console.hpp>
 #include <htracer_benchmarks/reporting/environment.hpp>
@@ -73,29 +73,13 @@ handle([[maybe_unused]] htracer::benchmarks::list_command const &command)
 
 
 [[nodiscard]]
-std::optional<std::filesystem::path>
-output_path(std::optional<htracer::benchmarks::output_option> const &output)
-{
-  return output.transform(
-      [](htracer::benchmarks::output_option const &option)
-      {
-        return option.value;
-      });
-}
-
-
-[[nodiscard]]
 htracer::benchmarks::benchmark_definition
 deterministic_definition(
-    htracer::benchmarks::deterministic_scene_spec scene, htracer::benchmarks::render_options const &options)
+    htracer::benchmarks::deterministic_scene_spec scene, htracer::benchmarks::render_configuration const &options)
 {
   using namespace htracer::benchmarks;
   return benchmark_definition::deterministic(
-      scene,
-      options.precision.value,
-      options.policy.value,
-      options.extent.value,
-      measurement_plan{.warmups = options.warmups.value, .repetitions = options.repetitions.value});
+      scene, options.precision, options.policy, options.extent, options.measurement);
 }
 
 
@@ -103,40 +87,27 @@ deterministic_definition(
 htracer::benchmarks::benchmark_definition
 randomized_definition(
     htracer::benchmarks::scene_spec scene,
-    htracer::benchmarks::randomized_options const &randomized,
-    htracer::benchmarks::render_options const &options)
+    htracer::benchmarks::randomized_render const &randomized,
+    htracer::benchmarks::render_configuration const &options)
 {
   using namespace htracer::benchmarks;
   return benchmark_definition::randomized(
-      scene,
-      randomized_render{
-          randomized.samples.value,
-          randomized.seed.transform(
-              [](seed_option const &option)
-              {
-                return option.value;
-              })},
-      options.precision.value,
-      options.policy.value,
-      options.extent.value,
-      measurement_plan{.warmups = options.warmups.value, .repetitions = options.repetitions.value});
+      scene, randomized, options.precision, options.policy, options.extent, options.measurement);
 }
 
 
 void
-run_custom(
-    htracer::benchmarks::benchmark_definition definition,
-    std::optional<htracer::benchmarks::output_option> const &output)
+run_custom(htracer::benchmarks::benchmark_definition definition, std::optional<std::filesystem::path> const &output)
 {
   std::array benchmarks{htracer::benchmarks::benchmark_case::custom(definition)};
-  run_cases(benchmarks, output_path(output));
+  run_cases(benchmarks, output);
 }
 
 
 void
 handle(htracer::benchmarks::quick_suite_command const &command)
 {
-  run_cases(htracer::benchmarks::quick_suite_catalog::cases(), output_path(command.output));
+  run_cases(htracer::benchmarks::quick_suite_catalog::cases(), command.output);
 }
 
 
@@ -159,14 +130,14 @@ handle(htracer::benchmarks::mixed_randomized_command const &command)
 void
 handle(htracer::benchmarks::traversal_deterministic_command const &command)
 {
-  run_custom(deterministic_definition(command.traversal.value, command.render), command.render.output);
+  run_custom(deterministic_definition(command.traversal, command.render), command.render.output);
 }
 
 
 void
 handle(htracer::benchmarks::traversal_randomized_command const &command)
 {
-  run_custom(randomized_definition(command.traversal.value, command.randomized, command.render), command.render.output);
+  run_custom(randomized_definition(command.traversal, command.randomized, command.render), command.render.output);
 }
 
 
@@ -188,9 +159,9 @@ void
 run_app(std::span<char const *const> arguments)
 {
   std::visit(
-      [](auto const &command)
+      [](auto &&command)
       {
-        return handle(command);
+        return handle(std::forward<decltype(command)>(command));
       },
       parse_cli(arguments));
 }

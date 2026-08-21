@@ -106,7 +106,7 @@ sample(geometries::ray<Float> const &ray, Scene const &scene, unsigned depth)
 
   // TODO: This should be a parameter since it is scale-dependant. The value
   // must be > 0 or else reflections/refractions wont work.
-  constexpr Float MIN_DISTANCE = static_cast<Float>(.002);
+  constexpr auto MIN_DISTANCE = static_cast<Float>(.002);
 
   auto const intersection = intersect(ray, scene, MIN_DISTANCE);
 

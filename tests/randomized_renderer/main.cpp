@@ -1,6 +1,7 @@
 #include <htracer/htracer.hpp>
 #include <htracer/utils/generator_providers/generator_state.hpp>
 
+#include <algorithm>
 #include <cmath>
 #include <cstdlib>
 #include <numbers>
@@ -53,18 +54,17 @@ valid_image(ht_f64::image const &image)
     return false;
   }
 
-  for (auto const &pixel : image.pixels())
-  {
-    for (std::size_t channel_idx = 0; channel_idx < 3; ++channel_idx)
-    {
-      if (!std::isfinite(pixel[channel_idx]))
+  return std::ranges::all_of(
+      image.pixels(),
+      [](auto const &pixel)
       {
-        return false;
-      }
-    }
-  }
-
-  return true;
+        return std::ranges::all_of(
+            pixel,
+            [](auto value)
+            {
+              return std::isfinite(value);
+            });
+      });
 }
 
 
@@ -77,18 +77,13 @@ exactly_equal(ht_f64::image const &lhs, ht_f64::image const &rhs)
     return false;
   }
 
-  for (std::size_t pixel_idx = 0; pixel_idx < lhs.pixels().size(); ++pixel_idx)
-  {
-    for (std::size_t channel_idx = 0; channel_idx < 3; ++channel_idx)
-    {
-      if (lhs.pixels()[pixel_idx][channel_idx] != rhs.pixels()[pixel_idx][channel_idx])
+  return std::ranges::equal(
+      lhs.pixels(),
+      rhs.pixels(),
+      [](auto const &lhs_pixel, auto const &rhs_pixel)
       {
-        return false;
-      }
-    }
-  }
-
-  return true;
+        return std::ranges::equal(lhs_pixel, rhs_pixel);
+      });
 }
 
 } // namespace

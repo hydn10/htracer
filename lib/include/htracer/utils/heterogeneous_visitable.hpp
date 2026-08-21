@@ -3,6 +3,7 @@
 
 
 #include <tuple>
+#include <utility>
 #include <vector>
 
 
@@ -54,13 +55,13 @@ heterogeneous_visitable<Ts...>::emplace(Args &&...args)
 template<typename... Ts>
 template<typename F>
 constexpr void
-heterogeneous_visitable<Ts...>::visit(F &&f) const
+heterogeneous_visitable<Ts...>::visit(F &&f) const // NOLINT(cppcoreguidelines-missing-std-forward)
 {
   auto apply_f_to_vec = [&f](auto const &vec)
   {
     for (auto const &item : vec)
     {
-      f(item);
+      f(item); // NOLINT(cppcoreguidelines-missing-std-forward)
     }
   };
 
@@ -71,13 +72,13 @@ heterogeneous_visitable<Ts...>::visit(F &&f) const
 template<typename... Ts>
 template<typename F>
 constexpr void
-heterogeneous_visitable<Ts...>::visit(F &&f)
+heterogeneous_visitable<Ts...>::visit(F &&f) // NOLINT(cppcoreguidelines-missing-std-forward)
 {
   auto apply_f_to_vec = [&f](auto &vec)
   {
     for (auto &item : vec)
     {
-      f(item);
+      f(item); // NOLINT(cppcoreguidelines-missing-std-forward)
     }
   };
 
