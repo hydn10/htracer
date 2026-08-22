@@ -19,6 +19,12 @@ namespace htracer::benchmarks::execution
 template<std::floating_point Float>
 [[nodiscard]]
 image_checksum
+validate_and_hash_image(typename htracer::float_traits<Float>::image const &image, image_extent extent);
+
+
+template<std::floating_point Float>
+[[nodiscard]]
+image_checksum
 validate_and_hash_image(typename htracer::float_traits<Float>::image const &image, image_extent extent)
 {
   if (image.h_res() != extent.width().value() || image.v_res() != extent.height().value())

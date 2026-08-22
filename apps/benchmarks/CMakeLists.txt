@@ -12,13 +12,23 @@ target_sources(
         src/benchmark_definition.cpp
         src/benchmark_result.cpp
         src/cli.cpp
-        src/cli/parsers.cpp
-        src/cli_structure/detail/argument_view.cpp
+        src/cli/parsers/extent_parser.cpp
+        src/cli/parsers/height_parser.cpp
+        src/cli/parsers/output_parser.cpp
+        src/cli/parsers/policy_parser.cpp
+        src/cli/parsers/precision_parser.cpp
+        src/cli/parsers/repetitions_parser.cpp
+        src/cli/parsers/samples_parser.cpp
+        src/cli/parsers/seed_parser.cpp
+        src/cli/parsers/traversal_parser.cpp
+        src/cli/parsers/warmups_parser.cpp
+        src/cli/parsers/width_parser.cpp
+        src/cli_structure/detail/parsing/argument_view.cpp
         src/cli_structure/detail/help_writer.cpp
-        src/cli_structure/detail/option_parser.cpp
-        src/cli_structure/detail/parsed_arguments.cpp
-        src/cli_structure/foundations/errors.cpp
-        src/cli_structure/parsing/parsers.cpp
+        src/cli_structure/detail/parsing/option_parser.cpp
+        src/cli_structure/detail/parsing/parsed_arguments.cpp
+        src/cli_structure/errors.cpp
+        src/cli_structure/value_parsing/parsers/string_value.cpp
         src/quick_suite.cpp
         src/render_benchmark.cpp
         src/reporting/benchmark_name.cpp
@@ -41,33 +51,46 @@ target_sources(
             "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli/parsers.hpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli/render_configuration.hpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli/schema.hpp"
-            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli/schema/command_tree.hpp"
-            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli/schema/definition.hpp"
-            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli/schema/inputs.hpp"
-            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/commands/application.hpp"
-            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/commands/command.hpp"
-            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/commands/leaf_node.hpp"
-            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/commands/subcommands.hpp"
-            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/composition/composed_input.hpp"
-            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/composition/inputs.hpp"
-            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/composition/object_input.hpp"
-            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/detail/argument_view.hpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli/parsers/extent_parser.hpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli/parsers/height_parser.hpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli/parsers/output_parser.hpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli/parsers/policy_parser.hpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli/parsers/precision_parser.hpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli/parsers/repetitions_parser.hpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli/parsers/samples_parser.hpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli/parsers/seed_parser.hpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli/parsers/traversal_parser.hpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli/parsers/warmups_parser.hpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli/parsers/width_parser.hpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli/parsers/detail/helpers.hpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/application.hpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/schema/command.hpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/schema/leaf_node.hpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/schema/subcommands.hpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/schema/composed_input.hpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/schema/inputs.hpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/schema/object_input.hpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/detail/parsing/argument_view.hpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/detail/brace_constructible.hpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/detail/help_writer.hpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/detail/name_validation.hpp"
-            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/detail/option_descriptor.hpp"
-            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/detail/option_parser.hpp"
-            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/detail/parsed_arguments.hpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/detail/parsing/option_descriptor.hpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/detail/parsing/option_parser.hpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/detail/parsing/parsed_arguments.hpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/detail/type_list.hpp"
-            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/foundations/errors.hpp"
-            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/foundations/help_page.hpp"
-            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/foundations/parse_result.hpp"
-            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/options/defaulted_value.hpp"
-            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/options/flag_option.hpp"
-            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/options/option_info.hpp"
-            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/options/optional_value.hpp"
-            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/options/value_option.hpp"
-            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/parsing/parsers.hpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/errors.hpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/help_page.hpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/value_parsing/parse_result.hpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/value_parsing/parsers.hpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/value_parsing/parsers/string_value.hpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/value_parsing/parsers/transform.hpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/value_parsing/parsers/unsigned_integer.hpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/schema/options/policies/defaulted_value.hpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/schema/options/kinds/flag_option.hpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/schema/options/option_info.hpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/schema/options/policies/required_value.hpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/schema/options/policies/optional_value.hpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/cli_structure/schema/options/kinds/value_option.hpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/exit.hpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/execution/checksum_accumulator.hpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/include/htracer_benchmarks/execution/image_validation.hpp"

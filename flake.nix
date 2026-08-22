@@ -7,6 +7,7 @@
       htracerDrv-lin64 = pkgs-lin64.callPackage ./default.nix {};
       htracerQualityCheck-lin64 = pkgs-lin64.callPackage ./nix/quality.nix {
         htracer = htracerDrv-lin64;
+        llvmPackages = pkgs-lin64.llvmPackages_22;
       };
       htracerInstalledConsumerCheck-lin64 = pkgs-lin64.callPackage ./nix/installed-consumer.nix {
         htracer = htracerDrv-lin64;

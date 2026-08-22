@@ -37,18 +37,26 @@ public:
 
   [[nodiscard]]
   constexpr benchmark_definition const &
-  definition() const noexcept
-  {
-    return definition_;
-  }
+  definition() const noexcept;
 
   [[nodiscard]]
   constexpr bool
-  is_canonical() const noexcept
-  {
-    return origin_ == origin::canonical;
-  }
+  is_canonical() const noexcept;
 };
+
+
+constexpr benchmark_definition const &
+benchmark_case::definition() const noexcept
+{
+  return definition_;
+}
+
+
+constexpr bool
+benchmark_case::is_canonical() const noexcept
+{
+  return origin_ == origin::canonical;
+}
 
 } // namespace htracer::benchmarks
 

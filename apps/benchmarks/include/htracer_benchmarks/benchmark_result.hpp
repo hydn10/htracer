@@ -18,20 +18,14 @@ class image_checksum
   std::uint64_t value_;
 
 public:
-  explicit constexpr image_checksum(std::uint64_t value) noexcept
-      : value_{value}
-  {
-  }
+  explicit constexpr image_checksum(std::uint64_t value) noexcept;
 
   [[nodiscard]]
   constexpr std::uint64_t
-  value() const noexcept
-  {
-    return value_;
-  }
+  value() const noexcept;
 
   friend constexpr bool
-  operator==(image_checksum const &, image_checksum const &) noexcept = default;
+  operator==(image_checksum const &left, image_checksum const &right) noexcept;
 };
 
 
@@ -40,20 +34,14 @@ class run_checksum
   std::uint64_t value_;
 
 public:
-  explicit constexpr run_checksum(std::uint64_t value) noexcept
-      : value_{value}
-  {
-  }
+  explicit constexpr run_checksum(std::uint64_t value) noexcept;
 
   [[nodiscard]]
   constexpr std::uint64_t
-  value() const noexcept
-  {
-    return value_;
-  }
+  value() const noexcept;
 
   friend constexpr bool
-  operator==(run_checksum const &, run_checksum const &) noexcept = default;
+  operator==(run_checksum const &left, run_checksum const &right) noexcept;
 };
 
 
@@ -62,11 +50,7 @@ class measured_render
   std::chrono::nanoseconds duration_;
   image_checksum checksum_;
 
-  constexpr measured_render(std::chrono::nanoseconds duration, image_checksum checksum) noexcept
-      : duration_{duration}
-      , checksum_{checksum}
-  {
-  }
+  constexpr measured_render(std::chrono::nanoseconds duration, image_checksum checksum) noexcept;
 
 public:
   [[nodiscard]]
@@ -75,17 +59,11 @@ public:
 
   [[nodiscard]]
   constexpr std::chrono::nanoseconds
-  duration() const noexcept
-  {
-    return duration_;
-  }
+  duration() const noexcept;
 
   [[nodiscard]]
   constexpr image_checksum
-  checksum() const noexcept
-  {
-    return checksum_;
-  }
+  checksum() const noexcept;
 };
 
 
@@ -121,46 +99,131 @@ public:
 
   [[nodiscard]]
   constexpr benchmark_case const &
-  benchmark() const noexcept
-  {
-    return benchmark_;
-  }
+  benchmark() const noexcept;
 
   [[nodiscard]]
   constexpr std::vector<measured_render> const &
-  renders() const noexcept
-  {
-    return renders_;
-  }
+  renders() const noexcept;
 
   [[nodiscard]]
   constexpr duration_summary
-  summary() const noexcept
-  {
-    return summary_;
-  }
+  summary() const noexcept;
 
   [[nodiscard]]
   constexpr run_checksum
-  checksum() const noexcept
-  {
-    return checksum_;
-  }
+  checksum() const noexcept;
 
   [[nodiscard]]
   constexpr std::optional<run_checksum>
-  warmup_checksum() const noexcept
-  {
-    return warmup_checksum_;
-  }
+  warmup_checksum() const noexcept;
 
   [[nodiscard]]
   constexpr std::vector<image_checksum> const &
-  warmup_checksums() const noexcept
-  {
-    return warmup_checksums_;
-  }
+  warmup_checksums() const noexcept;
 };
+
+
+constexpr image_checksum::image_checksum(std::uint64_t value) noexcept
+    : value_{value}
+{
+}
+
+
+constexpr std::uint64_t
+image_checksum::value() const noexcept
+{
+  return value_;
+}
+
+
+constexpr bool
+operator==(image_checksum const &left, image_checksum const &right) noexcept
+{
+  return left.value_ == right.value_;
+}
+
+
+constexpr run_checksum::run_checksum(std::uint64_t value) noexcept
+    : value_{value}
+{
+}
+
+
+constexpr std::uint64_t
+run_checksum::value() const noexcept
+{
+  return value_;
+}
+
+
+constexpr bool
+operator==(run_checksum const &left, run_checksum const &right) noexcept
+{
+  return left.value_ == right.value_;
+}
+
+
+constexpr measured_render::measured_render(std::chrono::nanoseconds duration, image_checksum checksum) noexcept
+    : duration_{duration}
+    , checksum_{checksum}
+{
+}
+
+
+constexpr std::chrono::nanoseconds
+measured_render::duration() const noexcept
+{
+  return duration_;
+}
+
+
+constexpr image_checksum
+measured_render::checksum() const noexcept
+{
+  return checksum_;
+}
+
+
+constexpr benchmark_case const &
+benchmark_result::benchmark() const noexcept
+{
+  return benchmark_;
+}
+
+
+constexpr std::vector<measured_render> const &
+benchmark_result::renders() const noexcept
+{
+  return renders_;
+}
+
+
+constexpr duration_summary
+benchmark_result::summary() const noexcept
+{
+  return summary_;
+}
+
+
+constexpr run_checksum
+benchmark_result::checksum() const noexcept
+{
+  return checksum_;
+}
+
+
+constexpr std::optional<run_checksum>
+benchmark_result::warmup_checksum() const noexcept
+{
+  return warmup_checksum_;
+}
+
+
+constexpr std::vector<image_checksum> const &
+benchmark_result::warmup_checksums() const noexcept
+{
+  return warmup_checksums_;
+}
 
 } // namespace htracer::benchmarks
 

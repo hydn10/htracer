@@ -15,10 +15,7 @@ class geometry_count
 {
   std::uint32_t value_;
 
-  explicit constexpr geometry_count(std::uint32_t value) noexcept
-      : value_{value}
-  {
-  }
+  explicit constexpr geometry_count(std::uint32_t value) noexcept;
 
 public:
   [[nodiscard]]
@@ -27,10 +24,7 @@ public:
 
   [[nodiscard]]
   constexpr std::uint32_t
-  value() const noexcept
-  {
-    return value_;
-  }
+  value() const noexcept;
 };
 
 
@@ -52,6 +46,19 @@ struct rng_probe_scene
 
 using scene_spec = std::variant<mixed_scene, traversal_scene, rng_probe_scene>;
 using deterministic_scene_spec = std::variant<mixed_scene, traversal_scene>;
+
+
+constexpr geometry_count::geometry_count(std::uint32_t value) noexcept
+    : value_{value}
+{
+}
+
+
+constexpr std::uint32_t
+geometry_count::value() const noexcept
+{
+  return value_;
+}
 
 
 constexpr std::expected<geometry_count, std::string_view>

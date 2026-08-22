@@ -54,13 +54,16 @@ struct bpv_traits<ppm::bytes_per_value::BPV2>
   using pixel_value_t = std::uint16_t;
 
   static constexpr pixel_value_t
-  to_big_endian(pixel_value_t value)
-  {
-    auto const value32 = static_cast<std::uint32_t>(value);
-    return static_cast<pixel_value_t>(
-        (value32 >> std::uint32_t{8}) | (value32 << std::uint32_t{8}));
-  }
+  to_big_endian(pixel_value_t value);
 };
+
+
+constexpr std::uint16_t
+bpv_traits<ppm::bytes_per_value::BPV2>::to_big_endian(std::uint16_t value)
+{
+  auto const value32 = static_cast<std::uint32_t>(value);
+  return static_cast<std::uint16_t>((value32 >> std::uint32_t{8}) | (value32 << std::uint32_t{8}));
+}
 
 } // namespace detail_
 

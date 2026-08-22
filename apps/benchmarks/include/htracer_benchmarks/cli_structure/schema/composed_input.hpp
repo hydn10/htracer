@@ -1,0 +1,128 @@
+#ifndef HTRACER_BENCHMARKS_CLI_STRUCTURE_SCHEMA_COMPOSED_INPUT_HPP
+#define HTRACER_BENCHMARKS_CLI_STRUCTURE_SCHEMA_COMPOSED_INPUT_HPP
+
+
+#include <htracer_benchmarks/cli_structure/detail/help_writer.hpp>
+#include <htracer_benchmarks/cli_structure/detail/parsing/parsed_arguments.hpp>
+#include <htracer_benchmarks/cli_structure/errors.hpp>
+#include <htracer_benchmarks/cli_structure/value_parsing/parse_result.hpp>
+
+#include <concepts>
+#include <cstddef>
+#include <string>
+#include <string_view>
+#include <type_traits>
+#include <utility>
+
+
+namespace htracer::benchmarks::cli_structure::schema
+{
+
+template<typename Result, typename InputSet, typename Parser>
+requires std::same_as<
+    decltype(std::declval<InputSet const &>().parse_with(
+        std::declval<Parser const &>(),
+        std::declval<detail::parsing::parsed_arguments const &>(),
+        std::declval<std::string_view>())),
+    value_parsing::parse_result<Result>>
+class composed_input
+{
+  InputSet values_;
+  Parser parser_;
+
+public:
+  using result_type = Result;
+  static constexpr std::size_t option_count = InputSet::option_count;
+
+  constexpr composed_input(InputSet values, Parser parser);
+
+  [[nodiscard]]
+  constexpr auto
+  descriptors() const;
+
+  [[nodiscard]]
+  result_type
+  evaluate(detail::parsing::parsed_arguments const &parsed, std::string_view path) const;
+
+  void
+  print_help(detail::help_writer &writer) const;
+};
+
+
+template<typename Result, typename InputSet, typename Parser>
+[[nodiscard]]
+constexpr auto
+compose(InputSet values, Parser parser);
+
+template<typename Result, typename InputSet, typename Parser>
+requires std::same_as<
+             decltype(std::declval<InputSet const &>().parse_with(
+                 std::declval<Parser const &>(),
+                 std::declval<detail::parsing::parsed_arguments const &>(),
+                 std::declval<std::string_view>())),
+             value_parsing::parse_result<Result>>
+constexpr composed_input<Result, InputSet, Parser>::composed_input(InputSet values, Parser parser)
+    : values_{std::move(values)}
+    , parser_{std::move(parser)}
+{
+}
+
+
+template<typename Result, typename InputSet, typename Parser>
+requires std::same_as<
+    decltype(std::declval<InputSet const &>().parse_with(
+        std::declval<Parser const &>(),
+        std::declval<detail::parsing::parsed_arguments const &>(),
+        std::declval<std::string_view>())),
+    value_parsing::parse_result<Result>>
+constexpr auto
+composed_input<Result, InputSet, Parser>::descriptors() const
+{
+  return values_.descriptors();
+}
+
+
+template<typename Result, typename InputSet, typename Parser>
+requires std::same_as<
+    decltype(std::declval<InputSet const &>().parse_with(
+        std::declval<Parser const &>(),
+        std::declval<detail::parsing::parsed_arguments const &>(),
+        std::declval<std::string_view>())),
+    value_parsing::parse_result<Result>>
+composed_input<Result, InputSet, Parser>::result_type
+composed_input<Result, InputSet, Parser>::evaluate(
+    detail::parsing::parsed_arguments const &parsed, std::string_view path) const
+{
+  auto result = values_.parse_with(parser_, parsed, path);
+  if (!result)
+  {
+    throw usage_error("invalid option combination: " + result.error().message, std::string{path});
+  }
+  return std::move(*result);
+}
+
+
+template<typename Result, typename InputSet, typename Parser>
+requires std::same_as<
+    decltype(std::declval<InputSet const &>().parse_with(
+        std::declval<Parser const &>(),
+        std::declval<detail::parsing::parsed_arguments const &>(),
+        std::declval<std::string_view>())),
+    value_parsing::parse_result<Result>>
+void
+composed_input<Result, InputSet, Parser>::print_help(detail::help_writer &writer) const
+{
+  values_.print_help(writer);
+}
+
+
+template<typename Result, typename InputSet, typename Parser>
+constexpr auto
+compose(InputSet values, Parser parser)
+{
+  return composed_input<Result, InputSet, Parser>{std::move(values), std::move(parser)};
+}
+
+} // namespace htracer::benchmarks::cli_structure::schema
+
+#endif

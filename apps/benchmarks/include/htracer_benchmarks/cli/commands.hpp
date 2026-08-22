@@ -10,7 +10,7 @@
 #include <optional>
 
 
-namespace htracer::benchmarks
+namespace htracer::benchmarks::cli
 {
 
 struct list_command
@@ -62,6 +62,6 @@ struct rng_probe_randomized_command
   render_configuration render;
 };
 
-} // namespace htracer::benchmarks
+} // namespace htracer::benchmarks::cli
 
 #endif

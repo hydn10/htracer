@@ -55,17 +55,11 @@ struct float_traits
 
   [[nodiscard]]
   static constexpr auto
-  make_solid_material(srgb_linear const &color, Float ambient, Float specular, Float shininess, Float reflectivity)
-  {
-    return htracer::staging::make_solid<Float>(color, ambient, specular, shininess, reflectivity);
-  }
+  make_solid_material(srgb_linear const &color, Float ambient, Float specular, Float shininess, Float reflectivity);
 
   [[nodiscard]]
   static constexpr auto
-  make_mirror_material(Float specular, Float shininess, Float reflectivity)
-  {
-    return htracer::staging::make_mirror<Float>(specular, shininess, reflectivity);
-  }
+  make_mirror_material(Float specular, Float shininess, Float reflectivity);
 
   using camera = htracer::rendering::camera<Float>;
   using image = htracer::rendering::image<Float>;
@@ -74,6 +68,23 @@ struct float_traits
   using point_sensor = htracer::rendering::sensors::point_sensor<Float>;
   using uniform_sensor = htracer::rendering::sensors::uniform_sensor<Float>;
 };
+
+
+template<std::floating_point Float>
+constexpr auto
+float_traits<Float>::make_solid_material(
+    srgb_linear const &color, Float ambient, Float specular, Float shininess, Float reflectivity)
+{
+  return htracer::staging::make_solid<Float>(color, ambient, specular, shininess, reflectivity);
+}
+
+
+template<std::floating_point Float>
+constexpr auto
+float_traits<Float>::make_mirror_material(Float specular, Float shininess, Float reflectivity)
+{
+  return htracer::staging::make_mirror<Float>(specular, shininess, reflectivity);
+}
 
 } // namespace htracer
 

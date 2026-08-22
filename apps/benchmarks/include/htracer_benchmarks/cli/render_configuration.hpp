@@ -10,7 +10,7 @@
 #include <optional>
 
 
-namespace htracer::benchmarks
+namespace htracer::benchmarks::cli
 {
 
 struct render_configuration
@@ -22,6 +22,6 @@ struct render_configuration
   std::optional<std::filesystem::path> output;
 };
 
-} // namespace htracer::benchmarks
+} // namespace htracer::benchmarks::cli
 
 #endif

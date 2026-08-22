@@ -16,6 +16,12 @@ namespace htracer::benchmarks::scenes
 template<std::floating_point Float>
 [[nodiscard]]
 scene_setup<Float>
+make_rng_probe();
+
+
+template<std::floating_point Float>
+[[nodiscard]]
+scene_setup<Float>
 make_rng_probe()
 {
   using traits = htracer::float_traits<Float>;

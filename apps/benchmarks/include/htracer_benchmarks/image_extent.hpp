@@ -16,10 +16,7 @@ class image_width
 {
   std::uint32_t value_;
 
-  explicit constexpr image_width(std::uint32_t value) noexcept
-      : value_{value}
-  {
-  }
+  explicit constexpr image_width(std::uint32_t value) noexcept;
 
 public:
   [[nodiscard]]
@@ -28,10 +25,7 @@ public:
 
   [[nodiscard]]
   constexpr std::uint32_t
-  value() const noexcept
-  {
-    return value_;
-  }
+  value() const noexcept;
 };
 
 
@@ -39,10 +33,7 @@ class image_height
 {
   std::uint32_t value_;
 
-  explicit constexpr image_height(std::uint32_t value) noexcept
-      : value_{value}
-  {
-  }
+  explicit constexpr image_height(std::uint32_t value) noexcept;
 
 public:
   [[nodiscard]]
@@ -51,10 +42,7 @@ public:
 
   [[nodiscard]]
   constexpr std::uint32_t
-  value() const noexcept
-  {
-    return value_;
-  }
+  value() const noexcept;
 };
 
 
@@ -63,11 +51,7 @@ class image_extent
   image_width width_;
   image_height height_;
 
-  constexpr image_extent(image_width width, image_height height) noexcept
-      : width_{width}
-      , height_{height}
-  {
-  }
+  constexpr image_extent(image_width width, image_height height) noexcept;
 
 public:
   [[nodiscard]]
@@ -76,25 +60,70 @@ public:
 
   [[nodiscard]]
   constexpr image_width
-  width() const noexcept
-  {
-    return width_;
-  }
+  width() const noexcept;
 
   [[nodiscard]]
   constexpr image_height
-  height() const noexcept
-  {
-    return height_;
-  }
+  height() const noexcept;
 
   [[nodiscard]]
   constexpr std::size_t
-  pixel_count() const noexcept
-  {
-    return static_cast<std::size_t>(width_.value()) * height_.value();
-  }
+  pixel_count() const noexcept;
 };
+
+
+constexpr image_width::image_width(std::uint32_t value) noexcept
+    : value_{value}
+{
+}
+
+
+constexpr std::uint32_t
+image_width::value() const noexcept
+{
+  return value_;
+}
+
+
+constexpr image_height::image_height(std::uint32_t value) noexcept
+    : value_{value}
+{
+}
+
+
+constexpr std::uint32_t
+image_height::value() const noexcept
+{
+  return value_;
+}
+
+
+constexpr image_extent::image_extent(image_width width, image_height height) noexcept
+    : width_{width}
+    , height_{height}
+{
+}
+
+
+constexpr image_width
+image_extent::width() const noexcept
+{
+  return width_;
+}
+
+
+constexpr image_height
+image_extent::height() const noexcept
+{
+  return height_;
+}
+
+
+constexpr std::size_t
+image_extent::pixel_count() const noexcept
+{
+  return static_cast<std::size_t>(width_.value()) * height_.value();
+}
 
 
 constexpr std::expected<image_width, std::string_view>

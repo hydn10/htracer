@@ -25,26 +25,40 @@ class randomized_render
 
 public:
   constexpr randomized_render(
-      htracer::rendering::samples_per_pixel samples, std::optional<htracer::rendering::random_seed> seed) noexcept
-      : samples_{samples}
-      , seed_{seed}
-  {
-  }
+      htracer::rendering::samples_per_pixel samples,
+      std::optional<htracer::rendering::random_seed> seed) noexcept;
 
   [[nodiscard]]
   constexpr htracer::rendering::samples_per_pixel
-  samples() const noexcept
-  {
-    return samples_;
-  }
+  samples() const noexcept;
 
   [[nodiscard]]
   constexpr std::optional<htracer::rendering::random_seed>
-  seed() const noexcept
-  {
-    return seed_;
-  }
+  seed() const noexcept;
 };
+
+
+constexpr randomized_render::randomized_render(
+    htracer::rendering::samples_per_pixel samples,
+    std::optional<htracer::rendering::random_seed> seed) noexcept
+    : samples_{samples}
+    , seed_{seed}
+{
+}
+
+
+constexpr htracer::rendering::samples_per_pixel
+randomized_render::samples() const noexcept
+{
+  return samples_;
+}
+
+
+constexpr std::optional<htracer::rendering::random_seed>
+randomized_render::seed() const noexcept
+{
+  return seed_;
+}
 
 
 using render_mode = std::variant<deterministic_render, randomized_render>;

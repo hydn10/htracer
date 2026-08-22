@@ -1,8 +1,8 @@
 #include <htracer_benchmarks/cli.hpp>
 
 #include <htracer_benchmarks/cli/invocation.hpp>
-#include <htracer_benchmarks/cli/schema/definition.hpp>
-#include <htracer_benchmarks/cli_structure/commands/application.hpp>
+#include <htracer_benchmarks/cli/schema.hpp>
+#include <htracer_benchmarks/cli_structure/application.hpp>
 
 #include <span>
 

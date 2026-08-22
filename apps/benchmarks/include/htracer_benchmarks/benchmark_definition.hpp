@@ -64,46 +64,70 @@ public:
 
   [[nodiscard]]
   constexpr scene_spec const &
-  scene() const noexcept
-  {
-    return scene_;
-  }
+  scene() const noexcept;
 
   [[nodiscard]]
   constexpr render_mode const &
-  rendering() const noexcept
-  {
-    return rendering_;
-  }
+  rendering() const noexcept;
 
   [[nodiscard]]
   constexpr precision_kind
-  precision() const noexcept
-  {
-    return precision_;
-  }
+  precision() const noexcept;
 
   [[nodiscard]]
   constexpr policy_kind
-  policy() const noexcept
-  {
-    return policy_;
-  }
+  policy() const noexcept;
 
   [[nodiscard]]
   constexpr image_extent
-  extent() const noexcept
-  {
-    return extent_;
-  }
+  extent() const noexcept;
 
   [[nodiscard]]
   constexpr measurement_plan
-  measurement() const noexcept
-  {
-    return measurement_;
-  }
+  measurement() const noexcept;
 };
+
+
+constexpr scene_spec const &
+benchmark_definition::scene() const noexcept
+{
+  return scene_;
+}
+
+
+constexpr render_mode const &
+benchmark_definition::rendering() const noexcept
+{
+  return rendering_;
+}
+
+
+constexpr precision_kind
+benchmark_definition::precision() const noexcept
+{
+  return precision_;
+}
+
+
+constexpr policy_kind
+benchmark_definition::policy() const noexcept
+{
+  return policy_;
+}
+
+
+constexpr image_extent
+benchmark_definition::extent() const noexcept
+{
+  return extent_;
+}
+
+
+constexpr measurement_plan
+benchmark_definition::measurement() const noexcept
+{
+  return measurement_;
+}
 
 } // namespace htracer::benchmarks
 

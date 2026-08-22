@@ -51,7 +51,7 @@ run(std::span<char const *const> args)
   ht_f64::v3 const camera_view(0, -0.4, -1.);
   ht_f64::v3 const camera_up(0, 1, 0);
 
-  auto const focal_vec = ht_f64::v3(0.0, 1.0, 0.0) - camera_pos;
+  // auto const focal_vec = ht_f64::v3(0.0, 1.0, 0.0) - camera_pos;
   // auto const focal_distance = std::sqrt(dot(focal_vec, focal_vec));
 
   htracer::rendering::batchers::column_batcher const batcher{};

@@ -1,6 +1,6 @@
 #include <htracer_benchmarks/cli_structure/detail/help_writer.hpp>
 
-#include <htracer_benchmarks/cli_structure/foundations/help_page.hpp>
+#include <htracer_benchmarks/cli_structure/help_page.hpp>
 
 #include <iomanip>
 #include <ios>

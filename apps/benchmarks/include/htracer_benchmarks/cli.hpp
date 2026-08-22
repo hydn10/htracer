@@ -3,7 +3,7 @@
 
 
 #include <htracer_benchmarks/cli/invocation.hpp>
-#include <htracer_benchmarks/cli_structure/foundations/errors.hpp>
+#include <htracer_benchmarks/cli_structure/errors.hpp>
 
 #include <span>
 

@@ -2,7 +2,7 @@
 #define HTRACER_BENCHMARKS_CLI_STRUCTURE_DETAIL_HELP_WRITER_HPP
 
 
-#include <htracer_benchmarks/cli_structure/foundations/help_page.hpp>
+#include <htracer_benchmarks/cli_structure/help_page.hpp>
 
 #include <sstream>
 #include <string>

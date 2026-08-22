@@ -14,6 +14,29 @@ namespace htracer
 template<typename Vector>
 [[nodiscard]]
 constexpr Vector
+clamp(Vector const &v, typename Vector::float_type min, typename Vector::float_type max) noexcept;
+
+
+template<typename Vector>
+[[nodiscard]]
+constexpr Vector
+saturate(Vector const &v) noexcept;
+
+
+template<typename Vector, typename Float>
+[[nodiscard]]
+Vector
+pow(Vector const &v, Float exp);
+
+
+template<typename Float, std::size_t N>
+constexpr vector<Float, N>
+reflect(vector<Float, N> const &incident, vector<Float, N> const &normal) noexcept;
+
+
+template<typename Vector>
+[[nodiscard]]
+constexpr Vector
 clamp(Vector const &v, typename Vector::float_type min, typename Vector::float_type max) noexcept
 {
   return utils::transform(

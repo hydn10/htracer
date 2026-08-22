@@ -143,7 +143,20 @@
         "debug",
         "build-apps",
         "build-tests",
+        "build-examples"
+      ]
+    },
+    {
+      "name": "dev-x64-win-quality",
+      "displayName": "x64 Quality (msvc)",
+      "inherits": [
+        "x64",
+        "windows-cl-base",
+        "msvc-warnings",
         "enable-clang-tidy-msvc",
+        "debug",
+        "build-apps",
+        "build-tests",
         "build-examples"
       ]
     },
@@ -206,6 +219,21 @@
         "x64",
         "linux-base",
         "gccclang-warnings",
+        "debug",
+        "build-apps",
+        "build-tests",
+        "build-examples"
+      ]
+    },
+    {
+      "name": "dev-x64-lin-quality",
+      "displayName": "x64 Quality",
+      "inherits": [
+        "x64",
+        "linux-base",
+        "gccclang-warnings",
+        "enable-clang-tidy",
+        "enable-asan-ubsan",
         "debug",
         "build-apps",
         "build-tests",
@@ -285,6 +313,14 @@
   ],
   "buildPresets": [
     {
+      "name": "dev-x64-lin-quality",
+      "configurePreset": "dev-x64-lin-quality"
+    },
+    {
+      "name": "dev-x64-win-quality",
+      "configurePreset": "dev-x64-win-quality"
+    },
+    {
       "name": "ghci-ubuntu",
       "configurePreset": "ghci-ubuntu"
     },
@@ -314,6 +350,19 @@
       "environment": {
         "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
       }
+    },
+    {
+      "name": "dev-x64-lin-quality",
+      "inherits": [
+        "test-defaults",
+        "sanitizer-runtime"
+      ],
+      "configurePreset": "dev-x64-lin-quality"
+    },
+    {
+      "name": "dev-x64-win-quality",
+      "inherits": "test-defaults",
+      "configurePreset": "dev-x64-win-quality"
     },
     {
       "name": "ghci-ubuntu",

@@ -18,6 +18,12 @@ namespace htracer::benchmarks::scenes
 template<std::floating_point Float>
 [[nodiscard]]
 scene_setup<Float>
+make_traversal(geometry_count count);
+
+
+template<std::floating_point Float>
+[[nodiscard]]
+scene_setup<Float>
 make_traversal(geometry_count count)
 {
   using traits = htracer::float_traits<Float>;

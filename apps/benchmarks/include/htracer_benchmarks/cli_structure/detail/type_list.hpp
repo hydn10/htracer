@@ -2,7 +2,7 @@
 #define HTRACER_BENCHMARKS_CLI_STRUCTURE_DETAIL_TYPE_LIST_HPP
 
 
-#include <htracer_benchmarks/cli_structure/foundations/help_page.hpp>
+#include <htracer_benchmarks/cli_structure/help_page.hpp>
 
 #include <variant>
 

@@ -24,6 +24,14 @@ requires std::regular_invocable<RenderOnce const &> &&
          std::same_as<std::invoke_result_t<RenderOnce const &>, typename htracer::float_traits<Float>::image>
 [[nodiscard]]
 benchmark_result
+measure(benchmark_case const &benchmark, RenderOnce const &render_once);
+
+
+template<std::floating_point Float, typename RenderOnce>
+requires std::regular_invocable<RenderOnce const &> &&
+         std::same_as<std::invoke_result_t<RenderOnce const &>, typename htracer::float_traits<Float>::image>
+[[nodiscard]]
+benchmark_result
 measure(benchmark_case const &benchmark, RenderOnce const &render_once)
 {
   auto const extent = benchmark.definition().extent();

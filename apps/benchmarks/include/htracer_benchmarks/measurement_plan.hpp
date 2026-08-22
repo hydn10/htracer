@@ -14,10 +14,7 @@ class repetition_count
 {
   std::uint32_t value_;
 
-  explicit constexpr repetition_count(std::uint32_t value) noexcept
-      : value_{value}
-  {
-  }
+  explicit constexpr repetition_count(std::uint32_t value) noexcept;
 
 public:
   [[nodiscard]]
@@ -26,10 +23,7 @@ public:
 
   [[nodiscard]]
   constexpr std::uint32_t
-  value() const noexcept
-  {
-    return value_;
-  }
+  value() const noexcept;
 };
 
 
@@ -38,17 +32,11 @@ class warmup_count
   std::uint32_t value_;
 
 public:
-  explicit constexpr warmup_count(std::uint32_t value) noexcept
-      : value_{value}
-  {
-  }
+  explicit constexpr warmup_count(std::uint32_t value) noexcept;
 
   [[nodiscard]]
   constexpr std::uint32_t
-  value() const noexcept
-  {
-    return value_;
-  }
+  value() const noexcept;
 };
 
 
@@ -57,6 +45,32 @@ struct measurement_plan
   warmup_count warmups;
   repetition_count repetitions;
 };
+
+
+constexpr repetition_count::repetition_count(std::uint32_t value) noexcept
+    : value_{value}
+{
+}
+
+
+constexpr std::uint32_t
+repetition_count::value() const noexcept
+{
+  return value_;
+}
+
+
+constexpr warmup_count::warmup_count(std::uint32_t value) noexcept
+    : value_{value}
+{
+}
+
+
+constexpr std::uint32_t
+warmup_count::value() const noexcept
+{
+  return value_;
+}
 
 
 constexpr std::expected<repetition_count, std::string_view>

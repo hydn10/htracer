@@ -20,6 +20,37 @@ template<typename Float, typename Batcher, typename Sensor, typename Lens>
 [[nodiscard]]
 constexpr auto
 make_renderer(camera<Float> camera_arg, Batcher &&batcher_arg, Sensor &&sensor_arg, Lens &&lens_arg)
+requires sensor<detail_::component_type<Sensor>, Float> && lens<detail_::component_type<Lens>, Float>;
+
+
+template<
+    rendering_policy ExPolicy,
+    typename Scene,
+    typename Float,
+    typename Batcher,
+    typename Sensor,
+    typename Lens,
+    typename... Args>
+[[nodiscard]]
+constexpr auto
+render(
+    ExPolicy &&policy,
+    Scene const &scene,
+    camera<Float> camera_arg,
+    Batcher &&batcher_arg,
+    Sensor &&sensor_arg,
+    Lens &&lens_arg,
+    Args &&...args)
+requires requires {
+  make_renderer(std::declval<camera<Float>>(), std::declval<Batcher>(), std::declval<Sensor>(), std::declval<Lens>())
+      .render(std::declval<ExPolicy>(), std::declval<Scene const &>(), std::declval<Args>()...);
+};
+
+
+template<typename Float, typename Batcher, typename Sensor, typename Lens>
+[[nodiscard]]
+constexpr auto
+make_renderer(camera<Float> camera_arg, Batcher &&batcher_arg, Sensor &&sensor_arg, Lens &&lens_arg)
 requires sensor<detail_::component_type<Sensor>, Float> && lens<detail_::component_type<Lens>, Float>
 {
   using stored_batcher = detail_::stored_component<Batcher>;

@@ -14,6 +14,16 @@ namespace detail_
 
 template<typename VectorTo, typename Derived, typename Float, std::size_t N, typename F, std::size_t... Is>
 constexpr VectorTo
+transform_into_impl(vector_crtp<Derived, Float, N> const &v, F f, std::index_sequence<Is...> /*unused*/);
+
+
+template<typename VectorTo, typename VectorFrom, typename F, std::size_t... Is>
+constexpr VectorTo
+transform_impl(VectorFrom const &v, F f, std::index_sequence<Is...> /*unused*/);
+
+
+template<typename VectorTo, typename Derived, typename Float, std::size_t N, typename F, std::size_t... Is>
+constexpr VectorTo
 transform_into_impl(vector_crtp<Derived, Float, N> const &v, F f, std::index_sequence<Is...> /*unused*/)
 {
   return {f(v.template get<Is>())...};
@@ -28,6 +38,16 @@ transform_impl(VectorFrom const &v, F f, std::index_sequence<Is...> /*unused*/)
 }
 
 } // namespace detail_
+
+
+template<typename VectorTo, typename Derived, typename Float, std::size_t N, typename F>
+constexpr VectorTo
+transform_into(vector_crtp<Derived, Float, N> const &v, F &&f);
+
+
+template<typename Vector, typename F>
+constexpr Vector
+transform(Vector const &v, F &&f);
 
 
 template<typename VectorTo, typename Derived, typename Float, std::size_t N, typename F>

@@ -12,7 +12,13 @@ namespace htracer::benchmarks::cli_structure::detail
 template<typename Range, typename Projection = std::identity>
 [[nodiscard]]
 constexpr bool
-contains_duplicates(Range const &values, Projection projection = {})
+contains_duplicates(Range const &values, Projection projection = {});
+
+
+template<typename Range, typename Projection>
+[[nodiscard]]
+constexpr bool
+contains_duplicates(Range const &values, Projection projection)
 {
   auto sorted = values;
   std::ranges::sort(sorted, {}, projection);

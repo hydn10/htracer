@@ -35,10 +35,21 @@ using component_type = unwrap_reference_wrapper<std::decay_t<T>>::type;
 template<typename T>
 requires std::is_lvalue_reference_v<T&&>
 constexpr T&&
+component_ref(T&& component) noexcept;
+
+template<typename T>
+constexpr T &
+component_ref(std::reference_wrapper<T> const &component) noexcept;
+
+
+template<typename T>
+requires std::is_lvalue_reference_v<T&&>
+constexpr T&&
 component_ref(T&& component) noexcept
 {
   return std::forward<T>(component);
 }
+
 
 template<typename T>
 constexpr T &

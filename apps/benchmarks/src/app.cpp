@@ -5,7 +5,7 @@
 #include <htracer_benchmarks/cli.hpp>
 #include <htracer_benchmarks/cli/commands.hpp>
 #include <htracer_benchmarks/cli/render_configuration.hpp>
-#include <htracer_benchmarks/cli_structure/foundations/help_page.hpp>
+#include <htracer_benchmarks/cli_structure/help_page.hpp>
 #include <htracer_benchmarks/quick_suite.hpp>
 #include <htracer_benchmarks/render_benchmark.hpp>
 #include <htracer_benchmarks/render_mode.hpp>
@@ -66,7 +66,7 @@ handle(htracer::benchmarks::cli_structure::help_page const &command)
 
 
 void
-handle([[maybe_unused]] htracer::benchmarks::list_command const &command)
+handle([[maybe_unused]] htracer::benchmarks::cli::list_command const &command)
 {
   htracer::benchmarks::reporting::print_case_list(htracer::benchmarks::quick_suite_catalog::cases());
 }
@@ -75,7 +75,7 @@ handle([[maybe_unused]] htracer::benchmarks::list_command const &command)
 [[nodiscard]]
 htracer::benchmarks::benchmark_definition
 deterministic_definition(
-    htracer::benchmarks::deterministic_scene_spec scene, htracer::benchmarks::render_configuration const &options)
+    htracer::benchmarks::deterministic_scene_spec scene, htracer::benchmarks::cli::render_configuration const &options)
 {
   using namespace htracer::benchmarks;
   return benchmark_definition::deterministic(
@@ -88,7 +88,7 @@ htracer::benchmarks::benchmark_definition
 randomized_definition(
     htracer::benchmarks::scene_spec scene,
     htracer::benchmarks::randomized_render const &randomized,
-    htracer::benchmarks::render_configuration const &options)
+    htracer::benchmarks::cli::render_configuration const &options)
 {
   using namespace htracer::benchmarks;
   return benchmark_definition::randomized(
@@ -105,21 +105,21 @@ run_custom(htracer::benchmarks::benchmark_definition definition, std::optional<s
 
 
 void
-handle(htracer::benchmarks::quick_suite_command const &command)
+handle(htracer::benchmarks::cli::quick_suite_command const &command)
 {
   run_cases(htracer::benchmarks::quick_suite_catalog::cases(), command.output);
 }
 
 
 void
-handle(htracer::benchmarks::mixed_deterministic_command const &command)
+handle(htracer::benchmarks::cli::mixed_deterministic_command const &command)
 {
   run_custom(deterministic_definition(htracer::benchmarks::mixed_scene{}, command.render), command.render.output);
 }
 
 
 void
-handle(htracer::benchmarks::mixed_randomized_command const &command)
+handle(htracer::benchmarks::cli::mixed_randomized_command const &command)
 {
   run_custom(
       randomized_definition(htracer::benchmarks::mixed_scene{}, command.randomized, command.render),
@@ -128,21 +128,21 @@ handle(htracer::benchmarks::mixed_randomized_command const &command)
 
 
 void
-handle(htracer::benchmarks::traversal_deterministic_command const &command)
+handle(htracer::benchmarks::cli::traversal_deterministic_command const &command)
 {
   run_custom(deterministic_definition(command.traversal, command.render), command.render.output);
 }
 
 
 void
-handle(htracer::benchmarks::traversal_randomized_command const &command)
+handle(htracer::benchmarks::cli::traversal_randomized_command const &command)
 {
   run_custom(randomized_definition(command.traversal, command.randomized, command.render), command.render.output);
 }
 
 
 void
-handle(htracer::benchmarks::rng_probe_randomized_command const &command)
+handle(htracer::benchmarks::cli::rng_probe_randomized_command const &command)
 {
   run_custom(
       randomized_definition(htracer::benchmarks::rng_probe_scene{}, command.randomized, command.render),
